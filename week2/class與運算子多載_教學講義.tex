@@ -1,0 +1,312 @@
+% Compile in this directory with:
+% tectonic class與運算子多載_教學講義.tex
+\documentclass[12pt,a4paper]{article}
+\usepackage[a4paper,margin=24mm,headheight=15pt]{geometry}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage[hidelinks]{hyperref}
+
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Menlo}[Scale=0.85]
+\setCJKmainfont{Songti TC}
+\setCJKsansfont{Heiti TC}
+\setCJKmonofont{Heiti TC}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.25em}
+\linespread{1.12}
+\setcounter{tocdepth}{1}
+\renewcommand{\contentsname}{目錄}
+\definecolor{codegray}{gray}{0.45}
+\definecolor{rulegray}{gray}{0.78}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small 程式設計｜Week 2}
+\fancyhead[R]{\small C++ 類別與運算子多載}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\lstdefinestyle{cpp}{
+  language=C++,
+  basicstyle=\ttfamily\fontsize{10.2}{13.4}\selectfont,
+  keywordstyle=\bfseries,
+  commentstyle=\color{codegray},
+  showstringspaces=false,
+  keepspaces=true,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{rulegray},
+  framesep=5pt,
+  xleftmargin=0.35em,
+  xrightmargin=0.35em,
+  aboveskip=0.65em,
+  belowskip=0.55em
+}
+\lstset{style=cpp}
+
+\newcommand{\practice}[1]{%
+  \Needspace{3\baselineskip}%
+  \par\vspace{0.6em}\noindent\rule{\linewidth}{0.3pt}\par
+  \noindent\textbf{接下來可以練習第#1關}\par
+}
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries C++ 類別與運算子多載}\par\vspace{0.4em}
+  {\large Week 2 教學講義}\par\vspace{0.6em}
+  {\small 依課程第 11 章 Classes 與第 12 章 Operator Overloading 的主題安排；範例另行編寫。}
+\end{center}
+\vspace{0.5em}
+\tableofcontents
+\vspace{0.8em}
+
+本文把語法和短例子放在一起。每章最後的一句話對應同資料夾中〈學生練習〉的關卡。程式片段省略與該節無關的 \texttt{\#include} 和 \texttt{main()}；完整可編譯的示範程式另見 \texttt{01\_class\_demo.cpp}、\texttt{02\_operator\_demo.cpp}。
+
+\section{類別、存取權限與建構子}
+
+C++ 的 \texttt{class} 可以把資料與操作資料的函式放在同一個型別中。以下的帳戶把餘額設為 \texttt{private}，因此類別外不能直接寫 \texttt{account.balance = -10}。類別外只能使用 \texttt{public} 中宣告的功能。
+
+\begin{lstlisting}
+class BankAccount {
+private:
+    int balance;
+public:
+    BankAccount() : balance(0) {}
+    bool deposit(int amount);
+    int getBalance() const { return balance; }
+};
+\end{lstlisting}
+
+\texttt{BankAccount()} 是建構子：建立物件時自動執行。它與類別同名，沒有回傳型別；\texttt{: balance(0)} 把新帳戶的餘額初始化為 0。類別定義末尾的分號不能省略。
+
+\texttt{deposit} 在類別內宣告，也可在類別外定義。名稱前的 \texttt{BankAccount::} 表示它是 \texttt{BankAccount} 的成員函式。
+
+\begin{lstlisting}
+bool BankAccount::deposit(int amount) {
+    if (amount <= 0) return false;
+    balance += amount;
+    return true;
+}
+\end{lstlisting}
+
+例如新建帳戶後呼叫 \texttt{deposit(50)}，輸入的 50 是正數，因此餘額從 0 變成 50，函式回傳 \texttt{true}。接著呼叫 \texttt{deposit(-3)} 會回傳 \texttt{false}，餘額仍是 50。\texttt{getBalance()} 讓外面讀取結果，卻不開放直接改寫私有欄位。
+
+\begin{lstlisting}
+BankAccount account;
+cout << account.deposit(50) << ' ' << account.getBalance();
+// 1 50
+\end{lstlisting}
+
+\texttt{struct} 和 \texttt{class} 都能有資料與成員函式。未標明存取權限時，\texttt{struct} 的成員預設為 \texttt{public}，\texttt{class} 的成員預設為 \texttt{private}。
+
+\practice{1}
+
+\section{成員函式與 const}
+
+成員函式操作的是呼叫它的物件。若函式會改變物件，就不能讓 \texttt{const} 物件呼叫；若函式只讀資料，在參數列表後加上 \texttt{const}。
+
+\begin{lstlisting}
+class Counter {
+    int count;
+public:
+    Counter(int start) : count(start) {}
+    void add(int amount) { count += amount; }
+    int value() const { return count; }
+};
+\end{lstlisting}
+
+\texttt{add} 的輸入是要增加的數量，執行後 \texttt{count} 會改變。\texttt{value} 只回傳目前數值，所以宣告為 \texttt{const} 成員函式。
+
+\Needspace{8\baselineskip}
+\begin{lstlisting}
+Counter a(5);
+a.add(2);               // a 的值變成 7
+const Counter fixed(5);
+cout << fixed.value();   // 印出 5
+// fixed.add(2);         // 錯誤：不能修改 const 物件
+\end{lstlisting}
+
+把物件傳給只讀函式時，常用 \texttt{const 型別\&} 作參數。\texttt{\&} 讓函式使用呼叫端原本的物件，不另複製一份；\texttt{const} 保證這個參數不能被函式修改。
+
+\begin{lstlisting}
+void show(const Counter& counter) {
+    cout << counter.value();
+}
+\end{lstlisting}
+
+\texttt{show} 是類別外的一般函式，不屬於 \texttt{Counter}。它的 \texttt{const} 只修飾參數 \texttt{counter}，表示不能透過這個參數修改傳入的物件；一般函式不能在參數列表後加 \texttt{const}。
+
+對照類別內的 \texttt{int value() const}：\texttt{value} 是成員函式，最後的 \texttt{const} 表示它不能修改呼叫它的物件。因此 \texttt{show} 可以用唯讀的 \texttt{counter} 呼叫 \texttt{counter.value()}。後面的比較與加法運算子也會用到這兩種 \texttt{const} 寫法。
+
+\practice{2}
+
+\section{比較運算子：== 與 !=}
+
+\emph{operator overloading}（運算子多載）讓自訂型別指定既有運算子的行為。當 \texttt{operator==} 是成員函式時，\texttt{a == b} 可視為呼叫 \texttt{a.operator==(b)}：\texttt{a} 是左邊物件，\texttt{b} 是右邊參數。
+
+\begin{lstlisting}
+class Box {
+    int value;
+public:
+    Box(int initial) : value(initial) {}
+    bool operator==(const Box& other) const {
+        return value == other.value;
+    }
+};
+\end{lstlisting}
+
+輸入兩個 \texttt{Box} 時，函式比較它們的 \texttt{value}，輸出 \texttt{bool}。參數上的 \texttt{const} 保護右邊物件；函式最後的 \texttt{const} 保護左邊物件。若 \texttt{a} 與 \texttt{b} 的值都是 5，\texttt{a == b} 為真；若其中一個是 8，結果為假。
+
+\texttt{!=} 可以重用 \texttt{==} 的結果，不必把比較條件再寫一次。
+
+\Needspace{6\baselineskip}
+\begin{lstlisting}
+bool operator!=(const Box& other) const {
+    return !(*this == other);
+}
+\end{lstlisting}
+
+這裡的 \texttt{this} 是指向左邊物件的指標；\texttt{*this} 取得左邊物件本身。\texttt{!} 把 \texttt{==} 的真與假反過來。此函式也應放在 \texttt{Box} 的 \texttt{public} 區域。
+
+\practice{3}
+
+\section{複合指定運算子：+=}
+
+\texttt{a += b} 應修改左邊的 \texttt{a}，右邊的 \texttt{b} 保持不變。以下 \texttt{Counter} 例子把右邊的數值加到左邊。
+
+\begin{lstlisting}
+Counter& operator+=(const Counter& other) {
+    count += other.count;
+    return *this;
+}
+\end{lstlisting}
+
+\texttt{other} 用 \texttt{const Counter\&} 傳入，因此不需複製，也不能在函式內修改右邊。\texttt{count += other.count} 改變左邊物件的欄位。
+
+回傳型別是 \texttt{Counter\&}：\texttt{return *this;} 回傳左邊原本的物件，而不是新建物件。這讓 \texttt{(a += b) += c} 可以在第一次加完後，繼續修改同一個 \texttt{a}。
+
+\begin{lstlisting}
+Counter a(2), b(3), c(4);
+(a += b) += c;
+cout << a.value();  // 9
+cout << b.value();  // 3
+\end{lstlisting}
+
+若執行 \texttt{a += a}，左邊與右邊其實是同一個物件；此例會讓 \texttt{a} 的值加倍。寫自訂 \texttt{+=} 時也要測這種情況。
+
+\practice{4}
+
+\section{加法運算子：+}
+
+\texttt{a + b} 應產生一個新結果，並保留 \texttt{a}、\texttt{b} 的原值。與會修改左邊的 \texttt{+=} 相比，\texttt{+} 的回傳型別應是新物件的\emph{值}。
+
+\Needspace{8\baselineskip}
+\begin{lstlisting}
+Counter operator+(const Counter& other) const {
+    Counter result(*this);
+    result += other;
+    return result;
+}
+\end{lstlisting}
+
+\texttt{result(*this)} 先複製左邊物件到新的 \texttt{result}；\texttt{result += other} 只改這份新物件；最後把它的值回傳。因為左邊與右邊都沒有被修改，這個方法可宣告為 \texttt{const}。
+
+\begin{lstlisting}
+Counter a(2), b(3);
+Counter c = a + b;
+cout << c.value();  // 5
+cout << a.value();  // 2
+\end{lstlisting}
+
+不能回傳 \texttt{Counter\&} 指向 \texttt{result}：\texttt{result} 是函式內的區域物件，函式結束後便不存在。\texttt{return result;} 回傳的是它的值，因此呼叫端仍可使用新結果。
+
+\practice{5}
+
+\section{索引運算子：[]}
+
+\texttt{operator[]} 讓物件可以用 \texttt{v[index]} 存取內部資料。若想同時支援讀取和指定，必須區分「回傳值」與「回傳參考」。
+
+\begin{lstlisting}
+int x = 2;
+int copy = x;
+copy = 9;       // x 仍是 2
+int& alias = x;
+alias = 9;      // x 變成 9
+\end{lstlisting}
+
+\texttt{copy} 是另一個整數；\texttt{alias} 是原本 \texttt{x} 的參考。若 \texttt{v[0]} 需要出現在指定運算的左邊，例如 \texttt{v[0] = 9}，它就必須回傳可修改欄位的參考。
+
+\begin{lstlisting}
+int  operator[](int index) const; // const 物件：讀取值
+int& operator[](int index);       // 一般物件：讀取或改寫
+\end{lstlisting}
+
+這兩個宣告可同時放在類別的 \texttt{public} 區域。一般物件會使用非 \texttt{const} 版本；\texttt{const} 物件只能使用最後有 \texttt{const} 的版本。
+
+以下示範一個有兩個整數欄位的類別中，可修改版本的核心寫法。合法索引只有 0 與 1；其他索引必須明確處理，不能直接讀取無效位置。
+
+\Needspace{8\baselineskip}
+\begin{lstlisting}
+int& operator[](int index) {
+    if (index == 0) return first;
+    if (index == 1) return second;
+    std::exit(1);
+}
+\end{lstlisting}
+
+\texttt{std::exit(1)} 需要 \texttt{\#include <cstdlib>}；它會以非零狀態結束程式。\texttt{const} 版本也要檢查索引，但回傳整數值，而非可改寫的參考。
+
+\practice{6}
+
+\clearpage
+\section{成員與類別外的運算子}
+
+成員運算子由左邊的物件呼叫。因此 \texttt{box + 3} 可寫成 \texttt{Box} 的成員函式；\texttt{3 + box} 的左邊是 \texttt{int}，不能呼叫 \texttt{Box} 的成員函式。
+
+先定義 \texttt{Box} 加整數的意思是「內部數值增加該整數，產生新的 Box」。在第 3 節的 \texttt{Box} 類別中新增以下方法：
+
+\begin{lstlisting}
+Box operator+(int amount) const {
+    return Box(value + amount);
+}
+\end{lstlisting}
+
+要支援反過來的順序，可在類別外寫一個有兩個參數的運算子。它呼叫上面的公開版本，不需直接碰 \texttt{Box} 的私有欄位。
+
+\begin{lstlisting}
+Box operator+(int amount, const Box& box) {
+    return box + amount;
+}
+\end{lstlisting}
+
+\begin{lstlisting}
+Box box(5);
+Box a = box + 3;  // 值為 8
+Box b = 3 + box;  // 值也為 8
+\end{lstlisting}
+
+本章用到的運算子可按是否改變左邊物件來區分：
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+運算 & 左邊物件會改變嗎？ & 典型回傳型別 \\
+\midrule
+\texttt{a == b} & 不會 & \texttt{bool} \\
+\texttt{a += b} & 會 & \texttt{T\&} \\
+\texttt{a + b} & 不會 & \texttt{T} \\
+\texttt{v[index] = n} & 會 & \texttt{int\&} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\practice{7}
+\end{document}

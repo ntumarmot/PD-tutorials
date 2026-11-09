@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>程式設計期中考題目講解｜115-1</title>
+<style>
+:root{--paper:#F4F6F7;--ink:#13202C;--ink2:#3F4D5A;--rule:#CBD3D9;--blue:#0066B3;--green:#007A52;--orange:#E8820C;--neutral:#7A8996;--signal:#FFC72C;--alert:#C8102E;--code:#0F1B26;--sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--mono:"SFMono-Regular","JetBrains Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0B141C}body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}button{font-family:inherit}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;background:var(--paper);transform-origin:0 0}
+.slide{position:absolute;inset:0;display:none;width:1920px;height:1080px;padding:84px 120px 140px;overflow:hidden;background:var(--paper);font-size:36px;line-height:1.55}.slide.active{display:block;animation:fade .18s ease-out}.slide.cover.active{display:flex;flex-direction:column;justify-content:center}.slide.divider.active{display:flex;align-items:center;gap:116px}@keyframes fade{from{opacity:0}to{opacity:1}}.content{transform-origin:0 0}
+h1,h2,h3,p{margin-top:0}.h1{margin-bottom:30px;font-size:68px;line-height:1.2;letter-spacing:-.02em}.h1.sm{font-size:56px}.lead{max-width:1580px;margin-bottom:30px;color:var(--ink2);font-size:42px;line-height:1.55}.big{margin:0;max-width:1600px;font-size:100px;font-weight:900;line-height:1.12;letter-spacing:-.025em}.course{margin:0;font-size:44px;font-weight:750}.meta{margin-top:14px;color:var(--ink2);font-size:31px}.hint{position:absolute;top:84px;right:120px;color:var(--ink2);font-size:25px;line-height:1.7;text-align:right}.bar{display:flex;width:1000px;height:16px;margin:48px 0 42px;overflow:hidden;border-radius:8px}.bar i{flex:1}.small{font-size:29px;line-height:1.5}.dim{color:var(--ink2)}.mono{font-family:var(--mono)}code.i{padding:2px 9px;border-radius:6px;background:#E3E8EC;font-family:var(--mono);font-size:.85em}strong{font-weight:800}
+.row{display:flex;gap:58px;align-items:flex-start}.row>*{min-width:0}.grow{flex:1}.w38{width:38%}.w42{width:42%}.w45{width:45%}.w50{width:50%}.w55{width:55%}.w58{width:58%}.w62{width:62%}.cols{display:grid;gap:0}.cols.c2{grid-template-columns:repeat(2,1fr)}.cols.c3{grid-template-columns:repeat(3,1fr)}.cols>div{padding:2px 48px;border-left:3px solid var(--rule)}.cols>div:first-child{padding-left:0;border-left:0}.cols h3{margin-bottom:12px;font-size:48px;line-height:1.25}.cols p{margin-bottom:0;color:var(--ink2);font-size:35px;line-height:1.52}
+.note{padding:20px 34px;border-left:10px solid var(--signal);border-radius:0 12px 12px 0;background:rgba(255,199,44,.18);font-size:36px;line-height:1.5}.note.good{border-left-color:var(--green);background:rgba(0,122,82,.09)}.note.bad{border-left-color:var(--alert);background:rgba(200,16,46,.08)}.note.info{border-left-color:var(--blue);background:rgba(0,102,179,.08)}.note+.note{margin-top:20px}
+.ann{margin:0;padding:0;list-style:none}.ann li{display:flex;gap:22px;margin-bottom:24px;font-size:37px;line-height:1.48}.ann .n{display:flex;flex:none;align-items:center;justify-content:center;width:52px;height:52px;margin-top:2px;border-radius:50%;background:var(--ink);color:#fff;font-size:29px;font-weight:800}.ann small{display:block;color:var(--ink2);font-size:29px;line-height:1.42}.plain{margin:0;padding-left:1.3em;font-size:38px;line-height:1.65}.plain li{margin-bottom:12px}
+.codebox{position:relative}.codebox>pre.code{padding-right:108px}pre.code{margin:0;padding:27px 34px;overflow:hidden;border-radius:16px;background:var(--code);color:#E6EDF3;font-family:var(--mono);font-size:28px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}pre.code.sm{font-size:24px;line-height:1.48}pre.code.xs{font-size:21px;line-height:1.42}.out{color:#8EE3B0}.com{color:#8B9BAB}.cmd{color:#7CC4FF}.arg{color:#FFD479}.danger{color:#FF8A8A}.kw{color:#FF9BD2}.type{color:#7CC4FF}.num{color:#FFD479}.copy{position:absolute;top:14px;right:14px;min-width:76px;height:42px;padding:0 10px;border:2px solid #728396;border-radius:10px;background:#172737;color:#F4F6F7;font-size:19px;font-weight:700;cursor:pointer}.copy:hover{border-color:var(--signal);color:var(--signal)}
+.route{position:relative;display:flex;margin-top:58px}.route:before{position:absolute;top:25px;right:0;left:0;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--blue) 0 20%,var(--green) 20% 40%,var(--orange) 40% 60%,var(--neutral) 60% 80%,var(--alert) 80%);content:""}.route .stop{position:relative;flex:1;padding-right:35px}.route .dot{position:relative;z-index:1;width:62px;height:62px;border:12px solid var(--c);border-radius:50%;background:var(--paper)}.route h3{margin:26px 0 4px;font-size:39px;line-height:1.2}.route p{color:var(--ink2);font-size:28px;line-height:1.48}
+.divider{background:var(--sec);color:var(--on)}.sec-blue{--sec:var(--blue);--on:#fff}.sec-green{--sec:var(--green);--on:#fff}.sec-orange{--sec:var(--orange);--on:var(--ink)}.sec-neutral{--sec:var(--neutral);--on:#fff}.sec-alert{--sec:var(--alert);--on:#fff}.plate{flex:none;width:900px;overflow:hidden;border-radius:24px;background:#fff;color:var(--ink)}.plate .top{padding:16px 48px;background:var(--ink);color:#fff;font-size:36px;font-weight:700}.plate .name{padding:34px 48px 2px;font-size:84px;font-weight:900;line-height:1.15}.plate .en{padding:0 48px 40px;color:var(--ink2);font-size:34px}.divider .qs h2{margin-bottom:18px;font-size:43px}.divider .qs ol{margin:0;padding-left:1.4em;font-size:39px;line-height:1.6}
+.steps{position:relative;display:flex;margin-top:42px}.steps:before{position:absolute;top:30px;right:30px;left:30px;height:10px;border-radius:5px;background:var(--c,var(--blue));opacity:.3;content:""}.steps .s{position:relative;flex:1;padding-right:34px}.steps .num{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:62px;height:62px;border-radius:50%;background:var(--c,var(--blue));color:#fff;font-size:31px;font-weight:800}.steps.orange .num{color:var(--ink)}.steps h3{margin:20px 0 5px;font-size:34px;line-height:1.3}.steps p{margin:0;color:var(--ink2);font-size:28px;line-height:1.45}
+.score{display:grid;grid-template-columns:repeat(5,1fr);margin-top:44px;border-top:5px solid var(--ink)}.score>div{min-height:310px;padding:28px 30px;border-left:3px solid var(--rule)}.score>div:first-child{border-left:0}.score b{display:block;font-size:68px;line-height:1.1}.score h3{margin:18px 0 8px;font-size:38px}.score p{color:var(--ink2);font-size:28px;line-height:1.45}
+.qa{margin-bottom:22px;padding:19px 30px;border-top:5px solid var(--ink);background:#fff}.qa .q{font-size:34px;font-weight:750;line-height:1.42}.qa .ans{margin-top:12px;padding-left:24px;border-left:9px solid var(--signal);color:var(--ink2);font-size:31px;line-height:1.45}.badge{display:inline-flex;align-items:center;justify-content:center;min-width:52px;height:52px;margin-right:14px;padding:0 12px;border-radius:10px;background:var(--ink);color:#fff;font-size:29px;font-weight:900}.badge.t{background:var(--green)}.badge.f{background:var(--alert)}
+.trace{width:100%;border-collapse:collapse;font-size:31px;line-height:1.4}.trace th{padding:11px 16px;border-bottom:4px solid var(--ink);text-align:left}.trace td{padding:11px 16px;border-bottom:2px solid var(--rule);vertical-align:top}.trace td:first-child{font-family:var(--mono);font-weight:750}.trace .hit{background:rgba(255,199,44,.15)}
+.matrix{border-collapse:collapse;margin:0 auto;font-family:var(--mono);font-size:30px;text-align:center}.matrix th,.matrix td{width:68px;height:62px;border:2px solid var(--rule)}.matrix th{background:var(--ink);color:#fff;font-weight:800}.matrix td.focus{background:rgba(255,199,44,.24);font-weight:900}.matrix td.one{color:var(--blue);font-weight:900}
+table.t{width:100%;border-collapse:collapse;font-size:32px;line-height:1.42}table.t th{padding:13px 20px;border-bottom:4px solid var(--ink);text-align:left}table.t td{padding:14px 20px;border-bottom:2px solid var(--rule);vertical-align:top}table.t td:first-child{font-weight:700}.quiz{padding:22px 34px;border-top:5px solid var(--ink);background:#fff}.quiz .q{margin-bottom:12px;font-size:41px;font-weight:800;line-height:1.35}.quiz .ans{padding-left:26px;border-left:9px solid var(--signal);color:var(--ink2);font-size:34px;line-height:1.48}.step{visibility:hidden;opacity:0;transition:opacity .2s}.step.on{visibility:visible;opacity:1}.formula{padding:24px 34px;border-radius:16px;background:#fff;font-family:var(--mono);font-size:36px;line-height:1.55}.formula strong{color:var(--blue)}
+#rail{position:absolute;right:0;bottom:0;left:0;z-index:10;height:104px;border-top:2px solid var(--rule);background:var(--paper)}#track{position:absolute;top:35px;left:120px;width:1415px;height:10px;border-radius:5px;background:var(--rule)}.seg{position:absolute;top:0;height:10px;background:var(--c);opacity:.42}.tick{position:absolute;top:-2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--c)}.tick.current{top:-12px;width:36px;height:36px;margin-left:-18px;border:6px solid var(--ink);background:var(--signal)}.seglabel{position:absolute;top:28px;width:220px;margin-left:-110px;color:var(--ink2);font-size:20px;font-weight:700;text-align:center}#count{position:absolute;top:25px;left:1560px;color:var(--ink2);font-size:27px;font-weight:750;font-variant-numeric:tabular-nums}#nav{position:absolute;right:112px;bottom:25px;z-index:20;display:flex;gap:12px}#nav button{width:54px;height:54px;padding:0;border:3px solid var(--ink);border-radius:50%;background:var(--paper);color:var(--ink);font-size:27px;font-weight:800;cursor:pointer}#nav button:hover{background:var(--signal)}#notes{position:absolute;right:0;bottom:104px;left:0;z-index:15;display:none;max-height:440px;padding:28px 120px 34px;overflow:auto;background:rgba(15,27,38,.97);color:#fff;font-size:30px;line-height:1.55}#notes.on{display:block}#notes .nt{margin-bottom:5px;color:var(--signal);font-size:24px;font-weight:800}#live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}:focus-visible{outline:5px solid var(--blue);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.slide.active{animation:none}.step{transition:none}}
+@media print{@page{size:13.333in 7.5in;margin:0}html,body{height:auto;overflow:visible;background:#fff}#stage{position:static;width:1920px;height:auto;transform:none!important}.slide,.slide.cover,.slide.divider{position:relative;display:block!important;width:1920px;height:1080px;break-after:page;animation:none}.slide.cover,.slide.divider{display:flex!important}.step{visibility:visible!important;opacity:1!important}.codebox>pre.code{padding-right:34px}#rail,#nav,#notes,#live,.copy{display:none!important}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="程式設計期中考題目講解簡報">
+
+<section class="slide cover" data-title="標題" data-group="start"><div class="content">
+<div class="hint">方向鍵／空白鍵：下一步<br>F：全螢幕　N：講者提示</div>
+<h1 class="big">程式設計期中考<br>題目講解</h1>
+<div class="bar" aria-hidden="true"><i style="background:var(--blue)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i><i style="background:var(--neutral)"></i><i style="background:var(--alert)"></i></div>
+<p class="course">程式設計小老師｜115-1</p>
+<p class="meta">從判斷題、程式追蹤，到複雜度與 struct 設計</p>
+</div><aside class="notes" hidden>這份簡報依照題目與參考解答整理。先讓同學說出判斷依據，再揭露答案。參考解答是一種可接受寫法，不代表只有一種正解。</aside></section>
+
+<section class="slide" data-title="今天的路線" data-group="start"><div class="content">
+<h1 class="h1">今天的路線</h1><p class="lead">每題都用同一個順序：先讀輸入與規則，再找關鍵，最後檢查答案。</p>
+<div class="route">
+<div class="stop" style="--c:var(--blue)"><div class="dot"></div><h3>第一題</h3><p>觀念判斷<br>10 題</p></div>
+<div class="stop" style="--c:var(--green)"><div class="dot"></div><h3>第二題</h3><p>程式追蹤<br>10 個輸出</p></div>
+<div class="stop" style="--c:var(--orange)"><div class="dot"></div><h3>第三題</h3><p>簡答<br>7 題</p></div>
+<div class="stop" style="--c:var(--neutral)"><div class="dot"></div><h3>第四題</h3><p>虛擬碼與<br>Big-O</p></div>
+<div class="stop" style="--c:var(--alert)"><div class="dot"></div><h3>第五題</h3><p>Fraction<br>資料型態</p></div>
+</div></div><aside class="notes" hidden>提醒同學：程式追蹤題不要在腦中跳步；演算法題要同時交代正確性與時間複雜度。</aside></section>
+
+<section class="slide" data-title="配分與作答策略" data-group="start"><div class="content">
+<h1 class="h1 sm">配分與作答策略</h1>
+<div class="score">
+<div><b style="color:var(--blue)">20</b><h3>判斷題</h3><p>先找絕對字眼與反例。</p></div>
+<div><b style="color:var(--green)">20</b><h3>輸出題</h3><p>逐行更新變數，不靠直覺。</p></div>
+<div><b style="color:#A44C00">35</b><h3>簡答題</h3><p>直接回答原因與結果。</p></div>
+<div><b style="color:var(--neutral)">20</b><h3>演算法</h3><p>虛擬碼與 Big-O 都要寫。</p></div>
+<div><b style="color:var(--alert)">10</b><h3>struct</h3><p>介面、修改行為與 const。</p></div>
+</div>
+<div class="note step" data-step="1" style="margin-top:42px"><strong>總分 105，考試 180 分鐘。</strong>先拿能確定的分數，再回來處理需要長時間推導的題目。</div>
+</div></section>
+
+<section class="slide divider sec-blue" data-title="第一題：觀念判斷" data-group="q1">
+<div class="plate"><div class="top">QUESTION 1｜20 POINTS</div><div class="name">觀念判斷</div><div class="en">True or false</div></div>
+<div class="qs"><h2>判斷時要問</h2><ol><li>運算順序是什麼？</li><li>資料是否已初始化？</li><li>敘述有沒有漏掉前提？</li></ol></div>
+</section>
+
+<section class="slide" data-title="第一題 a 到 e" data-group="q1"><div class="content">
+<h1 class="h1 sm">第一題（a）到（e）</h1>
+<div class="qa"><div class="q">(a) <code class="i">char</code> 通常占 1 byte。</div><div class="ans step" data-step="1"><span class="badge t">T</span>C++ 以 <code class="i">sizeof(char) == 1</code> 定義一個 byte。byte 不一定固定為 8 bits，但 char 一定占 1 byte。</div></div>
+<div class="qa step" data-step="2"><div class="q">(b) <code class="i">7 / 2 * 2.0</code> 的結果為 7.0。</div><div class="ans step" data-step="3"><span class="badge f">F</span><code class="i">7 / 2</code> 先做整數除法得到 3，再算 <code class="i">3 * 2.0</code>，結果是 6.0。</div></div>
+<div class="qa step" data-step="4"><div class="q">(c) <code class="i">b != 0 &amp;&amp; a / b &gt; 1</code> 在 <code class="i">b = 0</code> 時不會除以零。</div><div class="ans step" data-step="5"><span class="badge t">T</span><code class="i">&amp;&amp;</code> 會短路求值。左邊為 false 後，右邊不執行。</div></div>
+<div class="qa step" data-step="6"><div class="q">(d) 任何 <code class="i">for</code> 都能改寫成效果相同的 <code class="i">while</code>。</div><div class="ans step" data-step="7"><span class="badge t">T</span>初始化放在迴圈前，條件留在 while，更新放在每輪末端。若有 continue，也要讓更新步驟照原本時機執行。</div></div>
+<div class="qa step" data-step="8"><div class="q">(e) 區域變數與全域變數同名時，該 scope 內直接使用名稱會存取區域變數。</div><div class="ans step" data-step="9"><span class="badge t">T</span>區域變數會遮蔽同名的全域變數。</div></div>
+</div></section>
+
+<section class="slide" data-title="第一題 f 到 j" data-group="q1"><div class="content">
+<h1 class="h1 sm">第一題（f）到（j）</h1>
+<div class="qa"><div class="q">(f) binary search 可以用在未排序的一維陣列。</div><div class="ans step" data-step="1"><span class="badge f">F</span>每次排除一半的前提是資料已有順序。未排序時無法判斷目標在哪一半。</div></div>
+<div class="qa step" data-step="2"><div class="q">(g) call by value 的參數在函數內被修改，不影響呼叫端原變數。</div><div class="ans step" data-step="3"><span class="badge t">T</span>函數收到的是一份複本，改的是複本。</div></div>
+<div class="qa step" data-step="4"><div class="q">(h) 函數可有多個 return，但一次呼叫最多執行一個。</div><div class="ans step" data-step="5"><span class="badge t">T</span>執行 return 後，該次函數呼叫立刻結束。</div></div>
+<div class="qa step" data-step="6"><div class="q">(i) <code class="i">char str[5] = "hello";</code> 沒有出錯的機會。</div><div class="ans step" data-step="7"><span class="badge f">F</span><code class="i">"hello"</code> 還需要結尾的 <code class="i">'\0'</code>，共 6 格；陣列只有 5 格。</div></div>
+<div class="qa step" data-step="8"><div class="q">(j) 每次以同一 seed 呼叫一次 srand，後續 rand 數列相同。</div><div class="ans step" data-step="9"><span class="badge t">T</span>偽隨機數產生器從相同起點開始，會走出相同序列。</div></div>
+</div></section>
+
+<section class="slide" data-title="第一題答案總表" data-group="q1"><div class="content">
+<h1 class="h1">第一題答案總表</h1>
+<table class="t"><thead><tr><th>題號</th><th>答案</th><th>判斷關鍵</th><th>常見誤區</th></tr></thead><tbody>
+<tr><td>(a)–(b)</td><td><strong>T、F</strong></td><td>char 的 byte 定義；整數除法先發生</td><td>看到 2.0 就以為整串都是浮點運算</td></tr>
+<tr class="step" data-step="1"><td>(c)–(e)</td><td><strong>T、T、T</strong></td><td>短路求值；迴圈等價改寫；scope</td><td>只背語法，沒有追執行順序</td></tr>
+<tr class="step" data-step="2"><td>(f)–(h)</td><td><strong>F、T、T</strong></td><td>binary search 前提；value copy；return</td><td>把「可以編譯」誤當成「演算法正確」</td></tr>
+<tr class="step" data-step="3"><td>(i)–(j)</td><td><strong>F、T</strong></td><td>字串結尾字元；相同 seed</td><td>忘記 <code class="i">'\0'</code> 也占一格</td></tr>
+</tbody></table>
+<div class="note good step" data-step="4" style="margin-top:38px"><strong>檢查方法：</strong>只要能找到一個合法反例，「任何」「一定」「沒有出錯的機會」這類敘述就可能是錯的。</div>
+</div></section>
+
+<section class="slide divider sec-green" data-title="第二題：程式追蹤" data-group="q2">
+<div class="plate"><div class="top">QUESTION 2｜20 POINTS</div><div class="name">程式追蹤</div><div class="en">Trace every output</div></div>
+<div class="qs"><h2>追蹤時要做</h2><ol><li>每行寫下目前值。</li><li>確認型別轉換。</li><li>先看大括號範圍。</li></ol></div>
+</section>
+
+<section class="slide" data-title="第二題程式切塊" data-group="q2"><div class="content">
+<h1 class="h1 sm">先把程式切成四段</h1>
+<div class="steps" style="--c:var(--green)">
+<div class="s"><div class="num">1</div><h3>字元與陣列</h3><p>(a) 到 (e)<br>型別、初始化、指標位移</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>for 迴圈</h3><p>(f)<br>列出 i 的每個值</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>while 與 if</h3><p>(g)、(h)<br>大括號決定 steps 在哪裡</p></div>
+<div class="s step" data-step="3"><div class="num">4</div><h3>參考與傳值</h3><p>(i)、(j)<br>x 改原值，y 只改複本</p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:50px"><strong>原則：</strong>一次只追一段，上一段結束後再把需要保留的變數帶到下一段。</div>
+</div></section>
+
+<section class="slide" data-title="第二題 a 到 e" data-group="q2"><div class="content">
+<h1 class="h1 sm">第二題（a）到（e）：型別與記憶體</h1>
+<div class="row"><div class="w50 codebox"><pre class="code sm"><span class="type">char</span> c = <span class="arg">'A'</span>;
+cout &lt;&lt; c + <span class="num">2</span>;                    <span class="com">// (a)</span>
+cout &lt;&lt; <span class="kw">static_cast</span>&lt;<span class="type">char</span>&gt;(c + <span class="num">2</span>); <span class="com">// (b)</span>
+
+<span class="type">int</span> a[<span class="num">5</span>] = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}, b[<span class="num">5</span>];
+cout &lt;&lt; a[<span class="num">3</span>] &lt;&lt; <span class="arg">" "</span> &lt;&lt; b[<span class="num">2</span>]; <span class="com">// (c)(d)</span>
+<span class="type">int</span>* p = a;
+cout &lt;&lt; *(p + <span class="num">2</span>);               <span class="com">// (e)</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><table class="trace"><thead><tr><th>題號</th><th>輸出</th><th>原因</th></tr></thead><tbody>
+<tr><td>(a)</td><td><strong>67</strong></td><td><code class="i">char</code> 參與加法時轉成 ASCII 整數值。</td></tr>
+<tr class="step" data-step="1"><td>(b)</td><td><strong>C</strong></td><td>67 再轉回 char。</td></tr>
+<tr class="step" data-step="2"><td>(c)</td><td><strong>0</strong></td><td>部分初始化的陣列，其餘元素補 0。</td></tr>
+<tr class="step" data-step="3"><td>(d)</td><td><strong>unpredictable</strong></td><td>區域陣列 b 沒有初始化。</td></tr>
+<tr class="step" data-step="4"><td>(e)</td><td><strong>3</strong></td><td><code class="i">p + 2</code> 指向 <code class="i">a[2]</code>。</td></tr>
+</tbody></table></div></div>
+</div></section>
+
+<section class="slide" data-title="第二題 f" data-group="q2"><div class="content">
+<h1 class="h1">第二題（f）：把每輪 i 寫出來</h1>
+<div class="row"><div class="w45 codebox"><pre class="code"><span class="type">int</span> total = <span class="num">0</span>;
+<span class="kw">for</span> (<span class="type">int</span> i = <span class="num">1</span>; i &lt;= <span class="num">10</span>; i += <span class="num">3</span>)
+    total += i;
+cout &lt;&lt; total; <span class="com">// (f)</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><table class="trace"><thead><tr><th>i</th><th>執行後 total</th></tr></thead><tbody>
+<tr><td>1</td><td>0 + 1 = 1</td></tr>
+<tr class="step" data-step="1"><td>4</td><td>1 + 4 = 5</td></tr>
+<tr class="step" data-step="2"><td>7</td><td>5 + 7 = 12</td></tr>
+<tr class="step" data-step="3"><td>10</td><td>12 + 10 = <strong>22</strong></td></tr>
+</tbody></table>
+<div class="note good step" data-step="4" style="margin-top:28px"><strong>(f) = 22。</strong>下一個 i 是 13，不符合 <code class="i">i &lt;= 10</code>，迴圈結束。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="第二題 g 與 h" data-group="q2"><div class="content">
+<h1 class="h1 sm">第二題（g）（h）：大括號比縮排更可靠</h1>
+<div class="row"><div class="w50"><pre class="code sm"><span class="type">int</span> n = <span class="num">41</span>;
+<span class="type">int</span> steps = <span class="num">0</span>;
+<span class="kw">while</span> (n &gt; <span class="num">0</span>)
+    <span class="kw">if</span> (n % <span class="num">3</span> == <span class="num">0</span>)
+        n /= <span class="num">3</span>;
+    <span class="kw">else</span>
+        n -= <span class="num">2</span>;
+steps++;
+cout &lt;&lt; steps; <span class="com">// (g)</span>
+cout &lt;&lt; n;     <span class="com">// (h)</span></pre></div>
+<div class="grow"><div class="formula"><strong>while 真正的 body</strong><br>只有整個 if / else 敘述<br><br><strong>n 的路徑</strong><br>41, 39, 13, 11, 9, 3, 1, -1</div>
+<div class="note step" data-step="1" style="margin-top:26px"><code class="i">steps++</code> 在 while 外面，所以迴圈完全結束後只執行一次。</div>
+<div class="note good step" data-step="2"><strong>(g) = 1，(h) = -1。</strong></div></div></div>
+</div><aside class="notes" hidden>先問同學：如果 steps++ 真在 while 裡，缺少大括號時應該縮排在哪裡？再強調編譯器看的是語法結構，不是畫面縮排。</aside></section>
+
+<section class="slide" data-title="第二題 i 與 j" data-group="q2"><div class="content">
+<h1 class="h1 sm">第二題（i）（j）：reference 與 value copy</h1>
+<div class="row"><div class="w50 codebox"><pre class="code sm"><span class="type">void</span> g(<span class="type">int</span>&amp; x, <span class="type">int</span> y) {
+    x += y;
+    y += x;
+}
+
+<span class="type">int</span> x = <span class="num">1</span>, y = <span class="num">2</span>;
+g(x, y);
+cout &lt;&lt; x; <span class="com">// (i)</span>
+cout &lt;&lt; y; <span class="com">// (j)</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div>呼叫時，參數 x 參考 main 的 x。<small>參數 y 則得到 main 的 y 的複本，初值為 2。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">x += y</code>：main 的 x 從 1 變 3。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><code class="i">y += x</code>：參數 y 的複本從 2 變 5。<small>函數結束後，這份複本消失。</small></div></li>
+</ul><div class="note good step" data-step="3"><strong>(i) = 3，(j) = 2。</strong></div></div></div>
+</div></section>
+
+<section class="slide" data-title="第二題答案總表" data-group="q2"><div class="content">
+<h1 class="h1">第二題答案總表</h1>
+<div class="formula" style="font-size:48px;line-height:1.8"><strong>(a)</strong> 67　 <strong>(b)</strong> C　 <strong>(c)</strong> 0　 <strong>(d)</strong> unpredictable　 <strong>(e)</strong> 3<br><strong>(f)</strong> 22　 <strong>(g)</strong> 1　 <strong>(h)</strong> -1　 <strong>(i)</strong> 3　 <strong>(j)</strong> 2</div>
+<div class="cols c3" style="margin-top:52px">
+<div class="step" data-step="1"><h3>型別</h3><p>char 加法先轉為整數；cast 後才以字元顯示。</p></div>
+<div class="step" data-step="2"><h3>控制流程</h3><p>大括號決定迴圈包含哪些敘述。</p></div>
+<div class="step" data-step="3"><h3>參數</h3><p>reference 改原變數；call by value 改複本。</p></div>
+</div></div></section>
+
+<section class="slide divider sec-orange" data-title="第三題：簡答" data-group="q3">
+<div class="plate"><div class="top">QUESTION 3｜35 POINTS</div><div class="name">簡答</div><div class="en">Explain the cause precisely</div></div>
+<div class="qs"><h2>完整答案要有</h2><ol><li>直接回答題目。</li><li>說清楚因果關係。</li><li>必要時給小例子。</li></ol></div>
+</section>
+
+<section class="slide" data-title="第三題 a" data-group="q3"><div class="content">
+<h1 class="h1 sm">第三題（a）：陣列傳入函數後只剩位址資訊</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="type">void</span> f(<span class="type">int</span> a[]) {
+    cout &lt;&lt; <span class="kw">sizeof</span>(a);
+}
+
+<span class="type">int</span> data[<span class="num">10</span>];
+f(data);</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>輸入：</strong>呼叫端有一個 10 格的 int 陣列。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>傳入時：</strong><code class="i">int a[]</code> 在函數參數中視為 <code class="i">int* a</code>。<small>函數收到第一個元素的位址，沒有收到「10 格」這項資訊。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>結果：</strong><code class="i">sizeof(a)</code> 得到指標本身的大小，不是原陣列大小。</div></li>
+</ul></div></div>
+<div class="note good step" data-step="3" style="margin-top:34px"><strong>作答：</strong>因此通常要另外傳入陣列長度，例如 <code class="i">f(data, 10)</code>。</div>
+</div></section>
+
+<section class="slide" data-title="第三題 b" data-group="q3"><div class="content">
+<h1 class="h1 sm">第三題（b）：遞迴的代價與適用場景</h1>
+<div class="cols c2">
+<div><h3 style="color:var(--alert)">一個壞處</h3><p>每次呼叫都要保留當次函數的區域資料與返回位置。呼叫太深會占用大量 call stack，甚至發生 stack overflow。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">一個適合場景</h3><p>資料本身具有遞迴結構，例如樹；或問題能自然拆成同型態的更小問題，例如河內塔。</p></div>
+</div>
+<div class="note step" data-step="2" style="margin-top:60px"><strong>本題只要求各寫一個。</strong>答案不必列滿所有缺點，也不必解釋演算法細節。</div>
+<div class="note info step" data-step="3"><strong>不要混淆：</strong>「程式碼比較短」不代表一定比較快；遞迴若重複計算，同一個子問題可能被算很多次。</div>
+</div></section>
+
+<section class="slide" data-title="第三題 c 與 d" data-group="q3"><div class="content">
+<h1 class="h1 sm">第三題（c）（d）：先列遞迴數列，再改成迴圈</h1>
+<div class="row"><div class="w45"><pre class="code sm"><span class="type">int</span> weird(<span class="type">int</span> n) {
+    <span class="kw">if</span> (n == <span class="num">0</span>) <span class="kw">return</span> <span class="num">2</span>;
+    <span class="kw">if</span> (n == <span class="num">1</span>) <span class="kw">return</span> <span class="num">1</span>;
+    <span class="kw">return</span> <span class="num">3</span> * weird(n - <span class="num">1</span>)
+             - weird(n - <span class="num">2</span>);
+}</pre>
+<div class="formula step" data-step="1" style="margin-top:24px;font-size:31px">w₀=2, w₁=1, w₂=1, w₃=2, w₄=5, <strong>w₅=13</strong></div></div>
+<div class="grow codebox step" data-step="2"><pre class="code sm"><span class="type">int</span> weirdRep(<span class="type">int</span> n) {
+    <span class="kw">if</span> (n == <span class="num">0</span>) <span class="kw">return</span> <span class="num">2</span>;
+    <span class="kw">if</span> (n == <span class="num">1</span>) <span class="kw">return</span> <span class="num">1</span>;
+    <span class="type">int</span> prev2 = <span class="num">2</span>, prev1 = <span class="num">1</span>;
+    <span class="type">int</span> current;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">2</span>; i &lt;= n; i++) {
+        current = <span class="num">3</span> * prev1 - prev2;
+        prev2 = prev1;
+        prev1 = current;
+    }
+    <span class="kw">return</span> current;
+}</pre><button class="copy" type="button">複製</button></div></div>
+<div class="note good step" data-step="3" style="margin-top:28px"><strong>三個變數的角色：</strong><code class="i">prev2</code> 存 wᵢ₋₂，<code class="i">prev1</code> 存 wᵢ₋₁，<code class="i">current</code> 算新的 wᵢ。</div>
+</div></section>
+
+<section class="slide" data-title="第三題 e" data-group="q3"><div class="content">
+<h1 class="h1 sm">第三題（e）：排序一次，查詢 k 次</h1>
+<div class="formula"><strong>方法一</strong>：k 次 linear search = O(kn)<br><strong>方法二</strong>：排序 O(n log n) + k 次 binary search O(k log n)<br><strong>總計</strong>：O(n log n + k log n)</div>
+<div class="steps" style="--c:var(--orange);margin-top:48px">
+<div class="s"><div class="num">1</div><h3>比較兩者</h3><p>n log n + k log n &lt; kn</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>整理</h3><p>n log n &lt; k(n − log n)</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>n 夠大時</h3><p>n − log n 約等於 n</p></div>
+<div class="s step" data-step="3"><div class="num">4</div><h3>粗略門檻</h3><p><strong>k &gt; log n</strong></p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:34px"><strong>小例子：</strong>若 n = 1024，log₂n = 10。查詢數遠多於約 10 次時，先排序通常開始有優勢。實際時間仍會受常數與實作影響。</div>
+</div></section>
+
+<section class="slide" data-title="第三題 f" data-group="q3"><div class="content">
+<h1 class="h1 sm">第三題（f）：ptr2 仍指向已釋放的記憶體</h1>
+<div class="row"><div class="w45 codebox"><pre class="code"><span class="type">int</span>* ptr = <span class="kw">new</span> <span class="type">int</span>[<span class="num">10</span>];
+<span class="type">int</span>* ptr2 = ptr;
+<span class="kw">delete</span>[] ptr;
+ptr2[<span class="num">3</span>] = <span class="num">7</span>;</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><code class="i">ptr</code> 與 <code class="i">ptr2</code> 一開始保存同一塊記憶體的位址。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">delete[] ptr</code> 釋放那塊記憶體。<small>它不會自動把 ptr2 改成 nullptr。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><code class="i">ptr2[3] = 7</code> 使用 dangling pointer。<small>這是 undefined behavior，可能當場崩潰，也可能暫時看似正常。</small></div></li>
+</ul></div></div>
+<div class="note bad step" data-step="3" style="margin-top:30px"><strong>難以除錯的原因：</strong>錯誤可能在稍後才出現，並可能破壞別的資料；同一支程式每次表現也可能不同。</div>
+</div></section>
+
+<section class="slide" data-title="第三題 g" data-group="q3"><div class="content">
+<h1 class="h1 sm">第三題（g）：用 INT_MAX 表達「int 的最大值」</h1>
+<div class="cols c3">
+<div><h3>可攜性</h3><p>不同平台的 int 範圍可能不同。INT_MAX 由目前環境提供正確值。</p></div>
+<div class="step" data-step="1"><h3>可讀性</h3><p><code class="i">INT_MAX</code> 直接說明用途；<code class="i">2147483647</code> 只是一串數字。</p></div>
+<div class="step" data-step="2"><h3>維護性</h3><p>程式不需要把某一種平台的數值寫死在原始碼裡。</p></div>
+</div>
+<div class="note good step" data-step="3" style="margin-top:58px"><strong>本題至少答出一個合理原因即可。</strong>最直接的答案是跨平台正確性與可攜性。</div>
+</div></section>
+
+<section class="slide divider sec-neutral" data-title="第四題：虛擬碼與複雜度" data-group="q4">
+<div class="plate"><div class="top">QUESTION 4｜20 POINTS</div><div class="name">虛擬碼與 Big-O</div><div class="en">Correct first, then efficient</div></div>
+<div class="qs"><h2>答案要同時包含</h2><ol><li>可執行的明確步驟。</li><li>避免重複計數。</li><li>時間複雜度推導。</li></ol></div>
+</section>
+
+<section class="slide" data-title="第四題 a 思路" data-group="q4"><div class="content">
+<h1 class="h1 sm">第四題（a）：答案由最缺的字母決定</h1>
+<p class="lead">s = <span class="mono">aabbcca</span>，t = <span class="mono">abc</span></p>
+<table class="t"><thead><tr><th>字母</th><th>s 有幾個</th><th>一份 t 需要幾個</th><th>能支援幾份</th></tr></thead><tbody>
+<tr><td>a</td><td>3</td><td>1</td><td>3 ÷ 1 = 3</td></tr>
+<tr class="step" data-step="1"><td>b</td><td>2</td><td>1</td><td>2 ÷ 1 = 2</td></tr>
+<tr class="step" data-step="2"><td>c</td><td>2</td><td>1</td><td>2 ÷ 1 = 2</td></tr>
+</tbody></table>
+<div class="note good step" data-step="3" style="margin-top:36px"><strong>取最小值 2。</strong>因為 b 與 c 各只能供應兩份；多出的 a 無法補成第三份 abc。</div>
+<div class="note step" data-step="4"><strong>t 有重複字元時也適用：</strong>s = abc、t = aab。a 的供應量是 1 ÷ 2 = 0，所以答案為 0。</div>
+</div></section>
+
+<section class="slide" data-title="第四題 a 虛擬碼" data-group="q4"><div class="content">
+<h1 class="h1 sm">第四題（a）：頻率陣列解法</h1>
+<div class="row"><div class="w62"><pre class="code xs">Function CountCopies(s, t):
+    freqS[0..25] = {0}
+    freqT[0..25] = {0}
+
+    for each ch in s:
+        freqS[ch - 'a'] += 1
+
+    for each ch in t:
+        freqT[ch - 'a'] += 1
+
+    answer = infinity
+    for i from 0 to 25:
+        if freqT[i] &gt; 0:
+            answer = min(answer,
+                         floor(freqS[i] / freqT[i]))
+
+    return answer</pre></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div>掃過 s：O(n)。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div>掃過 t：O(m)。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div>檢查 26 個字母：O(26)。</div></li>
+</ul><div class="note good step" data-step="3"><strong>總時間：</strong>O(n + m + 26) = <strong>O(n + m)</strong>。</div><div class="note step" data-step="4"><strong>額外空間：</strong>兩個固定 26 格陣列，所以是 O(1)。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="第四題 b 白話定義" data-group="q4"><div class="content">
+<h1 class="h1 sm">第四題（b）：距離恰好為二是什麼</h1>
+<p class="lead">把節點想成同學，把一條邊想成「兩人直接認識」。</p>
+<div class="steps" style="--c:var(--neutral)">
+<div class="s"><div class="num">v</div><h3>從指定節點出發</h3><p>題目要找與 v 距離恰好為二的節點。</p></div>
+<div class="s step" data-step="1"><div class="num">i</div><h3>走第一步</h3><p>先走到 v 直接相鄰的節點 i。</p></div>
+<div class="s step" data-step="2"><div class="num">j</div><h3>再走第二步</h3><p>從 i 再走一條邊，到候選節點 j。</p></div>
+</div>
+<div class="note good step" data-step="3" style="margin-top:52px"><strong>最重要的一句話：</strong>j 必須「走兩步可以到」，而且「走一步到不了」。</div>
+<div class="note step" data-step="4"><strong>所以還要排除兩種情況：</strong>j 是 v 本身；或 j 原本就和 v 直接相鄰。</div>
+</div><aside class="notes" hidden>先不要講矩陣。請同學口頭說明「朋友的朋友，但不是自己，也不是已經直接認識的人」。確認概念後再進入下一頁。</aside></section>
+
+<section class="slide" data-title="第四題 b 矩陣例子" data-group="q4"><div class="content">
+<h1 class="h1 sm">小例子：從節點 1 出發</h1>
+<div class="row"><div class="w45">
+<table class="matrix" aria-label="五個節點的相鄰矩陣"><thead><tr><th>A</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead><tbody>
+<tr><th>1</th><td class="focus">0</td><td class="focus one">1</td><td class="focus one">1</td><td class="focus">0</td><td class="focus one">1</td></tr>
+<tr><th>2</th><td class="one">1</td><td>0</td><td>0</td><td class="one">1</td><td>0</td></tr>
+<tr><th>3</th><td class="one">1</td><td>0</td><td>0</td><td class="one">1</td><td class="one">1</td></tr>
+<tr><th>4</th><td>0</td><td class="one">1</td><td class="one">1</td><td>0</td><td>0</td></tr>
+<tr><th>5</th><td class="one">1</td><td>0</td><td class="one">1</td><td>0</td><td>0</td></tr>
+</tbody></table>
+<p class="small dim" style="margin:20px 0 0;text-align:center">A[x][y] = 1 表示 x 與 y 直接相連。</p>
+</div><div class="grow"><ul class="ann">
+<li><span class="n">1</span><div>先看第 1 列：值為 1 的位置是 2、3、5。<small>所以節點 1 的直接鄰居是 2、3、5；它們的距離是 1，不是答案。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div>以 2、3、5 當中繼點，再各走一步。<small>經過 2 可到 1、4；經過 3 可到 1、4、5；經過 5 可到 1、3。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div>排除自己與直接鄰居。<small>1 是自己；2、3、5 是直接鄰居；只剩節點 4。</small></div></li>
+</ul><div class="note good step" data-step="3"><strong>答案是 1 個：</strong>只有節點 4 與節點 1 的距離恰好為二。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="第四題 b 逐步追蹤" data-group="q4"><div class="content">
+<h1 class="h1 sm">逐個檢查：為什麼最後只算節點 4</h1>
+<table class="t"><thead><tr><th>第一步到 i</th><th>第二步到 j</th><th>決定</th><th>原因</th></tr></thead><tbody>
+<tr><td>i = 2</td><td>j = 1</td><td>不算</td><td>回到 v 本身</td></tr>
+<tr class="step" data-step="1"><td>i = 2</td><td>j = 4</td><td><strong>標記 4</strong></td><td>4 不是自己，也沒有和 1 直接相連</td></tr>
+<tr class="step" data-step="2"><td>i = 3</td><td>j = 1</td><td>不算</td><td>回到 v 本身</td></tr>
+<tr class="step" data-step="3"><td>i = 3</td><td>j = 4</td><td>不重複加</td><td><code class="i">found[4]</code> 已經是 true</td></tr>
+<tr class="step" data-step="4"><td>i = 3</td><td>j = 5</td><td>不算</td><td>1 與 5 直接相連，距離是 1</td></tr>
+<tr class="step" data-step="5"><td>i = 5</td><td>j = 1、3</td><td>不算</td><td>1 是自己；3 是直接鄰居</td></tr>
+</tbody></table>
+<div class="note good step" data-step="6" style="margin-top:30px"><strong><code class="i">found</code> 的用途：</strong>節點 4 可以經過 2 或 3 抵達，但答案只能算 1 次，所以只記錄「是否找到」，最後再統計 true 的數量。</div>
+</div></section>
+
+<section class="slide" data-title="第四題 b 虛擬碼" data-group="q4"><div class="content">
+<h1 class="h1 sm">虛擬碼：把「走兩步」寫成兩層迴圈</h1>
+<div class="row"><div class="w58"><pre class="code xs">Function CountDistanceTwo(A, v, n):
+    // target 代表 v 的索引，因為 C++ 的索引從 0 開始，所以要減一
+    target = v - 1
+    found[0..n-1] = {false}
+
+    for middle from 0 to n-1:
+        if A[target][middle] == 1:
+            for candidate from 0 to n-1:
+                if A[middle][candidate] == 1
+                   and candidate != target
+                   and A[target][candidate] == 0:
+                    found[candidate] = true
+
+    count = 0
+    for candidate from 0 to n-1:
+        if found[candidate]: count += 1
+    return count</pre></div>
+<div class="grow"><ul class="ann" style="font-size:32px">
+<li><span class="n">1</span><div><code class="i">middle</code> 是第一步到達的中繼節點。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">candidate</code> 是第二步到達的候選節點。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><code class="i">candidate != target</code> 排除走回自己。</div></li>
+<li class="step" data-step="3"><span class="n">4</span><div><code class="i">A[target][candidate] == 0</code> 排除直接鄰居。</div></li>
+</ul></div></div>
+<div class="note good step" data-step="4" style="margin-top:25px"><strong>時間複雜度：</strong>最壞情況檢查 n 個 middle，每個再檢查 n 個 candidate，所以是 O(n²)。最後統計 O(n)，不改變總結果。</div>
+</div></section>
+
+<section class="slide divider sec-alert" data-title="第五題：Fraction struct" data-group="q5">
+<div class="plate"><div class="top">QUESTION 5｜10 POINTS</div><div class="name">Fraction struct</div><div class="en">Data and operations</div></div>
+<div class="qs"><h2>設計時要確認</h2><ol><li>資料放在哪裡？</li><li>哪個函數會修改物件？</li><li>哪個函數保證不修改？</li></ol></div>
+</section>
+
+<section class="slide" data-title="第五題 a 需求" data-group="q5"><div class="content">
+<h1 class="h1 sm">第五題（a）：先把文字需求翻成介面</h1>
+<table class="t"><thead><tr><th>需求</th><th>設計</th><th>原因</th></tr></thead><tbody>
+<tr><td>保存分子與分母</td><td><code class="i">int num, den;</code></td><td>題目保證值在 int 範圍，分母為正。</td></tr>
+<tr class="step" data-step="1"><td>約分後物件本身改變</td><td><code class="i">void simplify()</code></td><td>直接更新 num、den，不需要回傳值。</td></tr>
+<tr class="step" data-step="2"><td>回傳整數商，不改分數</td><td><code class="i">int quotient() const</code></td><td><code class="i">const</code> 表示這個成員函數不修改物件。</td></tr>
+<tr class="step" data-step="3"><td>約分需要最大公因數</td><td><code class="i">gcd(a, b)</code></td><td>num 與 den 同除 gcd。</td></tr>
+</tbody></table>
+<div class="note step" data-step="4" style="margin-top:34px"><strong>題目保證：</strong>分子非負、分母為正、運算不溢位。因此答案可專注在資料結構與函數行為。</div>
+</div></section>
+
+<section class="slide" data-title="第五題 a 實作" data-group="q5"><div class="content">
+<h1 class="h1 sm">第五題（a）：完整 struct 實作</h1>
+<div class="row"><div class="w58 codebox"><pre class="code sm"><span class="type">int</span> gcd(<span class="type">int</span> a, <span class="type">int</span> b) {
+    <span class="kw">if</span> (a % b == <span class="num">0</span>) <span class="kw">return</span> b;
+    <span class="kw">return</span> gcd(b, a % b);
+}
+
+<span class="kw">struct</span> Fraction {
+    <span class="type">int</span> num;
+    <span class="type">int</span> den;
+
+    <span class="type">void</span> simplify() {
+        <span class="type">int</span> divisor = gcd(num, den);
+        num /= divisor;
+        den /= divisor;
+    }
+
+    <span class="type">int</span> quotient() <span class="kw">const</span> {
+        <span class="kw">return</span> num / den;
+    }
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="formula"><strong>例：6/8</strong><br>gcd(6,8) = 2<br>simplify 後：3/4<br>quotient 回傳：0</div>
+<div class="note step" data-step="1" style="margin-top:28px"><strong>num = 0 也可處理：</strong>gcd(0, den) 會得到 den，約分後成為 0/1。</div>
+<div class="note info step" data-step="2"><strong>這是參考解答版本。</strong>也可以用迴圈寫 gcd；只要行為符合題目即可。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="第五題 b" data-group="q5"><div class="content">
+<h1 class="h1 sm">第五題（b）：先相加，再約分，再回傳分子</h1>
+<div class="row"><div class="w58 codebox"><pre class="code sm"><span class="type">int</span> numeratorOfSum(<span class="kw">const</span> Fraction&amp; a,
+                   <span class="kw">const</span> Fraction&amp; b) {
+    Fraction sum;
+    sum.num = a.num * b.den
+            + b.num * a.den;
+    sum.den = a.den * b.den;
+    sum.simplify();
+    <span class="kw">return</span> sum.num;
+}</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>輸入：</strong>兩個 Fraction，以 const reference 傳入。<small>避免複製，也保證函數不改 a、b。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>計算：</strong>分子為 ad + bc，分母為 bd。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>輸出：</strong>先 simplify，再回傳約分後的 sum.num。</div></li>
+</ul></div></div>
+<div class="note good step" data-step="3" style="margin-top:26px"><strong>這裡選全域函數：</strong>運算地位對稱，同時使用兩個 Fraction，不特別屬於其中一個物件。寫成成員函數也可，但要清楚說明設計理由。</div>
+</div></section>
+
+<section class="slide" data-title="全卷關鍵整理" data-group="finish"><div class="content">
+<h1 class="h1">全卷關鍵整理</h1>
+<table class="t"><thead><tr><th>題型</th><th>真正考的能力</th><th>最後檢查</th></tr></thead><tbody>
+<tr><td>判斷題</td><td>語言規則與成立前提</td><td>能否提出一個反例？</td></tr>
+<tr class="step" data-step="1"><td>輸出題</td><td>逐行執行、型別與 scope</td><td>大括號、初始化、reference</td></tr>
+<tr class="step" data-step="2"><td>簡答題</td><td>因果關係與精確表達</td><td>回答了「為什麼」嗎？</td></tr>
+<tr class="step" data-step="3"><td>演算法題</td><td>把條件變成可執行步驟</td><td>正確性、重複計數、Big-O</td></tr>
+<tr class="step" data-step="4"><td>struct 題</td><td>資料與操作的介面設計</td><td>誰會修改物件？誰不會？</td></tr>
+</tbody></table>
+</div></section>
+
+<section class="slide" data-title="結尾" data-group="finish"><div class="content">
+<h1 class="h1">遇到不確定的題目，先做可驗證的小步驟</h1>
+<div class="cols c3">
+<div><h3 style="color:var(--blue)">列值</h3><p>把每輪變數值寫下來，不在腦中一次跳到答案。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">列條件</h3><p>把題目中的每個限制逐一變成 if 條件。</p></div>
+<div class="step" data-step="2"><h3 style="color:#A44C00">列成本</h3><p>每個迴圈跑幾次，最後再合併成 Big-O。</p></div>
+</div>
+<div class="note good step" data-step="3" style="margin-top:62px"><strong>參考解答不是背誦材料。</strong>真正要練的是：看到新題目時，能從輸入、執行規則與輸出一步步推出答案。</div>
+</div><aside class="notes" hidden>最後可請同學挑一題，用自己的話重述「輸入、處理、輸出」，確認不是只記答案。</aside></section>
+
+<div id="rail" aria-hidden="true"><div id="track"></div><div id="count"></div></div>
+<nav id="nav" aria-label="投影片導覽"><button id="prev" type="button" aria-label="上一步">‹</button><button id="next" type="button" aria-label="下一步">›</button></nav>
+<aside id="notes" aria-live="polite"></aside><div id="live" aria-live="polite"></div>
+</main>
+<script>
+(function(){
+var stage=document.getElementById("stage"),slides=[].slice.call(document.querySelectorAll(".slide")),notes=document.getElementById("notes"),live=document.getElementById("live"),track=document.getElementById("track"),count=document.getElementById("count"),index=0,step=0;
+var groups=[{key:"start",label:"導讀",color:"#7A8996"},{key:"q1",label:"第一題",color:"#0066B3"},{key:"q2",label:"第二題",color:"#007A52"},{key:"q3",label:"第三題",color:"#E8820C"},{key:"q4",label:"第四題",color:"#7A8996"},{key:"q5",label:"第五題",color:"#C8102E"},{key:"finish",label:"收尾",color:"#3F4D5A"}];
+function maxStep(slide){var values=[0];slide.querySelectorAll(".step").forEach(function(el){values.push(Number(el.dataset.step||0))});return Math.max.apply(null,values)}
+function fitStage(){var scale=Math.min(innerWidth/1920,innerHeight/1080),x=(innerWidth-1920*scale)/2,y=(innerHeight-1080*scale)/2;stage.style.transform="translate("+(x/scale)+"px,"+(y/scale)+"px) scale("+scale+")"}
+function fitContent(slide){var c=slide.querySelector(".content");if(!c)return;c.style.transform="";var s=Math.min(1,(1080-84-140)/Math.max(1,c.scrollHeight),(1920-240)/Math.max(1,c.scrollWidth));if(s<.998)c.style.transform="scale("+s.toFixed(3)+")"}
+function rail(){track.innerHTML="";var total=slides.length,unit=100/Math.max(1,total-1);groups.forEach(function(g){var ids=[];slides.forEach(function(s,i){if(s.dataset.group===g.key)ids.push(i)});if(!ids.length)return;var first=ids[0],last=ids[ids.length-1],seg=document.createElement("i");seg.className="seg";seg.style.setProperty("--c",g.color);seg.style.left=(first*unit)+"%";seg.style.width=Math.max(unit,(last-first)*unit)+"%";track.appendChild(seg);var label=document.createElement("span");label.className="seglabel";label.style.left=(((first+last)/2)*unit)+"%";label.textContent=g.label;track.appendChild(label)});slides.forEach(function(s,i){var g=groups.find(function(x){return x.key===s.dataset.group})||groups[0],t=document.createElement("i");t.className="tick"+(i===index?" current":"");t.style.setProperty("--c",g.color);t.style.left=(i*unit)+"%";track.appendChild(t)});count.textContent=(index+1)+" / "+total}
+function fillNotes(){var n=slides[index].querySelector(".notes");notes.innerHTML='<div class="nt">講者提示</div>'+(n?n.innerHTML:"這一頁沒有額外提示。")}
+function render(){slides.forEach(function(s,i){var active=i===index;s.classList.toggle("active",active);s.setAttribute("aria-hidden",active?"false":"true");s.querySelectorAll(".step").forEach(function(el){el.classList.toggle("on",Number(el.dataset.step||0)<=step)})});rail();fillNotes();fitContent(slides[index]);live.textContent="第 "+(index+1)+" 頁，共 "+slides.length+" 頁："+slides[index].dataset.title;var h="#"+(index+1);if(location.hash!==h)history.replaceState(null,"",h)}
+function go(i,st){index=Math.max(0,Math.min(slides.length-1,i));step=Math.max(0,Math.min(maxStep(slides[index]),st||0));render()}
+function next(){var m=maxStep(slides[index]);if(step<m){step++;render()}else if(index<slides.length-1)go(index+1,0)}
+function prev(){if(step>0){step--;render()}else if(index>0)go(index-1,maxStep(slides[index-1]))}
+function copy(btn){var text=btn.parentElement.querySelector("pre").innerText;function done(){var old=btn.textContent;btn.textContent="已複製";setTimeout(function(){btn.textContent=old},1000)}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done()})}else{fallback(text);done()}}
+function fallback(text){var a=document.createElement("textarea");a.value=text;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}
+document.getElementById("prev").addEventListener("click",prev);document.getElementById("next").addEventListener("click",next);stage.addEventListener("click",function(e){var b=e.target.closest(".copy");if(b)copy(b)});
+document.addEventListener("keydown",function(e){if(e.metaKey||e.ctrlKey||e.altKey)return;if((e.key===" "||e.key==="Enter")&&e.target.closest("button,a"))return;if(["ArrowRight","PageDown"," ","Enter"].indexOf(e.key)>=0){e.preventDefault();next()}else if(["ArrowLeft","PageUp","Backspace"].indexOf(e.key)>=0){e.preventDefault();prev()}else if(e.key==="Home"){e.preventDefault();go(0,0)}else if(e.key==="End"){e.preventDefault();go(slides.length-1,0)}else if(e.key.toLowerCase()==="f"){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen()}else if(e.key.toLowerCase()==="n")notes.classList.toggle("on")});
+var tx=null;stage.addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});stage.addEventListener("touchend",function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>60)d<0?next():prev()},{passive:true});
+addEventListener("resize",fitStage);addEventListener("hashchange",function(){var n=Number(location.hash.slice(1));if(n>=1&&n<=slides.length&&n-1!==index)go(n-1,0)});var start=Number(location.hash.slice(1));if(start>=1&&start<=slides.length)index=start-1;fitStage();slides.forEach(function(s){s.style.display="block";s.style.visibility="hidden";fitContent(s);s.style.display="";s.style.visibility=""});render();
+})();
+</script>
+</body>
+</html>

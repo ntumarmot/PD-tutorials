@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>C++ Class：封裝、繼承與多型</title>
+<style>
+:root{--paper:#F4F6F7;--ink:#13202C;--ink2:#3F4D5A;--rule:#CBD3D9;--blue:#0066B3;--green:#007A52;--orange:#E8820C;--neutral:#7A8996;--signal:#FFC72C;--alert:#C8102E;--code:#0F1B26;--sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--mono:"SFMono-Regular","JetBrains Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0B141C}body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}button{font-family:inherit}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;background:var(--paper);transform-origin:0 0}
+.slide{position:absolute;inset:0;display:none;width:1920px;height:1080px;padding:84px 120px 140px;overflow:hidden;background:var(--paper);font-size:36px;line-height:1.55}
+.slide.active{display:block;animation:fade .18s ease-out}.slide.cover.active{display:flex;flex-direction:column;justify-content:center}.slide.divider.active{display:flex;align-items:center;gap:116px}@keyframes fade{from{opacity:0}to{opacity:1}}.content{transform-origin:0 0}
+h1,h2,h3,p{margin-top:0}.h1{margin-bottom:30px;font-size:68px;line-height:1.2;letter-spacing:-.02em}.h1.sm{font-size:56px}.lead{max-width:1540px;margin-bottom:30px;color:var(--ink2);font-size:42px;line-height:1.55}.big{margin:0;max-width:1600px;font-size:102px;font-weight:900;line-height:1.12;letter-spacing:-.025em}.course{margin:0;font-size:44px;font-weight:750}.meta{margin-top:14px;color:var(--ink2);font-size:31px}.hint{position:absolute;top:84px;right:120px;color:var(--ink2);font-size:25px;line-height:1.7;text-align:right}.bar{display:flex;width:1000px;height:16px;margin:48px 0 42px;overflow:hidden;border-radius:8px}.bar i{flex:1}.small{font-size:29px;line-height:1.5}.dim{color:var(--ink2)}.mono{font-family:var(--mono)}code.i{padding:2px 9px;border-radius:6px;background:#E3E8EC;font-family:var(--mono);font-size:.85em}strong{font-weight:800}
+.row{display:flex;gap:58px;align-items:flex-start}.row>*{min-width:0}.grow{flex:1}.w40{width:40%}.w45{width:45%}.w50{width:50%}.w55{width:55%}.w60{width:60%}.cols{display:grid;gap:0}.cols.c2{grid-template-columns:repeat(2,1fr)}.cols.c3{grid-template-columns:repeat(3,1fr)}.cols>div{padding:2px 48px;border-left:3px solid var(--rule)}.cols>div:first-child{padding-left:0;border-left:0}.cols h3{margin-bottom:12px;font-size:48px;line-height:1.25}.cols p{margin-bottom:0;color:var(--ink2);font-size:35px;line-height:1.52}
+.note{padding:20px 34px;border-left:10px solid var(--signal);border-radius:0 12px 12px 0;background:rgba(255,199,44,.18);font-size:36px;line-height:1.5}.note.good{border-left-color:var(--green);background:rgba(0,122,82,.09)}.note.bad{border-left-color:var(--alert);background:rgba(200,16,46,.08)}.note.info{border-left-color:var(--blue);background:rgba(0,102,179,.08)}.note+.note{margin-top:20px}.content>.row+.note{margin-top:30px}.content>.route+.note{margin-top:34px}
+.ann{margin:0;padding:0;list-style:none}.ann li{display:flex;gap:22px;margin-bottom:24px;font-size:37px;line-height:1.48}.ann .n{display:flex;flex:none;align-items:center;justify-content:center;width:52px;height:52px;margin-top:2px;border-radius:50%;background:var(--ink);color:#fff;font-size:29px;font-weight:800}.ann small{display:block;color:var(--ink2);font-size:29px;line-height:1.42}.plain{margin:0;padding-left:1.3em;font-size:38px;line-height:1.65}.plain li{margin-bottom:12px}
+.codebox{position:relative}.codebox>pre.code{padding-right:108px}pre.code{margin:0;padding:27px 34px;overflow:hidden;border-radius:16px;background:var(--code);color:#E6EDF3;font-family:var(--mono);font-size:28px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}pre.code.sm{font-size:24px;line-height:1.48}pre.code.xs{font-size:21px;line-height:1.42}.kw{color:#FF9DD1}.type{color:#7CC4FF}.fn{color:#FFD479}.out{color:#8EE3B0}.com{color:#8B9BAB}.cmd{color:#7CC4FF}.arg{color:#FFD479}.danger{color:#FF8A8A}.copy{position:absolute;top:14px;right:14px;min-width:76px;height:42px;padding:0 10px;border:2px solid #728396;border-radius:10px;background:#172737;color:#F4F6F7;font-size:19px;font-weight:700;cursor:pointer}.copy:hover{border-color:var(--signal);color:var(--signal)}
+.route{position:relative;display:flex;margin-top:58px}.route:before{position:absolute;top:25px;right:0;left:0;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--blue) 0 31%,var(--green) 31% 61%,var(--orange) 61% 90%,var(--neutral) 90%);content:""}.route .stop{position:relative;flex:1;padding-right:46px}.route .dot{position:relative;z-index:1;width:62px;height:62px;border:12px solid var(--c);border-radius:50%;background:var(--paper)}.route h3{margin:26px 0 4px;font-size:44px;line-height:1.2}.route p{color:var(--ink2);font-size:31px;line-height:1.48}
+.zones{display:grid;grid-template-columns:repeat(4,1fr);margin-top:34px;border-top:5px solid var(--ink)}.zone{min-height:330px;padding:26px 30px;border-left:3px solid var(--rule)}.zone:first-child{border-left:0}.zone h3{margin-bottom:10px;font-size:38px;line-height:1.25}.zone .where{color:var(--ink2);font-size:26px}.zone p{font-size:31px;line-height:1.48}.zone .verb{display:inline-block;margin-top:22px;padding:5px 15px;border-radius:8px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:26px}
+.divider{background:var(--sec);color:var(--on)}.sec-blue{--sec:var(--blue);--on:#fff}.sec-green{--sec:var(--green);--on:#fff}.sec-orange{--sec:var(--orange);--on:var(--ink)}.plate{flex:none;width:900px;overflow:hidden;border-radius:24px;background:#fff;color:var(--ink)}.plate .top{padding:16px 48px;background:var(--ink);color:#fff;font-size:36px;font-weight:700}.plate .name{padding:34px 48px 2px;font-size:84px;font-weight:900;line-height:1.15}.plate .en{padding:0 48px 40px;color:var(--ink2);font-size:34px}.divider .qs h2{margin-bottom:18px;font-size:43px}.divider .qs ol{margin:0;padding-left:1.4em;font-size:39px;line-height:1.6}
+.steps{position:relative;display:flex;margin-top:42px}.steps:before{position:absolute;top:30px;right:30px;left:30px;height:10px;border-radius:5px;background:var(--c,var(--blue));opacity:.3;content:""}.steps .s{position:relative;flex:1;padding-right:34px}.steps .num{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:62px;height:62px;border-radius:50%;background:var(--c,var(--blue));color:#fff;font-size:31px;font-weight:800}.steps.orange .num{color:var(--ink)}.steps h3{margin:20px 0 5px;font-size:34px;line-height:1.3}.steps p{margin:0;color:var(--ink2);font-size:28px;line-height:1.45}
+.flow{display:flex;align-items:stretch;gap:22px;margin-top:34px}.flow .box{flex:1;padding:24px 28px;border-top:6px solid var(--c,var(--blue));background:#fff}.flow .box h3{margin-bottom:8px;font-size:36px}.flow .box p{margin:0;color:var(--ink2);font-size:30px;line-height:1.45}.flow .arrow{display:flex;align-items:center;color:var(--ink2);font-size:54px;font-weight:800}
+table.t{width:100%;border-collapse:collapse;font-size:34px;line-height:1.42}table.t th{padding:13px 20px;border-bottom:4px solid var(--ink);text-align:left}table.t td{padding:16px 20px;border-bottom:2px solid var(--rule);vertical-align:top}table.t td:first-child{font-weight:700}.quiz{padding:22px 34px;border-top:5px solid var(--ink);background:#fff}.quiz .q{margin-bottom:12px;font-size:41px;font-weight:800;line-height:1.35}.quiz .ans{padding-left:26px;border-left:9px solid var(--signal);color:var(--ink2);font-size:34px;line-height:1.48}.step{visibility:hidden;opacity:0;transition:opacity .2s}.step.on{visibility:visible;opacity:1}.sources{margin:0;padding:0;list-style:none}.sources li{margin-bottom:22px;font-size:32px;line-height:1.45}.sources a{color:var(--blue);text-decoration-thickness:2px;text-underline-offset:5px}
+#rail{position:absolute;right:0;bottom:0;left:0;z-index:10;height:104px;border-top:2px solid var(--rule);background:var(--paper)}#track{position:absolute;top:35px;left:120px;width:1415px;height:10px;border-radius:5px;background:var(--rule)}.seg{position:absolute;top:0;height:10px;background:var(--c);opacity:.42}.tick{position:absolute;top:-2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--c)}.tick.current{top:-12px;width:36px;height:36px;margin-left:-18px;border:6px solid var(--ink);background:var(--signal)}.seglabel{position:absolute;top:28px;width:250px;margin-left:-125px;color:var(--ink2);font-size:22px;font-weight:700;text-align:center}#count{position:absolute;top:25px;left:1560px;color:var(--ink2);font-size:27px;font-weight:750;font-variant-numeric:tabular-nums}#nav{position:absolute;right:112px;bottom:25px;z-index:20;display:flex;gap:12px}#nav button{width:54px;height:54px;padding:0;border:3px solid var(--ink);border-radius:50%;background:var(--paper);color:var(--ink);font-size:27px;font-weight:800;cursor:pointer}#nav button:hover{background:var(--signal)}#notes{position:absolute;right:0;bottom:104px;left:0;z-index:15;display:none;max-height:440px;padding:28px 120px 34px;overflow:auto;background:rgba(15,27,38,.97);color:#fff;font-size:30px;line-height:1.55}#notes.on{display:block}#notes .nt{margin-bottom:5px;color:var(--signal);font-size:24px;font-weight:800}#live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}:focus-visible{outline:5px solid var(--blue);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.slide.active{animation:none}.step{transition:none}}
+@media print{@page{size:13.333in 7.5in;margin:0}html,body{height:auto;overflow:visible;background:#fff}#stage{position:static;width:1920px;height:auto;transform:none!important}.slide,.slide.cover,.slide.divider{position:relative;display:block!important;width:1920px;height:1080px;break-after:page;animation:none}.slide.cover,.slide.divider{display:flex!important}.step{visibility:visible!important;opacity:1!important}.codebox>pre.code{padding-right:34px}#rail,#nav,#notes,#live,.copy{display:none!important}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="C++ Class 封裝、繼承與多型教學簡報">
+
+<section class="slide cover" data-title="標題" data-group="start"><div class="content">
+<div class="hint">方向鍵／空白鍵：下一步<br>F：全螢幕　N：講者提示</div>
+<h1 class="big">C++ Class 三大功能<br>封裝、繼承與多型</h1>
+<div class="bar" aria-hidden="true"><i style="background:var(--blue)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+<p class="course">程式設計小老師｜Week 4</p>
+<p class="meta">從「保護物件狀態」，到「用共同介面操作不同物件」</p>
+</div><aside class="notes" hidden>先提醒學生：這堂課假設已經看過 class、建構子與 private/public。今天重點是三個設計能力如何解決真實問題。</aside></section>
+
+<section class="slide" data-title="今天的路線" data-group="start"><div class="content">
+<h1 class="h1">今天的路線</h1><p class="lead">每一站都從問題開始，再看語法、執行流程與練習。</p>
+<div class="route">
+<div class="stop" style="--c:var(--blue)"><div class="dot"></div><h3>封裝</h3><p>把規則守在 class 裡，避免物件進入不合法狀態</p></div>
+<div class="stop" style="--c:var(--green)"><div class="dot"></div><h3>繼承</h3><p>表達 is-a 關係，沿用基底類別提供的介面</p></div>
+<div class="stop" style="--c:var(--orange)"><div class="dot"></div><h3>多型</h3><p>用同一個呼叫方式，執行不同實際型別的行為</p></div>
+<div class="stop" style="--c:var(--neutral)"><div class="dot"></div><h3>整合挑戰</h3><p>獨立設計可擴充的角色系統</p></div>
+</div>
+<div class="note step" data-step="1"><strong>閱讀順序：</strong>輸入是什麼 → 這段程式做什麼 → 為什麼需要 → 輸出與下一步。</div>
+</div></section>
+
+<section class="slide" data-title="三種問題" data-group="start"><div class="content">
+<h1 class="h1">三種常見問題，對應三個能力</h1>
+<div class="cols c3">
+<div><h3 style="color:var(--blue)">狀態被改壞</h3><p>外部直接把餘額設成負數。封裝把修改集中到會檢查規則的方法。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">共同資料重複</h3><p>每種員工都重寫姓名與編號。繼承讓衍生類別沿用基底部分。</p></div>
+<div class="step" data-step="2"><h3 style="color:#A44C00">型別越多，判斷越長</h3><p>每新增一種付款方式，就多一段 if。多型把差異交回各類別。</p></div>
+</div>
+<div class="note step" data-step="3" style="margin-top:54px"><strong>先做設計判斷，再選語法。</strong>不是看到 class 就一定要同時使用繼承與多型。</div>
+</div></section>
+
+<section class="slide" data-title="基本名詞" data-group="start"><div class="content">
+<h1 class="h1">先對齊四個基本名詞</h1>
+<div class="row"><div class="w45 codebox"><pre class="code"><span class="kw">class</span> <span class="type">Student</span> {
+    <span class="type">int</span> score_;
+<span class="kw">public</span>:
+    <span class="type">int</span> <span class="fn">score</span>() <span class="kw">const</span>;
+};
+
+<span class="type">Student</span> alice;</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>class</strong><small><code class="i">Student</code> 是型別的設計圖。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>object</strong><small><code class="i">alice</code> 是依照設計圖建立的物件。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>member</strong><small><code class="i">score_</code> 與 <code class="i">score()</code> 都屬於 Student。</small></div></li>
+<li class="step" data-step="3"><span class="n">4</span><div><strong>public interface</strong><small>類別外被允許呼叫的公開功能。</small></div></li>
+</ul></div></div>
+</div></section>
+
+<section class="slide divider sec-blue" data-title="封裝" data-group="encap">
+<div class="plate"><div class="top">FIRST PART</div><div class="name">封裝</div><div class="en">Encapsulation</div></div>
+<div class="qs"><h2>這一站要回答</h2><ol><li>為什麼欄位不能全部 public？</li><li>公開方法如何保護規則？</li><li>getter／setter 應該怎麼設計？</li></ol></div>
+</section>
+
+<section class="slide" data-title="失控的公開欄位" data-group="encap"><div class="content">
+<h1 class="h1 sm">公開欄位讓每一段外部程式都能繞過規則</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="kw">class</span> <span class="type">BankAccount</span> {
+<span class="kw">public</span>:
+    <span class="type">int</span> balance = <span class="arg">0</span>;
+};
+
+<span class="type">BankAccount</span> a;
+a.balance = <span class="danger">-500</span>;</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>輸入：</strong>任何整數都能被指定給 balance。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>問題：</strong>沒有一個固定位置檢查「餘額不可為負」。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>結果：</strong>物件進入不合法狀態，後面的函式只能被迫補救。</div></li>
+</ul></div></div>
+<div class="note bad step" data-step="3"><strong>封裝不是加密。</strong>它是由編譯器限制哪些程式碼可以直接存取成員。</div>
+</div></section>
+
+<section class="slide" data-title="public 與 private" data-group="encap"><div class="content">
+<h1 class="h1 sm">private 保存狀態，public 提供受控操作</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="kw">class</span> <span class="type">BankAccount</span> {
+<span class="kw">private</span>:
+    <span class="type">int</span> balance_ = <span class="arg">0</span>;
+
+<span class="kw">public</span>:
+    <span class="type">bool</span> <span class="fn">deposit</span>(<span class="type">int</span> amount);
+    <span class="type">bool</span> <span class="fn">withdraw</span>(<span class="type">int</span> amount);
+    <span class="type">int</span> <span class="fn">balance</span>() <span class="kw">const</span>;
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow">
+<div class="note info"><strong>資料：</strong>類別外的一般程式碼無法直接修改 <code class="i">balance_</code>；修改集中在類別提供的方法。</div>
+<div class="note good step" data-step="1"><strong>介面：</strong>外部只能提出「存款」或「提款」要求。</div>
+<div class="note step" data-step="2"><strong>效果：</strong>金額檢查集中在兩個方法，不必散落在每個呼叫端。</div>
+</div></div>
+</div></section>
+
+<section class="slide" data-title="建構子守住初始狀態" data-group="encap"><div class="content">
+<h1 class="h1 sm">建構子守住物件的第一個狀態</h1>
+<div class="row"><div class="w55 codebox"><pre class="code"><span class="kw">class</span> <span class="type">BankAccount</span> {
+    <span class="type">std::string</span> owner_;
+    <span class="type">int</span> balance_;
+<span class="kw">public</span>:
+    <span class="fn">BankAccount</span>(<span class="type">std::string</span> owner)
+        : owner_(owner), balance_(<span class="arg">0</span>) {}
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>輸入：</strong>建立帳戶時傳入 owner。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>初始化列表：</strong>在進入建構子本體前，直接建立兩個成員。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>輸出：</strong>每個新帳戶都有擁有者，且餘額從 0 開始。</div></li>
+</ul></div></div>
+<div class="note step" data-step="3"><strong>為什麼需要：</strong>若物件一建立就可能不合法，後面的 public 方法再安全也救不了初始狀態。</div>
+</div></section>
+
+<section class="slide" data-title="存款方法" data-group="encap"><div class="content">
+<h1 class="h1 sm"><code class="i">deposit</code> 先檢查，再改變狀態</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="type">bool</span> <span class="type">BankAccount</span>::<span class="fn">deposit</span>(<span class="type">int</span> amount) {
+    <span class="kw">if</span> (amount &lt;= <span class="arg">0</span>) {
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+    balance_ += amount;
+    <span class="kw">return</span> <span class="kw">true</span>;
+}</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="steps" style="--c:var(--blue);margin-top:0">
+<div class="s"><div class="num">1</div><h3>輸入</h3><p>呼叫端提出 amount。</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>檢查</h3><p>0 或負數直接失敗。</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>修改</h3><p>只有合法金額才增加餘額。</p></div>
+</div>
+<div class="note good step" data-step="3" style="margin-top:36px"><strong>回傳值：</strong><code class="i">true</code> 表示狀態真的有改變；<code class="i">false</code> 表示餘額保持原值。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="提款方法" data-group="encap"><div class="content">
+<h1 class="h1 sm"><code class="i">withdraw</code> 同時檢查金額與餘額</h1>
+<div class="row"><div class="w55 codebox"><pre class="code"><span class="type">bool</span> <span class="type">BankAccount</span>::<span class="fn">withdraw</span>(<span class="type">int</span> amount) {
+    <span class="kw">if</span> (amount &lt;= <span class="arg">0</span> || amount &gt; balance_) {
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+    balance_ -= amount;
+    <span class="kw">return</span> <span class="kw">true</span>;
+}</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><table class="t"><thead><tr><th>呼叫前</th><th>呼叫</th><th>結果</th></tr></thead><tbody>
+<tr><td>100</td><td><code class="i">withdraw(40)</code></td><td>true，餘額 60</td></tr>
+<tr class="step" data-step="1"><td>60</td><td><code class="i">withdraw(80)</code></td><td>false，仍為 60</td></tr>
+<tr class="step" data-step="2"><td>60</td><td><code class="i">withdraw(0)</code></td><td>false，仍為 60</td></tr>
+</tbody></table></div></div>
+<div class="note step" data-step="3"><strong>因果關係：</strong>失敗分支先 return，所以減法只可能在兩個條件都合法時執行。</div>
+</div></section>
+
+<section class="slide" data-title="getter 與 setter" data-group="encap"><div class="content">
+<h1 class="h1">getter 與 setter 不是越多越好</h1>
+<div class="cols c2">
+<div><h3 style="color:var(--alert)">無條件 setter</h3><pre class="code sm"><span class="type">void</span> <span class="fn">setBalance</span>(<span class="type">int</span> value) {
+    balance_ = value;
+}</pre><p style="margin-top:18px">外部仍能寫入 -500，private 只剩形式。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">符合需求的方法</h3><pre class="code sm"><span class="type">bool</span> <span class="fn">deposit</span>(<span class="type">int</span> amount);
+<span class="type">bool</span> <span class="fn">withdraw</span>(<span class="type">int</span> amount);
+<span class="type">int</span> <span class="fn">balance</span>() <span class="kw">const</span>;</pre><p style="margin-top:18px">方法名稱直接表達允許的操作與規則。</p></div>
+</div>
+<div class="note step" data-step="2" style="margin-top:48px"><strong>設計問題：</strong>外部真正需要做什麼？如果不需要任意設定餘額，就不應提供 <code class="i">setBalance</code>。</div>
+</div></section>
+
+<section class="slide" data-title="const 成員函式" data-group="encap"><div class="content">
+<h1 class="h1 sm">尾端 const 表示這個方法只讀取物件</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="type">int</span> <span class="type">BankAccount</span>::<span class="fn">balance</span>() <span class="kw">const</span> {
+    <span class="kw">return</span> balance_;
+}
+
+<span class="kw">const</span> <span class="type">BankAccount</span> savings(<span class="arg">"Amy"</span>);
+std::cout &lt;&lt; savings.balance();</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>作用對象：</strong>點號左邊的帳戶物件。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>承諾：</strong>這個方法不透過 <code class="i">this</code> 修改物件成員。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>結果：</strong>const 物件也能呼叫它；編譯器會阻止意外修改。</div></li>
+</ul></div></div>
+</div></section>
+
+<section class="slide" data-title="練習一：預測狀態" data-group="encap"><div class="content">
+<h1 class="h1">練習一：預測每次呼叫後的餘額</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="type">BankAccount</span> a(<span class="arg">"Ming"</span>);
+std::cout &lt;&lt; a.deposit(<span class="arg">100</span>) &lt;&lt; <span class="arg">' '</span>;
+std::cout &lt;&lt; a.withdraw(<span class="arg">30</span>) &lt;&lt; <span class="arg">' '</span>;
+std::cout &lt;&lt; a.withdraw(<span class="arg">90</span>) &lt;&lt; <span class="arg">' '</span>;
+std::cout &lt;&lt; a.balance();</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="quiz"><div class="q">請先寫下四個輸出，再說明第三次呼叫為什麼不改變餘額。</div>
+<div class="ans step" data-step="1"><strong>答案：</strong><span class="mono">1 1 0 70</span>。第三次要提領 90，但當時只有 70，所以方法回傳 false，並在減法前結束。</div></div></div></div>
+</div></section>
+
+<section class="slide" data-title="練習二：Temperature" data-group="encap"><div class="content">
+<h1 class="h1">練習二：Temperature 的合法範圍</h1>
+<p class="lead">攝氏溫度不能低於絕對零度 -273.15°C。完成建構子與兩個只讀方法。</p>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="kw">class</span> <span class="type">Temperature</span> {
+    <span class="type">double</span> celsius_;
+<span class="kw">public</span>:
+    <span class="kw">explicit</span> <span class="fn">Temperature</span>(<span class="type">double</span> celsius);
+    <span class="type">double</span> <span class="fn">celsius</span>() <span class="kw">const</span>;
+    <span class="type">double</span> <span class="fn">fahrenheit</span>() <span class="kw">const</span>;
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann"><li><span class="n">1</span><div>非法建構值改存 -273.15。</div></li><li><span class="n">2</span><div>華氏公式：攝氏 × 9 / 5 + 32。</div></li><li><span class="n">3</span><div>測試 -300、0、100。</div></li></ul></div></div>
+<div class="note good step" data-step="1"><strong>參考核心：</strong><code class="i">celsius_(celsius &lt; -273.15 ? -273.15 : celsius)</code>。兩個讀取方法尾端都要有 <code class="i">const</code>。</div>
+</div></section>
+
+<section class="slide" data-title="練習三：InventoryItem" data-group="encap"><div class="content">
+<h1 class="h1">練習三：自己設計公開介面</h1>
+<p class="lead">設計 InventoryItem。名稱、單價、庫存量都放在 private。</p>
+<div class="cols c3">
+<div><h3>補貨</h3><p>數量必須大於 0；成功才增加庫存，並回傳 true。</p></div>
+<div class="step" data-step="1"><h3>出售</h3><p>數量必須大於 0 且不可超過庫存；失敗時庫存不變。</p></div>
+<div class="step" data-step="2"><h3>讀取</h3><p>提供庫存量與總價。總價 = 單價 × 庫存量。</p></div>
+</div>
+<div class="quiz step" data-step="3" style="margin-top:42px"><div class="q">至少列出六個邊界測試</div><div class="ans step" data-step="4">補貨 0、補貨負數、補貨 1、出售 0、出售負數、出售等於庫存、出售超過庫存。每次都檢查回傳值與庫存是否正確。</div></div>
+</div></section>
+
+<section class="slide divider sec-green" data-title="繼承" data-group="inherit">
+<div class="plate"><div class="top">SECOND PART</div><div class="name">繼承</div><div class="en">Inheritance</div></div>
+<div class="qs"><h2>這一站要回答</h2><ol><li>什麼關係適合使用繼承？</li><li>衍生類別能沿用什麼？</li><li>建構順序與權限如何運作？</li></ol></div>
+</section>
+
+<section class="slide" data-title="重複的共同部分" data-group="inherit"><div class="content">
+<h1 class="h1 sm">不同類別可能重複同一組共同資料</h1>
+<div class="cols c2">
+<div><h3>Student</h3><pre class="code sm"><span class="type">std::string</span> name_;
+<span class="type">int</span> id_;
+<span class="type">int</span> credits_;</pre><p style="margin-top:18px">學生另外需要學分。</p></div>
+<div class="step" data-step="1"><h3>Teacher</h3><pre class="code sm"><span class="type">std::string</span> name_;
+<span class="type">int</span> id_;
+<span class="type">std::string</span> office_;</pre><p style="margin-top:18px">老師另外需要辦公室。</p></div>
+</div>
+<div class="note step" data-step="2" style="margin-top:48px"><strong>觀察：</strong>兩者都是 Person，都需要 name 與 id。這個 is-a 關係才是考慮繼承的主要理由。</div>
+</div></section>
+
+<section class="slide" data-title="public inheritance" data-group="inherit"><div class="content">
+<h1 class="h1 sm">public inheritance 表達「衍生類別是一種基底類別」</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="kw">class</span> <span class="type">Person</span> {
+<span class="kw">public</span>:
+    <span class="type">std::string</span> <span class="fn">name</span>() <span class="kw">const</span>;
+};
+
+<span class="kw">class</span> <span class="type">Student</span> : <span class="kw">public</span> <span class="type">Person</span> {
+<span class="kw">public</span>:
+    <span class="type">int</span> <span class="fn">credits</span>() <span class="kw">const</span>;
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>Person：</strong>base class，中文常稱基底類別。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>Student：</strong>derived class，中文常稱衍生類別。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>輸出能力：</strong>Student 物件可使用 Person 的 public <code class="i">name()</code>，也有自己的 <code class="i">credits()</code>。</div></li>
+</ul></div></div>
+</div></section>
+
+<section class="slide" data-title="建構順序" data-group="inherit"><div class="content">
+<h1 class="h1 sm">建立衍生物件時，基底部分先建立</h1>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="type">Student</span>::<span class="fn">Student</span>(<span class="type">std::string</span> name, <span class="type">int</span> id,
+                 <span class="type">int</span> credits)
+    : <span class="type">Person</span>(name, id),
+      credits_(credits) {
+}</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="steps" style="--c:var(--green);margin-top:0">
+<div class="s"><div class="num">1</div><h3>Person</h3><p>先初始化 name 與 id。</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>Student 成員</h3><p>再初始化 credits_。</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>函式本體</h3><p>最後執行大括號內容。</p></div>
+</div></div></div>
+<div class="note step" data-step="3"><strong>為什麼：</strong>Student 物件裡先要有完整可用的 Person 部分，才能建立 Student 自己的部分。</div>
+</div></section>
+
+<section class="slide" data-title="繼承中的存取權限" data-group="inherit"><div class="content">
+<h1 class="h1">public、protected、private 在繼承中的差別</h1>
+<table class="t"><thead><tr><th>基底成員</th><th>Person 自己</th><th>Student 成員函式</th><th>main 等外部程式</th></tr></thead><tbody>
+<tr><td>public</td><td>可直接使用</td><td>可直接使用</td><td>可透過物件使用</td></tr>
+<tr class="step" data-step="1"><td>protected</td><td>可直接使用</td><td>可直接使用</td><td>不可直接使用</td></tr>
+<tr class="step" data-step="2"><td>private</td><td>可直接使用</td><td>不可直接使用</td><td>不可直接使用</td></tr>
+</tbody></table>
+<div class="note step" data-step="3" style="margin-top:34px"><strong>通常的安全選擇：</strong>資料仍放 private。若衍生類別需要能力，提供 protected 或 public 方法，讓基底類別繼續守住規則。</div>
+</div></section>
+
+<section class="slide" data-title="沿用基底介面" data-group="inherit"><div class="content">
+<h1 class="h1 sm">衍生類別沿用基底類別已完成的功能</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="type">Student</span> s(<span class="arg">"Amy"</span>, <span class="arg">1001</span>, <span class="arg">24</span>);
+
+std::cout &lt;&lt; s.name();
+std::cout &lt;&lt; s.id();
+std::cout &lt;&lt; s.credits();</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><code class="i">name()</code> 與 <code class="i">id()</code><small>定義在 Person，Student 不必重寫。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">credits()</code><small>只屬於 Student 的功能。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>輸出：</strong><small>Amy、1001、24。</small></div></li>
+</ul></div></div>
+<div class="note step" data-step="3"><strong>目前只證明「沿用介面」。</strong>同名函式是否能依實際物件自動選擇，還要等多型的 virtual。</div>
+</div></section>
+
+<section class="slide" data-title="繼承與組合" data-group="inherit"><div class="content">
+<h1 class="h1">is-a 用繼承，has-a 通常用組合</h1>
+<div class="cols c2">
+<div><h3 style="color:var(--green)">is-a</h3><p>Student 是一種 Person。凡是需要 Person 的地方，Student 應該也合理。</p><pre class="code sm" style="margin-top:24px"><span class="kw">class</span> <span class="type">Student</span> : <span class="kw">public</span> <span class="type">Person</span> {};</pre></div>
+<div class="step" data-step="1"><h3 style="color:var(--blue)">has-a</h3><p>Car 有一顆 Engine，但 Car 不是一種 Engine。把 Engine 當成成員。</p><pre class="code sm" style="margin-top:24px"><span class="kw">class</span> <span class="type">Car</span> {
+    <span class="type">Engine</span> engine_;
+};</pre></div>
+</div>
+<div class="note step" data-step="2" style="margin-top:42px"><strong>不要只為了少寫幾行就繼承。</strong>如果語意不是 is-a，組合通常更清楚。</div>
+</div></section>
+
+<section class="slide" data-title="練習四：關係判斷" data-group="inherit"><div class="content">
+<h1 class="h1">練習四：哪些關係適合 public inheritance？</h1>
+<table class="t"><thead><tr><th>關係</th><th>你的判斷</th><th class="step" data-step="1">參考答案</th></tr></thead><tbody>
+<tr><td>Circle 與 Shape</td><td>is-a / has-a？</td><td class="step" data-step="1">is-a：Circle 是一種 Shape</td></tr>
+<tr><td>Car 與 Engine</td><td>is-a / has-a？</td><td class="step" data-step="2">has-a：Car 有 Engine</td></tr>
+<tr><td>Teacher 與 Person</td><td>is-a / has-a？</td><td class="step" data-step="3">is-a：Teacher 是一種 Person</td></tr>
+<tr><td>Library 與 Book</td><td>is-a / has-a？</td><td class="step" data-step="4">has-a：Library 收藏 Book</td></tr>
+</tbody></table>
+<div class="note step" data-step="5" style="margin-top:28px"><strong>檢查方式：</strong>把句子讀成「A 是一種 B」。若語意明顯不合理，就不該用 public inheritance。</div>
+</div></section>
+
+<section class="slide" data-title="練習五：ElectricCar" data-group="inherit"><div class="content">
+<h1 class="h1">練習五：完成 ElectricCar 的建構子</h1>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="kw">class</span> <span class="type">Vehicle</span> {
+<span class="kw">public</span>:
+    <span class="fn">Vehicle</span>(<span class="type">std::string</span> brand);
+};
+
+<span class="kw">class</span> <span class="type">ElectricCar</span> : <span class="kw">public</span> <span class="type">Vehicle</span> {
+    <span class="type">int</span> battery_;
+<span class="kw">public</span>:
+    <span class="fn">ElectricCar</span>(<span class="type">std::string</span> brand, <span class="type">int</span> battery);
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="quiz"><div class="q">初始化列表要先指定哪兩個部分？</div><div class="ans step" data-step="1"><pre class="code xs"><span class="type">ElectricCar</span>::<span class="fn">ElectricCar</span>(<span class="type">std::string</span> brand, <span class="type">int</span> battery)
+  : <span class="type">Vehicle</span>(brand), battery_(battery) {}</pre><span class="small">先呼叫 Vehicle 建構子，再初始化 ElectricCar 自己的 battery_。</span></div></div></div></div>
+</div></section>
+
+<section class="slide divider sec-orange" data-title="多型" data-group="poly">
+<div class="plate"><div class="top">THIRD PART</div><div class="name">多型</div><div class="en">Runtime polymorphism</div></div>
+<div class="qs"><h2>這一站要回答</h2><ol><li>virtual 改變了什麼？</li><li>為什麼要用基底參考或指標？</li><li>抽象類別如何定義共同介面？</li></ol></div>
+</section>
+
+<section class="slide" data-title="同一介面，不同行為" data-group="poly"><div class="content">
+<h1 class="h1">多型：同一個呼叫，依實際型別執行</h1>
+<div class="flow">
+<div class="box" style="--c:var(--ink)"><h3>共同呼叫</h3><p><code class="i">shape.area()</code></p></div><div class="arrow">→</div>
+<div class="box step" data-step="1" style="--c:var(--blue)"><h3>Circle</h3><p>π × r²</p></div><div class="arrow step" data-step="1">或</div>
+<div class="box step" data-step="2" style="--c:var(--green)"><h3>Rectangle</h3><p>width × height</p></div><div class="arrow step" data-step="2">或</div>
+<div class="box step" data-step="3" style="--c:var(--orange)"><h3>Triangle</h3><p>base × height ÷ 2</p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:54px"><strong>呼叫端只依賴 Shape 的共同介面。</strong>新增 Triangle 時，原本的面積列印函式不必增加 if 判斷。</div>
+</div></section>
+
+<section class="slide" data-title="沒有 virtual" data-group="poly"><div class="content">
+<h1 class="h1 sm">沒有 virtual 時，基底參考只看宣告型別</h1>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="kw">class</span> <span class="type">Animal</span> {
+<span class="kw">public</span>:
+    <span class="type">void</span> <span class="fn">speak</span>() <span class="kw">const</span> { std::cout &lt;&lt; <span class="arg">"Animal"</span>; }
+};
+<span class="kw">class</span> <span class="type">Dog</span> : <span class="kw">public</span> <span class="type">Animal</span> {
+<span class="kw">public</span>:
+    <span class="type">void</span> <span class="fn">speak</span>() <span class="kw">const</span> { std::cout &lt;&lt; <span class="arg">"Woof"</span>; }
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><pre class="code"><span class="type">Dog</span> dog;
+<span class="kw">const</span> <span class="type">Animal</span>&amp; a = dog;
+a.speak();
+
+<span class="out">Animal</span></pre><div class="note bad step" data-step="1" style="margin-top:24px"><strong>原因：</strong><code class="i">a</code> 的型別是 Animal 參考，而 Animal::speak 沒有宣告 virtual。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="virtual 與 override" data-group="poly"><div class="content">
+<h1 class="h1 sm">virtual 允許執行實際物件的版本</h1>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="kw">class</span> <span class="type">Animal</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="type">void</span> <span class="fn">speak</span>() <span class="kw">const</span> {
+        std::cout &lt;&lt; <span class="arg">"Animal"</span>;
+    }
+};
+
+<span class="type">void</span> <span class="type">Dog</span>::<span class="fn">speak</span>() <span class="kw">const override</span> {
+    std::cout &lt;&lt; <span class="arg">"Woof"</span>;
+}</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><code class="i">virtual</code><small>要求透過基底參考或指標呼叫時，查看實際物件型別。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">override</code><small>要求編譯器確認函式簽章真的覆寫基底 virtual 函式。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>同樣呼叫：</strong><small><code class="i">a.speak()</code> 現在輸出 Woof。</small></div></li>
+</ul></div></div>
+</div></section>
+
+<section class="slide" data-title="多型的資料流" data-group="poly"><div class="content">
+<h1 class="h1">基底參考把「實際是誰」保留下來</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="type">void</span> <span class="fn">makeSpeak</span>(<span class="kw">const</span> <span class="type">Animal</span>&amp; animal) {
+    animal.speak();
+}
+
+<span class="type">Dog</span> dog;
+<span class="fn">makeSpeak</span>(dog);</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="flow" style="margin-top:0">
+<div class="box" style="--c:var(--blue)"><h3>輸入</h3><p>Dog 物件，以 Animal const reference 接收。</p></div>
+<div class="arrow">→</div><div class="box step" data-step="1" style="--c:var(--orange)"><h3>virtual dispatch</h3><p>執行期查到實際物件是 Dog。</p></div>
+</div><div class="note good step" data-step="2" style="margin-top:34px"><strong>輸出：</strong>呼叫 Dog::speak，印出 Woof。函式本身不需要知道 Dog 這個型別名稱。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="抽象類別" data-group="poly"><div class="content">
+<h1 class="h1 sm">純虛擬函式只規定介面，不提供預設答案</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="kw">class</span> <span class="type">Shape</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="type">double</span> <span class="fn">area</span>() <span class="kw">const</span> = <span class="arg">0</span>;
+    <span class="kw">virtual</span> ~<span class="fn">Shape</span>() = <span class="kw">default</span>;
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><code class="i">= 0</code><small>area 是 pure virtual function，中文常稱純虛擬函式。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>Shape 變成抽象類別</strong><small>不能直接建立 <code class="i">Shape s;</code>。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>衍生類別責任</strong><small>想成為可建立的具體 Shape，就要覆寫 area。</small></div></li>
+</ul></div></div>
+</div></section>
+
+<section class="slide" data-title="虛擬解構子" data-group="poly"><div class="content">
+<h1 class="h1 sm">可能透過基底指標刪除物件時，解構子必須是 virtual</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="kw">class</span> <span class="type">Shape</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> ~<span class="fn">Shape</span>() = <span class="kw">default</span>;
+};
+
+<span class="type">Shape</span>* p = <span class="kw">new</span> <span class="type">Circle</span>(<span class="arg">2.0</span>);
+<span class="kw">delete</span> p;</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>輸入：</strong>基底指標實際指向 Circle。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>virtual 解構：</strong>delete 先執行 Circle 解構，再執行 Shape 解構。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>實務：</strong>通常用 <code class="i">std::unique_ptr&lt;Shape&gt;</code>，避免手動 delete。</div></li>
+</ul></div></div>
+<div class="note bad step" data-step="3"><strong>沒有 virtual 的風險：</strong>透過基底指標刪除衍生物件會產生 undefined behavior，也就是 C++ 不保證結果。</div>
+</div></section>
+
+<section class="slide" data-title="物件切片" data-group="poly"><div class="content">
+<h1 class="h1 sm">用值存成基底物件，衍生部分會被切掉</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="type">Dog</span> dog;
+
+<span class="type">Animal</span> copied = dog;
+copied.speak();
+
+<span class="com">// copied 已是獨立的 Animal 物件</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="note bad"><strong>object slicing：</strong>把 Dog 以值複製進 Animal，只保留 Animal 那一部分。</div>
+<div class="note good step" data-step="1"><strong>要保留多型：</strong>使用 <code class="i">Animal&amp;</code>、<code class="i">Animal*</code>，或 <code class="i">std::unique_ptr&lt;Animal&gt;</code>。</div>
+<div class="note step" data-step="2"><strong>判斷重點：</strong>不是「有 virtual 就永遠多型」；儲存與傳遞方式也必須保留實際物件。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="Shape 基底類別" data-group="poly"><div class="content">
+<h1 class="h1 sm">整合範例第一步：Shape 規定共同問題</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="kw">class</span> <span class="type">Shape</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="type">double</span> <span class="fn">area</span>() <span class="kw">const</span> = <span class="arg">0</span>;
+    <span class="kw">virtual</span> <span class="type">std::string</span> <span class="fn">name</span>() <span class="kw">const</span> = <span class="arg">0</span>;
+    <span class="kw">virtual</span> ~<span class="fn">Shape</span>() = <span class="kw">default</span>;
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><code class="i">area()</code><small>每種圖形都必須回答面積。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">name()</code><small>每種圖形都必須提供名稱。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>沒有指定公式</strong><small>因為圓形與矩形的計算方式不同。</small></div></li>
+</ul></div></div>
+</div></section>
+
+<section class="slide" data-title="Circle 與 Rectangle" data-group="poly"><div class="content">
+<h1 class="h1 sm">整合範例第二步：各類別提供自己的公式</h1>
+<div class="cols c2">
+<div><h3>Circle</h3><pre class="code xs"><span class="kw">class</span> <span class="type">Circle</span> : <span class="kw">public</span> <span class="type">Shape</span> {
+    <span class="type">double</span> radius_;
+<span class="kw">public</span>:
+    <span class="fn">Circle</span>(<span class="type">double</span> r) : radius_(r) {}
+    <span class="type">double</span> <span class="fn">area</span>() <span class="kw">const override</span> {
+        <span class="kw">return</span> <span class="arg">3.14159</span> * radius_ * radius_;
+    }
+    <span class="type">std::string</span> <span class="fn">name</span>() <span class="kw">const override</span> { <span class="kw">return</span> <span class="arg">"圓形"</span>; }
+};</pre></div>
+<div class="step" data-step="1"><h3>Rectangle</h3><pre class="code xs"><span class="kw">class</span> <span class="type">Rectangle</span> : <span class="kw">public</span> <span class="type">Shape</span> {
+    <span class="type">double</span> width_, height_;
+<span class="kw">public</span>:
+    <span class="fn">Rectangle</span>(<span class="type">double</span> w, <span class="type">double</span> h)
+        : width_(w), height_(h) {}
+    <span class="type">double</span> <span class="fn">area</span>() <span class="kw">const override</span> {
+        <span class="kw">return</span> width_ * height_;
+    }
+    <span class="type">std::string</span> <span class="fn">name</span>() <span class="kw">const override</span> { <span class="kw">return</span> <span class="arg">"矩形"</span>; }
+};</pre></div>
+</div>
+</div></section>
+
+<section class="slide" data-title="多型容器" data-group="poly"><div class="content">
+<h1 class="h1 sm">整合範例第三步：一個容器保存不同圖形</h1>
+<div class="row"><div class="w60 codebox"><pre class="code sm"><span class="type">std::vector</span>&lt;<span class="type">std::unique_ptr</span>&lt;<span class="type">Shape</span>&gt;&gt; shapes;
+shapes.push_back(std::<span class="fn">make_unique</span>&lt;<span class="type">Circle</span>&gt;(<span class="arg">2.0</span>));
+shapes.push_back(std::<span class="fn">make_unique</span>&lt;<span class="type">Rectangle</span>&gt;(<span class="arg">3.0</span>, <span class="arg">4.0</span>));
+
+<span class="kw">for</span> (<span class="kw">const auto</span>&amp; shape : shapes) {
+    std::cout &lt;&lt; shape-&gt;name()
+              &lt;&lt; <span class="arg">": "</span> &lt;&lt; shape-&gt;area() &lt;&lt; <span class="arg">'\n'</span>;
+}</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="note info"><strong>輸入：</strong>容器裡有 Circle 與 Rectangle，但元素型別統一為 <code class="i">unique_ptr&lt;Shape&gt;</code>。</div>
+<div class="note good step" data-step="1"><strong>執行：</strong>每次迴圈都呼叫相同的 name() 與 area()。</div>
+<div class="note step" data-step="2"><strong>輸出：</strong>圓形約 12.5664；矩形 12。</div></div></div>
+</div></section>
+
+<section class="slide" data-title="練習六：預測多型輸出" data-group="poly"><div class="content">
+<h1 class="h1">練習六：預測 virtual 呼叫</h1>
+<div class="row"><div class="w50 codebox"><pre class="code sm"><span class="type">void</span> <span class="fn">printArea</span>(<span class="kw">const</span> <span class="type">Shape</span>&amp; shape) {
+    std::cout &lt;&lt; shape.name()
+              &lt;&lt; <span class="arg">' '</span> &lt;&lt; shape.area() &lt;&lt; <span class="arg">'\n'</span>;
+}
+
+<span class="type">Circle</span> c(<span class="arg">1.0</span>);
+<span class="type">Rectangle</span> r(<span class="arg">2.0</span>, <span class="arg">5.0</span>);
+<span class="fn">printArea</span>(c);
+<span class="fn">printArea</span>(r);</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="quiz"><div class="q">同一個函式為什麼能算出兩種公式？</div><div class="ans step" data-step="1"><strong>輸出：</strong>圓形約 3.14159、矩形 10。參數是 Shape const reference，沒有複製；virtual 依實際物件分別呼叫 Circle::area 與 Rectangle::area。</div></div></div></div>
+</div></section>
+
+<section class="slide" data-title="練習七：PaymentMethod" data-group="poly"><div class="content">
+<h1 class="h1">練習七：付款方式的共同介面</h1>
+<p class="lead">設計抽象類別 PaymentMethod，讓 Cash 與 CreditCard 各自實作 pay。</p>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="kw">class</span> <span class="type">PaymentMethod</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="type">bool</span> <span class="fn">pay</span>(<span class="type">int</span> amount) = <span class="arg">0</span>;
+    <span class="kw">virtual</span> ~<span class="fn">PaymentMethod</span>() = <span class="kw">default</span>;
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>Cash：</strong>現金不足就 false；成功則扣除現金。</div></li><li><span class="n">2</span><div><strong>CreditCard：</strong>超過剩餘額度就 false；成功則增加已用額度。</div></li><li><span class="n">3</span><div><strong>測試：</strong>用 <code class="i">PaymentMethod&amp;</code> 寫一個 checkout 函式。</div></li></ul></div></div>
+<div class="note step" data-step="1"><strong>完成條件：</strong>checkout 不使用 if 判斷付款型別；新增付款方式時，不修改 checkout。</div>
+</div></section>
+
+<section class="slide" data-title="常見錯誤" data-group="finish"><div class="content">
+<h1 class="h1">三大功能的常見錯誤</h1>
+<table class="t"><thead><tr><th>看到的情況</th><th>原因</th><th>修正方向</th></tr></thead><tbody>
+<tr><td>private 欄位都有無條件 setter</td><td>外部仍可把狀態改壞</td><td>提供符合需求的操作，並集中檢查</td></tr>
+<tr class="step" data-step="1"><td>Car 繼承 Engine</td><td>把 has-a 誤寫成 is-a</td><td>將 Engine 改成 Car 的成員</td></tr>
+<tr class="step" data-step="2"><td>基底參考呼叫到基底版本</td><td>基底函式沒有 virtual</td><td>基底加 virtual，衍生版本加 override</td></tr>
+<tr class="step" data-step="3"><td>多型放進 vector 後失效</td><td>用值儲存造成 object slicing</td><td>存 unique_ptr&lt;Base&gt; 或 reference wrapper</td></tr>
+<tr class="step" data-step="4"><td>透過 Base* 刪除衍生物件</td><td>基底解構子不是 virtual</td><td>將基底解構子設為 virtual</td></tr>
+</tbody></table>
+</div></section>
+
+<section class="slide" data-title="整合挑戰" data-group="finish"><div class="content">
+<h1 class="h1">整合挑戰：可擴充的角色系統</h1>
+<p class="lead">設計 Character、Warrior 與 Mage。每新增角色，不修改戰鬥函式。</p>
+<div class="steps" style="--c:var(--neutral)">
+<div class="s"><div class="num">1</div><h3>封裝</h3><p>name_、hp_ 為 private。takeDamage 不讓 hp 低於 0。</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>繼承</h3><p>Warrior 與 Mage 都 public 繼承 Character。</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>多型</h3><p>Character 宣告純虛擬 attack()，兩種角色各自 override。</p></div>
+<div class="s step" data-step="3"><div class="num">4</div><h3>驗證</h3><p>vector&lt;unique_ptr&lt;Character&gt;&gt; 依序呼叫 attack。</p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:44px"><strong>邊界測試：</strong>傷害 0、負傷害、傷害剛好等於 hp、超過 hp；再加入 Archer，確認原本迴圈完全不改。</div>
+</div></section>
+
+<section class="slide" data-title="總結" data-group="finish"><div class="content">
+<h1 class="h1">三個能力，解決三種不同問題</h1>
+<div class="cols c3">
+<div><h3 style="color:var(--blue)">封裝</h3><p>把狀態設為 private，讓 public 方法先檢查，再決定是否修改。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">繼承</h3><p>用 public inheritance 表達 is-a，讓衍生類別沿用基底介面。</p></div>
+<div class="step" data-step="2"><h3 style="color:#A44C00">多型</h3><p>基底 virtual 介面搭配參考或指標，依實際物件執行 override 版本。</p></div>
+</div>
+<div class="note step" data-step="3" style="margin-top:58px"><strong>設計順序：</strong>先確認物件必須守住的規則，再判斷 is-a 關係，最後確認呼叫端是否需要用共同介面操作不同型別。</div>
+</div></section>
+
+<section class="slide" data-title="課後檢查表" data-group="finish"><div class="content">
+<h1 class="h1">課後自我檢查</h1>
+<table class="t"><thead><tr><th>你應該能回答</th><th>關鍵字</th></tr></thead><tbody>
+<tr><td>private 如何避免 BankAccount 進入負餘額？</td><td>公開介面、輸入檢查、失敗時不改狀態</td></tr>
+<tr><td>什麼情況用繼承，什麼情況用組合？</td><td>is-a、has-a</td></tr>
+<tr><td>virtual 與 override 各自負責什麼？</td><td>執行期選擇、編譯期檢查</td></tr>
+<tr><td>為什麼多型參數通常是 Base&amp; 或 Base*？</td><td>保留實際型別、避免 object slicing</td></tr>
+<tr><td>何時必須使用 virtual destructor？</td><td>物件可能透過基底指標被刪除時</td></tr>
+</tbody></table>
+</div></section>
+
+<section class="slide" data-title="延伸資源" data-group="finish"><div class="content">
+<h1 class="h1">延伸資源</h1>
+<ul class="sources">
+<li><strong>本課 Week 2 參考筆記：</strong><span class="mono">../week2/C++_Struct與Class_完整參考筆記.pdf</span><br><span class="dim small">複習 class、建構子、const、參考與物件生命週期。</span></li>
+<li><strong>C++ reference｜Classes：</strong><a href="https://en.cppreference.com/w/cpp/language/classes.html" target="_blank" rel="noreferrer">en.cppreference.com/w/cpp/language/classes</a></li>
+<li><strong>C++ reference｜Derived classes：</strong><a href="https://en.cppreference.com/w/cpp/language/derived_class.html" target="_blank" rel="noreferrer">en.cppreference.com/w/cpp/language/derived_class</a></li>
+<li><strong>C++ reference｜virtual：</strong><a href="https://en.cppreference.com/w/cpp/language/virtual.html" target="_blank" rel="noreferrer">en.cppreference.com/w/cpp/language/virtual</a></li>
+</ul>
+<p class="small dim" style="margin-top:28px">簡報範例以 C++17 為準。畫面中的小數輸出可能因格式設定而顯示不同位數。</p>
+</div></section>
+
+<div id="rail" aria-hidden="true"><div id="track"></div><div id="count"></div></div>
+<nav id="nav" aria-label="投影片導覽"><button id="prev" type="button" aria-label="上一步">‹</button><button id="next" type="button" aria-label="下一步">›</button></nav>
+<aside id="notes" aria-live="polite"></aside><div id="live" aria-live="polite"></div>
+</main>
+<script>
+(function(){
+var stage=document.getElementById("stage"),slides=[].slice.call(document.querySelectorAll(".slide")),notes=document.getElementById("notes"),live=document.getElementById("live"),track=document.getElementById("track"),count=document.getElementById("count"),index=0,step=0;
+var groups=[{key:"start",label:"起點",color:"#7A8996"},{key:"encap",label:"封裝",color:"#0066B3"},{key:"inherit",label:"繼承",color:"#007A52"},{key:"poly",label:"多型",color:"#E8820C"},{key:"finish",label:"整合與收尾",color:"#7A8996"}];
+function maxStep(slide){var values=[0];slide.querySelectorAll(".step").forEach(function(el){values.push(Number(el.dataset.step||0))});return Math.max.apply(null,values)}
+function fitStage(){var scale=Math.min(innerWidth/1920,innerHeight/1080),x=(innerWidth-1920*scale)/2,y=(innerHeight-1080*scale)/2;stage.style.transform="translate("+(x/scale)+"px,"+(y/scale)+"px) scale("+scale+")"}
+function fitContent(slide){var c=slide.querySelector(".content");if(!c)return;c.style.transform="";var s=Math.min(1,(1080-84-140)/Math.max(1,c.scrollHeight),(1920-240)/Math.max(1,c.scrollWidth));if(s<.998)c.style.transform="scale("+s.toFixed(3)+")"}
+function rail(){track.innerHTML="";var total=slides.length,unit=100/Math.max(1,total-1);groups.forEach(function(g){var ids=[];slides.forEach(function(s,i){if(s.dataset.group===g.key)ids.push(i)});if(!ids.length)return;var first=ids[0],last=ids[ids.length-1],seg=document.createElement("i");seg.className="seg";seg.style.setProperty("--c",g.color);seg.style.left=(first*unit)+"%";seg.style.width=Math.max(unit,(last-first)*unit)+"%";track.appendChild(seg);var label=document.createElement("span");label.className="seglabel";label.style.left=(((first+last)/2)*unit)+"%";label.textContent=g.label;track.appendChild(label)});slides.forEach(function(s,i){var g=groups.find(function(x){return x.key===s.dataset.group})||groups[0],t=document.createElement("i");t.className="tick"+(i===index?" current":"");t.style.setProperty("--c",g.color);t.style.left=(i*unit)+"%";track.appendChild(t)});count.textContent=(index+1)+" / "+total}
+function fillNotes(){var n=slides[index].querySelector(".notes");notes.innerHTML='<div class="nt">講者提示</div>'+(n?n.innerHTML:"這一頁沒有額外提示。")} 
+function render(){slides.forEach(function(s,i){var active=i===index;s.classList.toggle("active",active);s.setAttribute("aria-hidden",active?"false":"true");s.querySelectorAll(".step").forEach(function(el){el.classList.toggle("on",Number(el.dataset.step||0)<=step)})});rail();fillNotes();fitContent(slides[index]);live.textContent="第 "+(index+1)+" 頁，共 "+slides.length+" 頁："+slides[index].dataset.title;var h="#"+(index+1);if(location.hash!==h)history.replaceState(null,"",h)}
+function go(i,st){index=Math.max(0,Math.min(slides.length-1,i));step=Math.max(0,Math.min(maxStep(slides[index]),st||0));render()}
+function next(){var m=maxStep(slides[index]);if(step<m){step++;render()}else if(index<slides.length-1)go(index+1,0)}
+function prev(){if(step>0){step--;render()}else if(index>0)go(index-1,maxStep(slides[index-1]))}
+function copy(btn){var text=btn.parentElement.querySelector("pre").innerText;function done(){var old=btn.textContent;btn.textContent="已複製";setTimeout(function(){btn.textContent=old},1000)}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done()})}else{fallback(text);done()}}
+function fallback(text){var a=document.createElement("textarea");a.value=text;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}
+document.getElementById("prev").addEventListener("click",prev);document.getElementById("next").addEventListener("click",next);stage.addEventListener("click",function(e){var b=e.target.closest(".copy");if(b)copy(b)});
+document.addEventListener("keydown",function(e){if(e.metaKey||e.ctrlKey||e.altKey)return;if((e.key===" "||e.key==="Enter")&&e.target.closest("button,a"))return;if(["ArrowRight","PageDown"," ","Enter"].indexOf(e.key)>=0){e.preventDefault();next()}else if(["ArrowLeft","PageUp","Backspace"].indexOf(e.key)>=0){e.preventDefault();prev()}else if(e.key==="Home"){e.preventDefault();go(0,0)}else if(e.key==="End"){e.preventDefault();go(slides.length-1,0)}else if(e.key.toLowerCase()==="f"){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen()}else if(e.key.toLowerCase()==="n")notes.classList.toggle("on")});
+var tx=null;stage.addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});stage.addEventListener("touchend",function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>60)d<0?next():prev()},{passive:true});
+addEventListener("resize",fitStage);addEventListener("hashchange",function(){var n=Number(location.hash.slice(1));if(n>=1&&n<=slides.length&&n-1!==index)go(n-1,0)});var start=Number(location.hash.slice(1));if(start>=1&&start<=slides.length)index=start-1;fitStage();slides.forEach(function(s){s.style.display="block";s.style.visibility="hidden";fitContent(s);s.style.display="";s.style.visibility=""});render();
+})();
+</script>
+</body>
+</html>

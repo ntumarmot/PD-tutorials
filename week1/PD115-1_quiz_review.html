@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="程式設計（115-1）第一次小考逐題講解">
+  <title>第一次小考逐題講解｜程式設計 115-1</title>
+  <style>
+    :root {
+      --navy: #1e3a5f;
+      --navy-dark: #132a46;
+      --gold: #9a4d08;
+      --ink: #172033;
+      --muted: #566176;
+      --paper: #ffffff;
+      --canvas: #f4f6f9;
+      --line: #d7dee8;
+      --soft-blue: #edf3fa;
+      --soft-gold: #fff6e8;
+      --soft-green: #eaf8f2;
+      --green: #126348;
+      --soft-red: #fff0f0;
+      --red: #a02b2b;
+      --code: #111827;
+      --radius: 14px;
+      --shadow: 0 12px 32px rgba(30, 58, 95, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 24px;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      font-size: 17px;
+      line-height: 1.75;
+    }
+
+    a { color: inherit; }
+
+    a:focus-visible,
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(30, 58, 95, 0.3);
+      outline-offset: 3px;
+    }
+
+    .layout {
+      width: min(1220px, calc(100% - 32px));
+      margin: 32px auto 72px;
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 24px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar .overline,
+    .section-label {
+      margin: 0 0 7px;
+      color: var(--gold);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 18px;
+      font-size: 1.1rem;
+      line-height: 1.4;
+    }
+
+    nav { display: grid; gap: 4px; }
+
+    nav a,
+    .side-link {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 160ms ease, background 160ms ease;
+    }
+
+    nav a:hover,
+    .side-link:hover {
+      color: var(--navy);
+      background: var(--soft-blue);
+    }
+
+    .side-divider {
+      height: 1px;
+      margin: 16px 0 10px;
+      background: var(--line);
+    }
+
+    main { min-width: 0; }
+
+    .hero,
+    .question-section,
+    .closing-section {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(32px, 6vw, 68px);
+      background:
+        linear-gradient(135deg, rgba(30, 58, 95, 0.1), transparent 50%),
+        var(--paper);
+    }
+
+    .hero::after {
+      content: "01";
+      position: absolute;
+      right: 26px;
+      bottom: -28px;
+      color: rgba(30, 58, 95, 0.06);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: clamp(8rem, 20vw, 15rem);
+      font-weight: 900;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    h1, h2, h3, h4 {
+      letter-spacing: -0.025em;
+      line-height: 1.3;
+    }
+
+    h1 {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      margin: 0;
+      font-size: clamp(2.2rem, 7vw, 4.6rem);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.65rem, 4vw, 2.4rem);
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    h4 {
+      margin: 26px 0 8px;
+      font-size: 1rem;
+    }
+
+    .hero .lead {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 1.06rem;
+    }
+
+    .meta-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .meta-card {
+      padding: 15px 16px;
+      border: 1px solid rgba(30, 58, 95, 0.18);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .meta-card strong,
+    .meta-card span { display: block; }
+    .meta-card strong { font-size: 0.92rem; }
+    .meta-card span { color: var(--muted); font-size: 0.82rem; }
+
+    .source-note,
+    .question-section,
+    .closing-section { margin-top: 24px; }
+
+    .source-note {
+      padding: 17px 20px;
+      border-left: 4px solid var(--gold);
+      border-radius: 0 10px 10px 0;
+      color: #70400f;
+      background: var(--soft-gold);
+    }
+
+    .source-note strong { display: block; }
+
+    .question-section,
+    .closing-section {
+      padding: clamp(26px, 5vw, 52px);
+    }
+
+    .section-intro {
+      max-width: 780px;
+      margin: 12px 0 26px;
+      color: var(--muted);
+    }
+
+    .score-badge,
+    .answer-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .score-badge {
+      margin-top: 14px;
+      color: var(--navy);
+      background: var(--soft-blue);
+    }
+
+    .subquestion {
+      margin: 18px 0;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fbfcfe;
+    }
+
+    .subquestion-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .letter {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      background: var(--navy);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .prompt {
+      margin: 1px 0 0;
+      color: var(--ink);
+    }
+
+    .think-first {
+      margin: 16px 0;
+      padding: 13px 15px;
+      border-radius: 9px;
+      color: #38506c;
+      background: var(--soft-blue);
+      font-size: 0.92rem;
+    }
+
+    details.answer {
+      margin-top: 16px;
+      border: 1px solid #b9c8dc;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    details.answer summary {
+      min-height: 50px;
+      padding: 12px 16px;
+      color: var(--navy);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .answer-content {
+      padding: 2px 18px 18px;
+    }
+
+    .answer-badge.true {
+      color: var(--green);
+      background: var(--soft-green);
+    }
+
+    .answer-badge.false {
+      color: var(--red);
+      background: var(--soft-red);
+    }
+
+    .answer-badge.neutral {
+      color: var(--navy);
+      background: var(--soft-blue);
+    }
+
+    .explain-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .explain-box {
+      padding: 15px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .explain-box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--navy-dark);
+    }
+
+    .explain-box p { margin: 0; }
+
+    .exam-line {
+      margin: 16px 0 0;
+      padding: 13px 15px;
+      border-left: 4px solid var(--gold);
+      color: #684019;
+      background: var(--soft-gold);
+    }
+
+    .exam-line strong { display: block; }
+
+    .caveat {
+      margin-top: 14px;
+      padding: 13px 15px;
+      border-radius: 9px;
+      color: var(--muted);
+      background: #f1f3f6;
+      font-size: 0.9rem;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin: 20px 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .steps li {
+      position: relative;
+      min-height: 48px;
+      padding: 10px 14px 10px 56px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      counter-increment: step;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      top: 9px;
+      left: 12px;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--navy);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .code-card {
+      overflow: hidden;
+      margin: 18px 0;
+      border: 1px solid #29364a;
+      border-radius: 12px;
+      background: var(--code);
+      box-shadow: 0 12px 24px rgba(17, 24, 39, 0.14);
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 9px 10px 9px 16px;
+      border-bottom: 1px solid #2e3b50;
+      color: #aab5c8;
+      font-size: 0.78rem;
+    }
+
+    .copy-button {
+      min-width: 76px;
+      min-height: 38px;
+      padding: 7px 12px;
+      border: 1px solid #58657b;
+      border-radius: 8px;
+      color: #f3f6fb;
+      background: #202b3d;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .copy-button:hover {
+      border-color: #9ab2e8;
+      background: #293852;
+    }
+
+    pre {
+      margin: 0;
+      padding: 20px;
+      overflow-x: auto;
+      color: #eef4ff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.72;
+      tab-size: 4;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    :not(pre) > code {
+      padding: 0.12em 0.36em;
+      border-radius: 5px;
+      color: #173f72;
+      background: #eaf0f8;
+      font-size: 0.9em;
+    }
+
+    pre .tok-comment { color: #8fa0b8; font-style: italic; }
+    pre .tok-preprocessor { color: #f19ac1; }
+    pre .tok-keyword { color: #c7a7ff; font-weight: 650; }
+    pre .tok-type { color: #67d4de; }
+    pre .tok-function { color: #f3cf72; }
+    pre .tok-string { color: #9cda8f; }
+    pre .tok-number,
+    pre .tok-literal { color: #f2a76f; }
+    pre .tok-builtin { color: #82b7ff; }
+
+    .table-wrap {
+      margin: 18px 0;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 600px;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--navy-dark);
+      background: #f1f5f9;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .mini-graph {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .path-chip {
+      padding: 8px 12px;
+      border: 1px solid #b8c6da;
+      border-radius: 999px;
+      color: var(--navy);
+      background: var(--soft-blue);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86rem;
+    }
+
+    .key-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .key-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfcfe;
+    }
+
+    .key-card strong { color: var(--navy); }
+
+    .footer {
+      padding: 26px 12px 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 880px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .meta-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      .layout { width: min(100% - 20px, 1220px); margin-top: 10px; }
+      nav, .explain-grid, .key-grid { grid-template-columns: 1fr; }
+      .hero, .question-section, .closing-section { padding: 24px 20px; }
+      .hero::after { display: none; }
+      .subquestion { padding: 18px 16px; }
+      .subquestion-head { display: block; }
+      .letter { margin-bottom: 10px; }
+      pre { padding: 16px; font-size: 0.8rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+
+    @media print {
+      body { background: #fff; font-size: 10.5pt; }
+      .layout { width: 100%; display: block; margin: 0; }
+      .sidebar, .copy-button { display: none; }
+      .hero, .question-section, .closing-section { box-shadow: none; }
+      .question-section, .subquestion, .code-card { break-inside: avoid; }
+      details.answer > * { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="overline">Quiz Review</p>
+      <h2>第一次小考<br>逐題講解</h2>
+      <nav aria-label="本頁目錄">
+        <a href="#overview">閱讀方式</a>
+        <a href="#question-1">第一題｜判斷題</a>
+        <a href="#question-2">第二題｜簡答題</a>
+        <a href="#question-3">第三題｜演算法</a>
+        <a href="#question-4">第四題｜程式追蹤</a>
+        <a href="#answer-key">答案總整理</a>
+      </nav>
+      <div class="side-divider"></div>
+      <a class="side-link" href="index.html">回到指標入門講義</a>
+      <a class="side-link" href="../../../quiz/PD115-1_quiz_noted.pdf">開啟原始考卷 PDF</a>
+      <a class="side-link" href="../../../quiz/PD115-1_quiz_sol.pdf">開啟官方解答 PDF</a>
+    </aside>
+
+    <main>
+      <header class="hero" id="overview">
+        <p class="section-label">Programming · 115-1</p>
+        <h1>第一次小考<br>逐題講解</h1>
+        <p class="lead">
+          先看題目、自己判斷，再展開講解。每一題不只告訴你答案，也會說明題目在考什麼、值如何一步步改變，以及考場上可以怎麼寫得精確。
+        </p>
+        <div class="meta-grid" aria-label="考卷資訊">
+          <div class="meta-card"><strong>考試時間</strong><span>50 分鐘</span></div>
+          <div class="meta-card"><strong>總分</strong><span>100 分</span></div>
+          <div class="meta-card"><strong>題型</strong><span>判斷、簡答、演算法、程式追蹤</span></div>
+        </div>
+      </header>
+
+      <div class="source-note">
+        <strong>已依官方解答核對</strong>
+        每題答案、第三題虛擬碼與複雜度都已對照官方參考解答。網頁中的白話說明、小例子與嚴謹補充是為了教學另外加入，並非官方解答的逐字內容。
+      </div>
+
+      <section class="question-section" id="question-1">
+        <p class="section-label">Question 01</p>
+        <h2>第一題｜判斷題</h2>
+        <span class="score-badge">25 分，每題 5 分</span>
+        <p class="section-intro">這一題的關鍵不是背答案，而是找出句子裡的絕對用語、運算順序與記憶體前提。先選 T 或 F，再展開講解。</p>
+
+        <article class="subquestion">
+          <div class="subquestion-head">
+            <span class="letter">a</span>
+            <p class="prompt">在 C++ 中，如果把兩個很大的整數相乘，再把結果存入一個整數變數，可能會發生溢位（overflow）。</p>
+          </div>
+          <p class="think-first"><strong>先想：</strong>數學上的乘積如果超過型別能表示的範圍，電腦還能完整存下來嗎？</p>
+          <details class="answer">
+            <summary>展開講解與答案</summary>
+            <div class="answer-content">
+              <span class="answer-badge true">官方答案：T</span>
+              <div class="explain-grid">
+                <div class="explain-box"><strong>白話解釋</strong><p><code>int</code> 能表示的數值範圍有限。兩個操作數本身都放得進 <code>int</code>，不代表它們的乘積也放得進去。</p></div>
+                <div class="explain-box"><strong>小例子</strong><p>假設某型別最大只能放 <code>100</code>，那麼 <code>20 × 20 = 400</code> 就超出範圍。</p></div>
+              </div>
+              <p class="exam-line"><strong>考場一句話</strong>T。整數乘積可能超過目標整數型別可表示的範圍。</p>
+              <p class="caveat"><strong>嚴謹補充：</strong>在標準 C++ 中，有號整數溢位屬於 undefined behavior（未定義行為）；無號整數則依模數規則回繞。本題官方答案是 T。</p>
+            </div>
+          </details>
+        </article>
+
+        <article class="subquestion">
+          <div class="subquestion-head">
+            <span class="letter">b</span>
+            <p class="prompt">若 <code>a = 1</code>、<code>b = 23</code>、<code>c = 8</code>、<code>d = 18</code>，則 <code>a &gt; b &amp;&amp; c &gt; d</code> 在回傳結果前會進行兩次比較與一次「and」運算。</p>
+          </div>
+          <p class="think-first"><strong>先想：</strong><code>&amp;&amp;</code> 左邊已經是 false 時，右邊還需要算嗎？</p>
+          <details class="answer">
+            <summary>展開講解與答案</summary>
+            <div class="answer-content">
+              <span class="answer-badge false">官方答案：F</span>
+              <ol class="steps">
+                <li>先算 <code>a &gt; b</code>，也就是 <code>1 &gt; 23</code>，結果為 false。</li>
+                <li><code>false &amp;&amp; 任何值</code> 都一定是 false，因此結果已經確定。</li>
+                <li>C++ 使用 short-circuit evaluation（短路求值），不再計算 <code>c &gt; d</code>。</li>
+              </ol>
+              <p class="exam-line"><strong>考場一句話</strong>F。第一個比較已為 false，<code>&amp;&amp;</code> 短路，因此第二個比較不會執行。</p>
+            </div>
+          </details>
+        </article>
+
+        <article class="subquestion">
+          <div class="subquestion-head">
+            <span class="letter">c</span>
+            <p class="prompt">從定義它的那一行開始，一個全域變數（global variable）可在定義它的整個程式中被存取。</p>
+          </div>
+          <p class="think-first"><strong>先想：</strong>全域變數的 scope（作用域）從哪裡開始？局部變數會不會暫時遮住同名的全域變數？</p>
+          <details class="answer">
+            <summary>展開講解與答案</summary>
+            <div class="answer-content">
+              <span class="answer-badge true">官方答案：T</span>
+              <p>在這份考卷的基礎、單一原始檔語境中，全域變數從宣告點開始，到該原始檔結束都在作用域內。後面定義的函式可以使用它。</p>
+              <div class="code-card">
+                <div class="code-head"><span>global_scope.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+                <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int score = 10;
+
+void showScore() {
+    cout &lt;&lt; score &lt;&lt; '\n';
+}</code></pre>
+              </div>
+              <p class="exam-line"><strong>考場一句話</strong>T。全域變數從宣告位置起，到檔案後續範圍皆可見。</p>
+              <p class="caveat"><strong>嚴謹補充：</strong>這不代表任何地方都一定能直接寫同一個名稱。同名局部變數可能遮蔽它；跨多個原始檔時也涉及 linkage（連結性）與 <code>extern</code>。這些細節不是本題主要考點。</p>
+            </div>
+          </details>
+        </article>
+
+        <article class="subquestion">
+          <div class="subquestion-head">
+            <span class="letter">d</span>
+            <p class="prompt">給定長度為 10 的靜態配置整數陣列 <code>arr</code>，<code>cout &lt;&lt; arr + 2;</code> 會印出索引值為 2 的陣列元素位址。</p>
+          </div>
+          <p class="think-first"><strong>先想：</strong>在運算式中，<code>arr</code> 通常會轉成哪一個元素的位址？位址加 2 又會往後移幾個元素？</p>
+          <details class="answer">
+            <summary>展開講解與答案</summary>
+            <div class="answer-content">
+              <span class="answer-badge true">官方答案：T</span>
+              <ol class="steps">
+                <li>在這個運算式中，<code>arr</code> 會轉成指向第一個元素的指標，也就是 <code>&amp;arr[0]</code>。</li>
+                <li><code>arr + 2</code> 不是增加 2 bytes，而是往後移動兩個 <code>int</code> 元素。</li>
+                <li>因此 <code>arr + 2</code> 等同於 <code>&amp;arr[2]</code>，輸出的是該位址，不是元素值。</li>
+              </ol>
+              <p class="exam-line"><strong>考場一句話</strong>T。<code>arr + 2</code> 等同於 <code>&amp;arr[2]</code>。</p>
+            </div>
+          </details>
+        </article>
+
+        <article class="subquestion">
+          <div class="subquestion-head">
+            <span class="letter">e</span>
+            <p class="prompt">執行 <code>char a[1000]; cin &gt;&gt; a;</code> 並輸入 800 個字元，原則上沒問題；若執行 <code>char* b; cin &gt;&gt; b;</code> 並輸入 800 個字元，則有機率發生 run-time error。</p>
+          </div>
+          <p class="think-first"><strong>先想：</strong><code>a</code> 已經有實際陣列空間；只有宣告 <code>char* b</code> 時，有沒有替 800 個字元準備空間？</p>
+          <details class="answer">
+            <summary>展開講解與答案</summary>
+            <div class="answer-content">
+              <span class="answer-badge true">官方答案：T</span>
+              <div class="explain-grid">
+                <div class="explain-box"><strong><code>char a[1000]</code></strong><p>已配置 1000 個 <code>char</code> 的空間。800 個字元再加結尾的 <code>'\0'</code>，共 801 格，放得下。</p></div>
+                <div class="explain-box"><strong><code>char* b</code></strong><p>只建立一個未初始化的指標，沒有建立可寫入 800 個字元的陣列。把輸入寫到未知位址會造成 undefined behavior。</p></div>
+              </div>
+              <p class="exam-line"><strong>考場一句話</strong>T。<code>a</code> 有足夠陣列空間；<code>b</code> 沒有指向已配置的有效緩衝區。</p>
+              <p class="caveat"><strong>版本補充：</strong>這個答案依本課程常見的 C++17 輸入語境說明。實務上仍不建議用沒有長度限制的字元陣列輸入；使用 <code>std::string</code> 會更安全。</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="question-section" id="question-2">
+        <p class="section-label">Question 02</p>
+        <h2>第二題｜簡答題</h2>
+        <span class="score-badge">30 分，每小題 15 分；每題限 100 字</span>
+        <p class="section-intro">簡答題要先直接回答「什麼時候／是否正確」，再補一個原因。不要先繞一大圈才出現結論。</p>
+
+        <article class="subquestion">
+          <div class="subquestion-head">
+            <span class="letter">a</span>
+            <p class="prompt">什麼時候在往函式傳入陣列時，應該將其加上 <code>const</code> 並宣告為常數陣列？</p>
+          </div>
+          <p class="think-first"><strong>先想：</strong>這個函式是要修改陣列，還是只讀取陣列內容？</p>
+          <details class="answer">
+            <summary>展開講解與參考作答</summary>
+            <div class="answer-content">
+              <span class="answer-badge neutral">官方答案核心：只讀不改</span>
+              <p>當函式只需要讀取陣列元素、不應修改呼叫端的陣列內容時，參數應加上 <code>const</code>。編譯器會阻止函式內對元素賦值，也能讓函式接收本來就是常數的陣列。</p>
+              <div class="code-card">
+                <div class="code-head"><span>const_array.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+                <pre><code>int sum(const int values[], int size) {
+    int total = 0;
+    for (int i = 0; i &lt; size; ++i) {
+        total += values[i];
+    }
+    return total;
+}</code></pre>
+              </div>
+              <p class="exam-line"><strong>100 字內參考答案</strong>當函式只需讀取陣列、不應修改其元素時，應將參數宣告為 const 陣列，以防止誤改呼叫端資料，並可接收常數陣列。</p>
+              <div class="explain-grid">
+                <div class="explain-box"><strong>官方評分重點：10 分</strong><p>必須寫出使用時機：函式只讀取、不應修改陣列元素。</p></div>
+                <div class="explain-box"><strong>官方評分重點：5 分</strong><p>必須寫出目的：限制修改、保護呼叫端原始資料或避免誤改。</p></div>
+              </div>
+            </div>
+          </details>
+        </article>
+
+        <article class="subquestion">
+          <div class="subquestion-head">
+            <span class="letter">b</span>
+            <p class="prompt">如果有人說 call by reference 的函式都可以用 call by pointer 改寫，正確嗎？為什麼？</p>
+          </div>
+          <p class="think-first"><strong>先想：</strong>參考讓函式直接操作原物件；指標能不能藉由「位址＋解參考」找到同一個原物件？</p>
+          <details class="answer">
+            <summary>展開講解與參考作答</summary>
+            <div class="answer-content">
+              <span class="answer-badge neutral">官方答案：正確</span>
+              <div class="code-card">
+                <div class="code-head"><span>reference_vs_pointer.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+                <pre><code>void addOneByReference(int&amp; value) {
+    value++;
+}
+
+void addOneByPointer(int* value) {
+    (*value)++;
+}
+
+int main() {
+    int number = 5;
+    addOneByReference(number);
+    addOneByPointer(&amp;number);
+    return 0;
+}</code></pre>
+              </div>
+              <ol class="steps">
+                <li>參考版本中的 <code>value</code> 是 <code>number</code> 的別名。</li>
+                <li>指標版本收到 <code>&amp;number</code>，也就是 <code>number</code> 的位址。</li>
+                <li>指標版本使用 <code>*value</code> 找回原本的 <code>number</code>，因此也能修改它。</li>
+              </ol>
+              <p class="exam-line"><strong>100 字內參考答案</strong>正確。reference 是原變數的別名；pointer 可保存原變數位址，呼叫時傳入位址並在函式內 dereference，即可操作同一變數。</p>
+              <div class="explain-grid">
+                <div class="explain-box"><strong>先給結論：3 分</strong><p>明確回答「正確」。</p></div>
+                <div class="explain-box"><strong>reference：4 分</strong><p>說明 reference 是原變數的別名，或能操作原變數。</p></div>
+                <div class="explain-box"><strong>pointer：4 分</strong><p>說明 pointer 可接收、保存原變數的位址。</p></div>
+                <div class="explain-box"><strong>dereference：4 分</strong><p>說明解參考後可操作同一變數，因此能達到相同效果。</p></div>
+              </div>
+              <p class="caveat"><strong>嚴謹補充：</strong>兩者功能相近，但語意不完全一樣。一般參考必須綁定有效物件；指標可以是 <code>nullptr</code>，也可改指向別處。<code>const</code> reference 還能直接綁定暫時物件，所以不能把「可改寫」理解成所有呼叫形式都完全相同。</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="question-section" id="question-3">
+        <p class="section-label">Question 03</p>
+        <h2>第三題｜兩步內可抵達的節點</h2>
+        <span class="score-badge">20 分</span>
+        <p class="section-intro">輸入是一個 <code>n × n</code> 相鄰矩陣 <code>A</code> 與起點 <code>v</code>。要計算零步、一步、兩步能到達的不同節點數量，且同一節點只能算一次。</p>
+
+        <div class="subquestion">
+          <h3>題目真正要求的三件事</h3>
+          <ol class="steps">
+            <li><strong>零步：</strong>起點 <code>v</code> 本身一定要算。</li>
+            <li><strong>一步：</strong>找出所有滿足 <code>A[v][i] = 1</code> 的節點 <code>i</code>。</li>
+            <li><strong>兩步：</strong>從每個一步鄰居 <code>i</code> 再找所有滿足 <code>A[i][j] = 1</code> 的節點 <code>j</code>。</li>
+          </ol>
+          <p class="think-first"><strong>最容易漏掉的地方：</strong>同一節點可能有多條路徑抵達，所以不能每找到一次就直接把答案加一。需要一個布林陣列記錄「這個節點是否已經算過」。</p>
+          <div class="mini-graph" aria-label="兩步路徑小例子">
+            <span class="path-chip">1 → 2</span>
+            <span class="path-chip">1 → 3</span>
+            <span class="path-chip">1 → 2 → 4</span>
+            <span class="path-chip">1 → 3 → 4</span>
+          </div>
+          <p>上例從 1 出發，節點 4 雖然能透過兩條路徑抵達，仍只能計算一次。最後算到的是 <code>{1, 2, 3, 4}</code>，答案為 4。</p>
+
+          <details class="answer">
+            <summary>展開虛擬碼、正確性與複雜度</summary>
+            <div class="answer-content">
+              <h4>虛擬碼</h4>
+              <div class="code-card">
+                <div class="code-head"><span>count-within-two-steps.pseudocode</span><button class="copy-button" type="button">複製程式碼</button></div>
+                <pre><code>COUNT-WITHIN-TWO-STEPS(A, n, v)
+    建立 reachable[1..n]，全部設為 false
+    reachable[v] = true
+
+    for i = 1 to n
+        if A[v][i] == 1
+            reachable[i] = true
+
+            for j = 1 to n
+                if A[i][j] == 1
+                    reachable[j] = true
+
+    count = 0
+    for i = 1 to n
+        if reachable[i] == true
+            count = count + 1
+
+    return count</code></pre>
+              </div>
+
+              <h4>為什麼它是對的？</h4>
+              <div class="explain-grid">
+                <div class="explain-box"><strong>不會漏算</strong><p><code>reachable[v]</code> 處理零步；第一層找到所有一步鄰居；第二層從每個一步鄰居出發，找到所有兩步節點。</p></div>
+                <div class="explain-box"><strong>不會重複算</strong><p>不論某個節點被找到幾次，都只是把同一格 <code>reachable[j]</code> 設成 true。最後每一格只檢查一次。</p></div>
+              </div>
+
+              <h4>時間複雜度怎麼算？</h4>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>部分</th><th>最多做幾次</th><th>成本</th></tr></thead>
+                  <tbody>
+                    <tr><td>初始化 <code>reachable</code></td><td><code>n</code> 格</td><td><code>O(n)</code></td></tr>
+                    <tr><td>掃描起點的一步鄰居</td><td><code>n</code> 個候選</td><td><code>O(n)</code></td></tr>
+                    <tr><td>掃描每個一步鄰居的整列</td><td>最多 <code>n</code> 列，每列 <code>n</code> 格</td><td><code>O(n²)</code></td></tr>
+                    <tr><td>計算 true 的數量</td><td><code>n</code> 格</td><td><code>O(n)</code></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="exam-line"><strong>官方複雜度推導</strong>若 <code>d(v)</code> 是起點 <code>v</code> 的 degree，總時間為 <code>T(n) = O(n + d(v)n)</code>。因為 <code>d(v) ≤ n - 1</code>，最壞情況是 <code>O(n²)</code>。額外空間為 <code>O(n)</code>。</p>
+
+              <h4>官方評分檢查</h4>
+              <div class="key-grid">
+                <div class="key-card"><strong>可達性紀錄</strong><br>正確初始化並使用 reachable，且把起點 v 納入。</div>
+                <div class="key-card"><strong>一步與兩步</strong><br>能正確找出一步、兩步內可達的節點。</div>
+                <div class="key-card"><strong>去除重複</strong><br>同一節點即使由多條路徑抵達，也只計算一次。</div>
+                <div class="key-card"><strong>結果與複雜度</strong><br>正確回傳總數，並依實際演算法分析時間複雜度。</div>
+              </div>
+
+              <h4>對應的 C++ 寫法</h4>
+              <div class="code-card">
+                <div class="code-head"><span>two_steps.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+                <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int countWithinTwoSteps(const vector&lt;vector&lt;int&gt;&gt;&amp; A, int v) {
+    int n = A.size();
+    vector&lt;bool&gt; reachable(n, false);
+    reachable[v] = true;
+
+    for (int i = 0; i &lt; n; ++i) {
+        if (A[v][i] == 1) {
+            reachable[i] = true;
+
+            for (int j = 0; j &lt; n; ++j) {
+                if (A[i][j] == 1) {
+                    reachable[j] = true;
+                }
+            }
+        }
+    }
+
+    int count = 0;
+    for (bool canReach : reachable) {
+        if (canReach) {
+            ++count;
+        }
+    }
+    return count;
+}</code></pre>
+              </div>
+              <p class="caveat"><strong>編號差異：</strong>題目節點編號是 1 到 <code>n</code>；上面的 C++ 使用 <code>vector</code>，所以索引改成 0 到 <code>n - 1</code>。若題目傳入的 <code>v</code> 仍是 1-based，要先做 <code>--v</code>。</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="question-section" id="question-4">
+        <p class="section-label">Question 04</p>
+        <h2>第四題｜追蹤程式輸出</h2>
+        <span class="score-badge">25 分，每小題 5 分</span>
+        <p class="section-intro">不要直接在腦中跑完整支程式。把它切成三塊：while 迴圈、函式參數、全域與區域變數。</p>
+
+        <div class="code-card">
+          <div class="code-head"><span>quiz_question_4.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int g = 18;
+
+int f(int x, int v[]) {
+    x = 10;
+    *(v + 2) = 100;
+    int g = 123;
+    return x;
+}
+
+int main() {
+    int start = 13;
+    int loopCount = 0;
+    while (start &gt; 6) {
+        if (start % 2 == 0)
+            start /= 2;
+        else
+            start = 3 * start + 1;
+        loopCount++;
+    }
+    cout &lt;&lt; loopCount &lt;&lt; "\n"; // (a)
+    cout &lt;&lt; start &lt;&lt; "\n";     // (b)
+
+    int aValue = 0;
+    int values[10] = {0};
+    f(aValue, values);
+    cout &lt;&lt; aValue &lt;&lt; "\n";    // (c)
+    cout &lt;&lt; values[2] &lt;&lt; "\n"; // (d)
+
+    cout &lt;&lt; g &lt;&lt; "\n";         // (e)
+    return 0;
+}</code></pre>
+        </div>
+
+        <details class="answer">
+          <summary>展開逐行追蹤與答案</summary>
+          <div class="answer-content">
+            <h4>第一塊：while 迴圈決定 (a)、(b)</h4>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>第幾圈</th><th>進入時 start</th><th>判斷</th><th>更新後 start</th><th>loopCount</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>13</td><td>奇數，算 <code>3 × 13 + 1</code></td><td>40</td><td>1</td></tr>
+                  <tr><td>2</td><td>40</td><td>偶數，除以 2</td><td>20</td><td>2</td></tr>
+                  <tr><td>3</td><td>20</td><td>偶數，除以 2</td><td>10</td><td>3</td></tr>
+                  <tr><td>4</td><td>10</td><td>偶數，除以 2</td><td>5</td><td>4</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>此時 <code>start = 5</code>，不再符合 <code>start &gt; 6</code>，所以離開迴圈。得到 <strong>(a) 4</strong>、<strong>(b) 5</strong>。</p>
+
+            <h4>第二塊：函式參數決定 (c)、(d)</h4>
+            <div class="explain-grid">
+              <div class="explain-box"><strong><code>int x</code> 是傳值</strong><p><code>aValue</code> 的值 0 被複製給 <code>x</code>。函式內把 <code>x</code> 改成 10，不會改到外面的 <code>aValue</code>，所以 (c) 是 0。</p></div>
+              <div class="explain-box"><strong><code>int v[]</code> 可操作原陣列</strong><p>陣列參數在函式中等同指標。<code>*(v + 2)</code> 就是 <code>v[2]</code>，因此外面的 <code>values[2]</code> 變成 100，(d) 是 100。</p></div>
+            </div>
+            <p class="caveat">函式有 <code>return x;</code>，但呼叫時只寫 <code>f(aValue, values);</code>，沒有把回傳值指定給任何變數。因此回傳的 10 被丟掉。</p>
+
+            <h4>第三塊：變數遮蔽決定 (e)</h4>
+            <p>函式內的 <code>int g = 123;</code> 是區域變數，只在 <code>f</code> 裡有效，而且會暫時遮蔽同名全域變數。它不會改到外面的 <code>g = 18</code>。回到 <code>main</code> 後，<code>cout &lt;&lt; g</code> 讀到的是全域變數，因此 <strong>(e) 是 18</strong>。</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>標記</th><th>輸出</th><th>直接原因</th></tr></thead>
+                <tbody>
+                  <tr><td>(a)</td><td><strong>4</strong></td><td>while 共執行 4 圈</td></tr>
+                  <tr><td>(b)</td><td><strong>5</strong></td><td>start 變成 5 後停止</td></tr>
+                  <tr><td>(c)</td><td><strong>0</strong></td><td>x 是傳值，aValue 沒被改</td></tr>
+                  <tr><td>(d)</td><td><strong>100</strong></td><td>陣列參數讓函式改到 values[2]</td></tr>
+                  <tr><td>(e)</td><td><strong>18</strong></td><td>函式內的 g 不會改到全域 g</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="closing-section" id="answer-key">
+        <p class="section-label">Final Check</p>
+        <h2>答案總整理</h2>
+        <p class="section-intro">建議完成整份後再打開核對。若答案不同，不要只改結果，要回到對應題目的「直接原因」。</p>
+        <details class="answer">
+          <summary>顯示完整答案表</summary>
+          <div class="answer-content">
+            <div class="key-grid">
+              <div class="key-card"><strong>第一題</strong><br>(a) T　(b) F　(c) T　(d) T　(e) T</div>
+              <div class="key-card"><strong>第二題</strong><br>(a) 只讀不改時加 const<br>(b) 正確，可改寫成 pointer</div>
+              <div class="key-card"><strong>第三題</strong><br>布林陣列避免重複；時間 O(n²)，額外空間 O(n)</div>
+              <div class="key-card"><strong>第四題</strong><br>(a) 4　(b) 5　(c) 0　(d) 100　(e) 18</div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <footer class="footer">程式設計（115-1）第一次小考 · 本地逐題講解版</footer>
+    </main>
+  </div>
+
+  <script>
+    const cppKeywords = new Set([
+      'alignas', 'alignof', 'asm', 'auto', 'break', 'case', 'catch', 'class',
+      'const', 'constexpr', 'continue', 'default', 'delete', 'do', 'else',
+      'enum', 'explicit', 'export', 'extern', 'for', 'friend', 'goto', 'if',
+      'inline', 'mutable', 'namespace', 'new', 'noexcept', 'operator', 'private',
+      'protected', 'public', 'register', 'return', 'sizeof', 'static', 'struct',
+      'switch', 'template', 'this', 'throw', 'try', 'typedef', 'typename',
+      'union', 'using', 'virtual', 'volatile', 'while'
+    ]);
+
+    const cppTokenPattern = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|^\s*#.*$|\b(?:alignas|alignof|asm|auto|break|case|catch|class|const|constexpr|continue|default|delete|do|else|enum|explicit|export|extern|for|friend|goto|if|inline|mutable|namespace|new|noexcept|operator|private|protected|public|register|return|sizeof|static|struct|switch|template|this|throw|try|typedef|typename|union|using|virtual|volatile|while)\b|\b(?:bool|char|double|float|int|long|short|signed|unsigned|void|wchar_t)\b|\b(?:nullptr|true|false)\b|\b(?:std|cin|cout|cerr|clog|endl|string|vector)\b|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*(?=\s*\())/gm;
+
+    function escapeHtml(text) {
+      return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+    }
+
+    function tokenClass(token) {
+      if (token.startsWith('//') || token.startsWith('/*')) return 'tok-comment';
+      if (token.trimStart().startsWith('#')) return 'tok-preprocessor';
+      if (token.startsWith('"') || token.startsWith("'")) return 'tok-string';
+      if (/^(bool|char|double|float|int|long|short|signed|unsigned|void|wchar_t)$/.test(token)) return 'tok-type';
+      if (/^(nullptr|true|false)$/.test(token)) return 'tok-literal';
+      if (/^(std|cin|cout|cerr|clog|endl|string|vector)$/.test(token)) return 'tok-builtin';
+      if (/^\d/.test(token)) return 'tok-number';
+      return cppKeywords.has(token) ? 'tok-keyword' : 'tok-function';
+    }
+
+    function highlightCpp(source) {
+      let result = '';
+      let previousEnd = 0;
+
+      source.replace(cppTokenPattern, (token, _capture, offset) => {
+        result += escapeHtml(source.slice(previousEnd, offset));
+        result += `<span class="${tokenClass(token)}">${escapeHtml(token)}</span>`;
+        previousEnd = offset + token.length;
+        return token;
+      });
+
+      return result + escapeHtml(source.slice(previousEnd));
+    }
+
+    document.querySelectorAll('pre code').forEach((code) => {
+      code.innerHTML = highlightCpp(code.textContent);
+    });
+
+    document.querySelectorAll('.copy-button').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const code = button.closest('.code-card').querySelector('code').textContent;
+        const originalText = button.textContent;
+
+        try {
+          await navigator.clipboard.writeText(code);
+          button.textContent = '已複製';
+        } catch (error) {
+          const textArea = document.createElement('textarea');
+          textArea.value = code;
+          textArea.style.position = 'fixed';
+          textArea.style.opacity = '0';
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          textArea.remove();
+          button.textContent = '已複製';
+        }
+
+        window.setTimeout(() => {
+          button.textContent = originalText;
+        }, 1600);
+      });
+    });
+  </script>
+</body>
+</html>

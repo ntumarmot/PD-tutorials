@@ -1,0 +1,1516 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="給 C++ 初學者的指標、參考與動態記憶體講義">
+  <title>C++ 指標入門｜Week 1</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #566176;
+      --paper: #ffffff;
+      --canvas: #f4f6f9;
+      --line: #dce2ea;
+      --soft: #eef3ff;
+      --accent: #2157d5;
+      --accent-dark: #173f9d;
+      --good: #116149;
+      --good-bg: #eaf8f2;
+      --warn: #8a4b08;
+      --warn-bg: #fff5e8;
+      --danger: #a52727;
+      --danger-bg: #fff0f0;
+      --code: #111827;
+      --code-muted: #a9b4c8;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(35, 48, 72, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 24px;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      font-size: 17px;
+      line-height: 1.75;
+    }
+
+    a { color: inherit; }
+
+    a:focus-visible,
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(33, 87, 213, 0.35);
+      outline-offset: 3px;
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 32px auto 72px;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 24px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar .week {
+      margin: 0 0 4px;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 18px;
+      font-size: 1.08rem;
+      line-height: 1.35;
+    }
+
+    .sidebar nav {
+      display: grid;
+      gap: 4px;
+    }
+
+    .sidebar nav a {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 160ms ease, color 160ms ease;
+    }
+
+    .sidebar nav a:hover {
+      color: var(--accent-dark);
+      background: var(--soft);
+    }
+
+    main { min-width: 0; }
+
+    .hero,
+    .lesson-section {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(32px, 6vw, 68px);
+      background:
+        linear-gradient(135deg, rgba(33, 87, 213, 0.07), transparent 48%),
+        var(--paper);
+    }
+
+    .hero::after {
+      content: "*&";
+      position: absolute;
+      right: 28px;
+      bottom: -34px;
+      color: rgba(33, 87, 213, 0.07);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: clamp(7rem, 19vw, 14rem);
+      font-weight: 800;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .eyebrow,
+    .section-label {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      letter-spacing: -0.025em;
+      line-height: 1.28;
+    }
+
+    h1 {
+      max-width: 680px;
+      margin: 0;
+      font-size: clamp(2.2rem, 7vw, 4.8rem);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.65rem, 4vw, 2.4rem);
+    }
+
+    h3 {
+      margin: 30px 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .lead {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .goal-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .goal {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .goal strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .goal span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .lesson-section {
+      margin-top: 24px;
+      padding: clamp(26px, 5vw, 52px);
+    }
+
+    .section-intro {
+      max-width: 760px;
+      margin: 12px 0 28px;
+      color: var(--muted);
+    }
+
+    .concept {
+      margin: 28px 0;
+      padding: 20px 22px;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      background: var(--soft);
+    }
+
+    .concept strong { color: var(--accent-dark); }
+
+    .memory-map {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+
+    .memory-cell {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid #b7c5df;
+      border-radius: 10px;
+      background: #fff;
+      text-align: center;
+    }
+
+    .memory-cell .address {
+      display: block;
+      padding: 6px 8px;
+      color: var(--muted);
+      background: #f4f7fb;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.76rem;
+    }
+
+    .memory-cell .value {
+      display: block;
+      padding: 16px 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 700;
+    }
+
+    .memory-cell.active {
+      border: 2px solid var(--accent);
+    }
+
+    .memory-cell.active .value { color: var(--accent-dark); }
+
+    .code-card {
+      overflow: hidden;
+      margin: 18px 0 24px;
+      border: 1px solid #263246;
+      border-radius: 12px;
+      background: var(--code);
+      box-shadow: 0 12px 24px rgba(17, 24, 39, 0.14);
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 9px 10px 9px 16px;
+      border-bottom: 1px solid #2d394d;
+      color: var(--code-muted);
+      font-size: 0.78rem;
+    }
+
+    .copy-button {
+      min-width: 76px;
+      min-height: 38px;
+      padding: 7px 12px;
+      border: 1px solid #58657b;
+      border-radius: 8px;
+      color: #f3f6fb;
+      background: #202b3d;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .copy-button:hover {
+      border-color: #9ab2e8;
+      background: #293852;
+    }
+
+    pre {
+      margin: 0;
+      padding: 20px;
+      overflow-x: auto;
+      color: #eef4ff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.7;
+      tab-size: 4;
+    }
+
+    /* C++ syntax highlighting：配色在深色背景上保持足夠對比。 */
+    pre .tok-comment { color: #8fa0b8; font-style: italic; }
+    pre .tok-preprocessor { color: #f19ac1; }
+    pre .tok-keyword { color: #c7a7ff; font-weight: 650; }
+    pre .tok-type { color: #67d4de; }
+    pre .tok-function { color: #f3cf72; }
+    pre .tok-string { color: #9cda8f; }
+    pre .tok-number,
+    pre .tok-literal { color: #f2a76f; }
+    pre .tok-builtin { color: #82b7ff; }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    :not(pre) > code {
+      padding: 0.12em 0.36em;
+      border-radius: 5px;
+      color: #153d91;
+      background: #edf2ff;
+      font-size: 0.9em;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 12px;
+      margin: 22px 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: steps;
+    }
+
+    .step-list li {
+      position: relative;
+      min-height: 50px;
+      padding: 11px 14px 11px 58px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      counter-increment: steps;
+    }
+
+    .step-list li::before {
+      content: counter(steps);
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .note,
+    .warning,
+    .danger {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 10px;
+    }
+
+    .note {
+      color: var(--good);
+      background: var(--good-bg);
+    }
+
+    .warning {
+      color: var(--warn);
+      background: var(--warn-bg);
+    }
+
+    .danger {
+      color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .note strong,
+    .warning strong,
+    .danger strong { display: block; }
+
+    .compare-wrap {
+      margin: 24px 0;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 620px;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #29354b;
+      background: #f4f7fb;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    details {
+      margin: 14px 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    summary {
+      min-height: 48px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 750;
+    }
+
+    details > div {
+      padding: 0 16px 16px;
+      color: var(--muted);
+    }
+
+    .exercise-card {
+      margin: 20px 0;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fbfcfe;
+    }
+
+    .exercise-card h3 {
+      margin: 0 0 8px;
+      color: var(--ink);
+    }
+
+    .exercise-card > p {
+      margin: 0 0 14px;
+      color: var(--muted);
+    }
+
+    .exercise-card .code-card { margin-bottom: 16px; }
+
+    .answer-box {
+      margin-bottom: 0;
+      border-color: #b9c7e6;
+      background: #f2f6ff;
+    }
+
+    .answer-box summary { color: var(--accent-dark); }
+
+    .answer-box p { margin-bottom: 0; }
+
+    .example-map {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0 32px;
+    }
+
+    .example-topic {
+      padding: 15px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfcfe;
+    }
+
+    .example-topic strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--accent-dark);
+    }
+
+    .example-topic span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .example-card {
+      margin: 26px 0;
+      padding-top: 26px;
+      border-top: 1px solid var(--line);
+    }
+
+    .example-card:first-of-type { border-top: 0; }
+
+    .example-number {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      margin-bottom: 8px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      color: var(--accent-dark);
+      background: var(--soft);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .example-card h3 { margin: 0 0 10px; }
+
+    .example-card > p { max-width: 780px; }
+
+    .source-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 18px;
+    }
+
+    .source-link {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 12px;
+      border: 1px solid #bdc9dd;
+      border-radius: 8px;
+      color: var(--accent-dark);
+      background: #fff;
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 700;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .source-link:hover {
+      border-color: var(--accent);
+      background: var(--soft);
+    }
+
+    .explain-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .explain-box {
+      padding: 15px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfcfe;
+    }
+
+    .explain-box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--accent-dark);
+    }
+
+    .explain-box p { margin: 0; }
+
+    .trace-line {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 9px 9px 0;
+      background: var(--soft);
+    }
+
+    .trace-line strong { display: block; }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .check-item {
+      padding: 15px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfcfe;
+    }
+
+    .check-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--accent-dark);
+    }
+
+    .footer {
+      padding: 26px 12px 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 860px) {
+      .page-shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .goal-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      body { font-size: 16px; }
+      .page-shell { width: min(100% - 20px, 1180px); margin-top: 10px; }
+      .sidebar nav { grid-template-columns: 1fr; }
+      .hero, .lesson-section { padding: 24px 20px; }
+      .hero::after { display: none; }
+      .memory-map { grid-template-columns: 1fr; }
+      .checklist, .example-map, .explain-grid { grid-template-columns: 1fr; }
+      pre { padding: 16px; font-size: 0.82rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+
+    @media print {
+      body { background: #fff; font-size: 11pt; }
+      .page-shell { width: 100%; display: block; margin: 0; }
+      .sidebar, .copy-button { display: none; }
+      .hero, .lesson-section { box-shadow: none; break-inside: avoid; }
+      .lesson-section { margin-top: 14px; }
+      .code-card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <p class="week">Week 1</p>
+      <h2>C++ 指標入門</h2>
+      <nav aria-label="本頁目錄">
+        <a href="#start">0. 先建立畫面</a>
+        <a href="#pointer">1. 指標是什麼</a>
+        <a href="#dereference">2. 讀寫指向的值</a>
+        <a href="#swap-pointer">3. 指標版 swap</a>
+        <a href="#reference">4. 參考版 swap</a>
+        <a href="#dynamic">5. new / delete</a>
+        <a href="#mistakes">6. 常見錯誤</a>
+        <a href="#week5-examples">7. Week 5 範例</a>
+        <a href="#practice">8. 課後練習</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <p class="eyebrow">C++ Beginner Notes</p>
+        <h1>指標、參考與動態記憶體</h1>
+        <p class="lead">
+          這份講義先把「變數放在哪裡」講清楚，再一步步連到指標、
+          <code>swap</code>、<code>new</code> 與 <code>delete</code>。不需要一次背完語法；先看懂每一行讓哪個值發生改變。
+        </p>
+        <div class="goal-grid" aria-label="本週學習目標">
+          <div class="goal"><strong>看得懂</strong><span><code>&amp;</code>、<code>*</code> 在指標程式中各自代表什麼</span></div>
+          <div class="goal"><strong>說得清楚</strong><span>為什麼一般函式換不到外面的兩個變數</span></div>
+          <div class="goal"><strong>安全使用</strong><span>知道 <code>new</code> 出來的空間何時要 <code>delete</code></span></div>
+        </div>
+      </header>
+
+      <section class="lesson-section" id="start">
+        <p class="section-label">00 · Mental model</p>
+        <h2>先建立一個畫面：變數有「值」也有「位址」</h2>
+        <p class="section-intro">
+          電腦的記憶體可以先想成很多有編號的小格子。宣告一個變數時，程式會找一塊空間放它；格子裡的內容是值，格子的編號就是位址（address）。
+        </p>
+
+        <div class="memory-map" aria-label="記憶體格子示意圖">
+          <div class="memory-cell"><span class="address">0x100</span><span class="value">其他資料</span></div>
+          <div class="memory-cell active"><span class="address">0x104</span><span class="value">10</span></div>
+          <div class="memory-cell"><span class="address">0x108</span><span class="value">其他資料</span></div>
+        </div>
+
+        <div class="concept">
+          <strong>重點：</strong>如果 <code>int number = 10;</code> 被放在位址 <code>0x104</code>，那麼 <code>number</code> 代表格子裡的值 <code>10</code>，而 <code>&amp;number</code> 代表這個格子的位址。
+        </div>
+
+        <div class="code-card">
+          <div class="code-head"><span>01_address.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int number = 10;
+
+    cout &lt;&lt; "值：" &lt;&lt; number &lt;&lt; '\n';
+    cout &lt;&lt; "位址：" &lt;&lt; &amp;number &lt;&lt; '\n';
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <p>位址每次執行可能不同，這是正常的。現在只要確認：第一行會印出 <code>10</code>，第二行會印出一個像 <code>0x...</code> 的位址。</p>
+      </section>
+
+      <section class="lesson-section" id="pointer">
+        <p class="section-label">01 · Pointer basics</p>
+        <h2>指標是什麼？</h2>
+        <p class="section-intro">
+          指標（pointer）也是一種變數，但它存的不是一般整數，而是另一個物件的記憶體位址。透過這個位址，我們就能找到原本的物件。
+        </p>
+
+        <div class="code-card">
+          <div class="code-head"><span>02_pointer.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int number = 10;
+    int* pointer = &amp;number;
+
+    cout &lt;&lt; number &lt;&lt; '\n';   // 10
+    cout &lt;&lt; pointer &lt;&lt; '\n';  // number 的位址
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <ol class="step-list">
+          <li><code>int number = 10;</code> 建立一個整數，裡面放 <code>10</code>。</li>
+          <li><code>&amp;number</code> 取得 <code>number</code> 的位址。</li>
+          <li><code>int* pointer</code> 宣告一個「指向 int 的指標」。</li>
+          <li><code>pointer = &amp;number</code> 把 <code>number</code> 的位址存進指標。</li>
+        </ol>
+
+        <div class="warning">
+          <strong><code>*</code> 會依出現位置表示不同事情</strong>
+          在宣告裡，<code>int* pointer</code> 的 <code>*</code> 表示「pointer 是指標」；在運算式裡，<code>*pointer</code> 表示「走到 pointer 存的位址，取出那裡的值」。
+        </div>
+
+        <h3>沒有要指向任何東西時：使用 nullptr</h3>
+        <div class="code-card">
+          <div class="code-head"><span>03_nullptr.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int* pointer = nullptr;
+
+    if (pointer == nullptr) {
+        cout &lt;&lt; "目前沒有指向任何 int\n";
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+        <p><code>nullptr</code> 明確表示「沒有有效位址」。在它指向有效物件之前，不可以寫 <code>*pointer</code>。</p>
+      </section>
+
+      <section class="lesson-section" id="dereference">
+        <p class="section-label">02 · Dereference</p>
+        <h2>用指標讀取、修改原本的值</h2>
+        <p class="section-intro">
+          對指標使用 <code>*</code> 叫做解參考（dereference）：根據指標裡的位址，找到那個位址中的物件。這讓函式有機會修改外部原本的變數。
+        </p>
+
+        <div class="code-card">
+          <div class="code-head"><span>04_dereference.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int number = 10;
+    int* pointer = &amp;number;
+
+    cout &lt;&lt; *pointer &lt;&lt; '\n'; // 讀取：印出 10
+    *pointer = 25;               // 修改 number
+    cout &lt;&lt; number &lt;&lt; '\n';  // 印出 25
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="concept">
+          <strong>因果關係：</strong><code>pointer</code> 裡存著 <code>number</code> 的位址，所以 <code>*pointer = 25</code> 修改的就是那個位址中的值。結果不是只改到指標，而是 <code>number</code> 本身變成 <code>25</code>。
+        </div>
+
+        <h3>把修改動作放進函式</h3>
+        <div class="code-card">
+          <div class="code-head"><span>05_add_one.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+void addOne(int* value) {
+    *value = *value + 1;
+}
+
+int main() {
+    int score = 80;
+    addOne(&amp;score);
+    cout &lt;&lt; score &lt;&lt; '\n'; // 81
+    return 0;
+}</code></pre>
+        </div>
+        <p><code>main</code> 傳入 <code>&amp;score</code>，也就是 <code>score</code> 的位址。<code>addOne</code> 收到位址後，用 <code>*value</code> 找到並修改原本的 <code>score</code>。</p>
+      </section>
+
+      <section class="lesson-section" id="swap-pointer">
+        <p class="section-label">03 · Swap with pointers</p>
+        <h2>為什麼原本的 swap 沒有效？</h2>
+        <p class="section-intro">
+          一般參數預設採用傳值（pass by value）：函式收到的是值的複本。交換複本不會改到 <code>main</code> 裡的原始變數。
+        </p>
+
+        <div class="code-card">
+          <div class="code-head"><span>06_broken_swap.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+void swapWrong(int a, int b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+int main() {
+    int x = 3, y = 8;
+    swapWrong(x, y);
+    cout &lt;&lt; x &lt;&lt; ' ' &lt;&lt; y &lt;&lt; '\n'; // 仍是 3 8
+}</code></pre>
+        </div>
+
+        <p>呼叫時，<code>x</code> 的值被複製給 <code>a</code>，<code>y</code> 的值被複製給 <code>b</code>。函式結束後，區域變數 <code>a</code>、<code>b</code> 被移除，因此外面的 <code>x</code>、<code>y</code> 沒有改變。</p>
+
+        <h3>修法一：傳入兩個變數的位址</h3>
+        <div class="code-card">
+          <div class="code-head"><span>07_pointer_swap.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+void swapByPointer(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int main() {
+    int x = 3, y = 8;
+    swapByPointer(&amp;x, &amp;y);
+    cout &lt;&lt; x &lt;&lt; ' ' &lt;&lt; y &lt;&lt; '\n'; // 8 3
+    return 0;
+}</code></pre>
+        </div>
+
+        <ol class="step-list">
+          <li><code>&amp;x</code> 與 <code>&amp;y</code> 把兩個原始變數的位址傳給函式。</li>
+          <li><code>*a</code> 代表原本的 <code>x</code>；<code>*b</code> 代表原本的 <code>y</code>。</li>
+          <li><code>temp</code> 暫存原本的 <code>x</code>，避免第一個指定動作把它蓋掉。</li>
+          <li>兩次指定都直接寫入原始位址，所以回到 <code>main</code> 後結果仍然保留。</li>
+        </ol>
+      </section>
+
+      <section class="lesson-section" id="reference">
+        <p class="section-label">04 · References</p>
+        <h2>修法二：使用參考</h2>
+        <p class="section-intro">
+          參考（reference）可以把參數當成外部變數的別名。函式裡寫 <code>a</code>，實際上就是在使用呼叫端傳入的那個變數，不需要再寫 <code>*a</code>。
+        </p>
+
+        <div class="code-card">
+          <div class="code-head"><span>08_reference_swap.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+void swapByReference(int&amp; a, int&amp; b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+int main() {
+    int x = 3, y = 8;
+    swapByReference(x, y);
+    cout &lt;&lt; x &lt;&lt; ' ' &lt;&lt; y &lt;&lt; '\n'; // 8 3
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="concept">
+          <strong>注意同一個符號的不同位置：</strong>在 <code>int&amp; a</code> 中，<code>&amp;</code> 是型別的一部分，表示 <code>a</code> 是參考；在 <code>&amp;x</code> 中，<code>&amp;</code> 是取址運算子，表示取得 <code>x</code> 的位址。
+        </div>
+
+        <div class="compare-wrap">
+          <table>
+            <thead><tr><th>比較</th><th>指標參數</th><th>參考參數</th></tr></thead>
+            <tbody>
+              <tr><td>函式宣告</td><td><code>void f(int* p)</code></td><td><code>void f(int&amp; r)</code></td></tr>
+              <tr><td>呼叫方式</td><td><code>f(&amp;x)</code></td><td><code>f(x)</code></td></tr>
+              <tr><td>函式內取值</td><td><code>*p</code></td><td><code>r</code></td></tr>
+              <tr><td>能否表示「沒有指向物件」</td><td>可以設成 <code>nullptr</code></td><td>一般參考必須綁定有效物件</td></tr>
+              <tr><td>適合情況</td><td>允許「可能沒有物件」，或需要操作位址</td><td>參數一定存在，而且希望語法簡潔</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="note"><strong>實務提醒</strong>如果只是想讓函式修改一個一定存在的參數，通常參考比較容易讀；如果「沒有物件」也是合法狀態，指標的 <code>nullptr</code> 才能明確表示它。</p>
+      </section>
+
+      <section class="lesson-section" id="dynamic">
+        <p class="section-label">05 · Dynamic memory</p>
+        <h2>new / delete：執行時才要求一塊空間</h2>
+        <p class="section-intro">
+          <code>new</code> 會在程式執行期間配置（allocate）記憶體，並回傳那塊空間的位址。因為回傳的是位址，所以需要用指標接住。使用完畢後，要用相對應的 <code>delete</code> 釋放空間。
+        </p>
+
+        <div class="code-card">
+          <div class="code-head"><span>09_new_delete.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int* score = new int{90};
+
+    cout &lt;&lt; *score &lt;&lt; '\n'; // 90
+    *score = 100;
+    cout &lt;&lt; *score &lt;&lt; '\n'; // 100
+
+    delete score;
+    score = nullptr;
+    return 0;
+}</code></pre>
+        </div>
+
+        <ol class="step-list">
+          <li><code>new int{90}</code> 配置一個能放 <code>int</code> 的空間，初始值是 <code>90</code>。</li>
+          <li><code>new</code> 回傳該空間的位址，<code>score</code> 把位址存起來。</li>
+          <li><code>*score</code> 讀寫那塊空間中的整數。</li>
+          <li><code>delete score</code> 把不再需要的空間還回去。</li>
+          <li><code>score = nullptr</code> 避免指標繼續保留已失效的舊位址。</li>
+        </ol>
+
+        <h3>動態陣列：new[] 要配 delete[]</h3>
+        <div class="code-card">
+          <div class="code-head"><span>10_dynamic_array.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int size;
+    cin &gt;&gt; size;
+
+    int* scores = new int[size]{};
+    for (int i = 0; i &lt; size; ++i) {
+        scores[i] = (i + 1) * 10;
+    }
+
+    for (int i = 0; i &lt; size; ++i) {
+        cout &lt;&lt; scores[i] &lt;&lt; ' ';
+    }
+
+    delete[] scores;
+    scores = nullptr;
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="warning">
+          <strong>配對規則一定要一致</strong>
+          單一物件：<code>new</code> 配 <code>delete</code>。陣列：<code>new[]</code> 配 <code>delete[]</code>。兩組不能混用。
+        </div>
+
+        <p class="note"><strong>知道語法，也要知道現代做法</strong>學習 raw pointer（原始指標）能幫助理解記憶體；但在一般 C++ 程式中，動態陣列通常優先使用 <code>std::vector</code>，資源擁有權則常交給 smart pointer（智慧指標），可減少忘記釋放的風險。</p>
+      </section>
+
+      <section class="lesson-section" id="mistakes">
+        <p class="section-label">06 · Common mistakes</p>
+        <h2>四個最常見的錯誤</h2>
+        <p class="section-intro">指標錯誤常常不是編譯失敗，而是程式執行時才出問題。先學會辨認危險寫法，比背更多語法重要。</p>
+
+        <div class="checklist">
+          <div class="check-item"><strong>1. 未初始化指標</strong><code>int* p;</code> 裡面是未知位址。若還沒有目標，寫成 <code>int* p = nullptr;</code>。</div>
+          <div class="check-item"><strong>2. 解參考 nullptr</strong><code>*p</code> 前要確定 <code>p != nullptr</code>，否則沒有有效物件可讀寫。</div>
+          <div class="check-item"><strong>3. delete 後繼續使用</strong><code>delete p</code> 後原空間已失效；這時再使用 <code>*p</code> 是未定義行為。</div>
+          <div class="check-item"><strong>4. 忘記 delete</strong>配置的空間失去所有可用指標後就無法釋放，造成 memory leak（記憶體洩漏）。</div>
+        </div>
+
+        <div class="code-card">
+          <div class="code-head"><span>11_safe_pattern.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+          <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int* number = new int{42};
+
+    if (number != nullptr) {
+        cout &lt;&lt; *number &lt;&lt; '\n';
+    }
+
+    delete number;
+    number = nullptr;
+    return 0;
+}</code></pre>
+        </div>
+
+        <p class="danger"><strong>不要把 nullptr 檢查誤解成萬能保護</strong>指標也可能不是 <code>nullptr</code>，卻仍指向已被釋放的空間。真正重要的是清楚知道：誰建立資源、誰負責釋放、釋放後就不再使用。</p>
+      </section>
+
+      <section class="lesson-section" id="week5-examples">
+        <p class="section-label">07 · Week 5 examples</p>
+        <h2>課堂範例逐題講解</h2>
+        <p class="section-intro">
+          這一區對應 <code>in-class-practice/week5</code> 的指標練習。每題先說明程式想證明什麼，再追蹤輸入、位址與輸出；原始解答若有風險或錯誤，也會直接標示。
+        </p>
+
+        <div class="source-actions">
+          <a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice.pdf">開啟原始練習 PDF</a>
+          <a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/">開啟原始解答資料夾</a>
+        </div>
+
+        <div class="example-map" aria-label="Week 5 範例地圖">
+          <div class="example-topic"><strong>題目 1–2｜看見指標</strong><span>觀察位址，並透過指標修改變數。</span></div>
+          <div class="example-topic"><strong>題目 3–5｜函式與生命週期</strong><span>傳入指標、回傳指標，以及誰負責 delete。</span></div>
+          <div class="example-topic"><strong>題目 6｜配置位置</strong><span>比較大型區域陣列與動態陣列。</span></div>
+          <div class="example-topic"><strong>題目 7｜二維動態結構</strong><span>把 adjacency list 轉成 adjacency matrix。</span></div>
+        </div>
+
+        <article class="example-card" id="week5-example-1">
+          <span class="example-number">Problem 1</span>
+          <h3>觀察記憶體位址與配置空間</h3>
+          <p>原題希望觀察變數位址，以及迴圈中配置了多少記憶體。原始解答可以編譯，但它只印出指標變數本身的位址，沒有印出 <code>new</code> 回傳的 heap 位址，而且沒有釋放每次配置的陣列。</p>
+
+          <div class="code-card">
+            <div class="code-head"><span>08_01_see_sol.cpp｜教學修正版</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int anInteger = 0;
+    cout &lt;&lt; "anInteger 的位址：" &lt;&lt; &amp;anInteger &lt;&lt; '\n';
+
+    for (int i = 0; i &lt; 10; ++i) {
+        int* anotherInteger = new int[100];
+
+        cout &lt;&lt; "i 的位址：" &lt;&lt; &amp;i &lt;&lt; '\n';
+        cout &lt;&lt; "指標變數的位址：" &lt;&lt; &amp;anotherInteger &lt;&lt; '\n';
+        cout &lt;&lt; "heap 陣列的起始位址：" &lt;&lt; anotherInteger &lt;&lt; '\n';
+
+        delete[] anotherInteger;
+    }
+    return 0;
+}</code></pre>
+          </div>
+
+          <div class="explain-grid">
+            <div class="explain-box"><strong><code>&amp;anotherInteger</code></strong><p>取得「指標變數本身」的位址。這個變數通常位於函式的 stack frame，而且每圈可能重用同一位置。</p></div>
+            <div class="explain-box"><strong><code>anotherInteger</code></strong><p>指標裡存的值，也就是 <code>new int[100]</code> 配置之 heap 區塊的起始位址。</p></div>
+          </div>
+
+          <p class="trace-line"><strong>配置量怎麼算？</strong>每圈配置 <code>100 × sizeof(int)</code> bytes，共 10 圈，因此總配置量是 <code>1000 × sizeof(int)</code> bytes。若這台電腦的 <code>sizeof(int) == 4</code>，就是 4000 bytes；C++ 標準本身不保證 <code>int</code> 一定是 4 bytes。</p>
+          <p class="warning"><strong>原始解答的風險</strong>原檔每圈都 <code>new int[100]</code>，卻沒有 <code>delete[]</code>，因此會造成 memory leak。上面的教學版已補上釋放。</p>
+          <div class="source-actions"><a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_01_see_sol.cpp">查看原始 08_01 解答</a></div>
+        </article>
+
+        <article class="example-card" id="week5-example-2">
+          <span class="example-number">Problem 2</span>
+          <h3>透過指標修改原本的變數</h3>
+          <p>這題把輸入寫進 <code>*ptrA</code>。因為 <code>ptrA</code> 存著 <code>a</code> 的位址，所以使用者實際修改的仍然是 <code>a</code>。</p>
+
+          <div class="code-card">
+            <div class="code-head"><span>08_02_modify_sol.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a = 0;
+    int* ptrA = &amp;a;
+
+    cin &gt;&gt; *ptrA;
+    cout &lt;&lt; a &lt;&lt; '\n';
+    return 0;
+}</code></pre>
+          </div>
+
+          <ol class="step-list">
+            <li><code>&amp;a</code> 取得 <code>a</code> 的位址，存進 <code>ptrA</code>。</li>
+            <li><code>*ptrA</code> 表示「ptrA 指向的那個 int」，也就是 <code>a</code>。</li>
+            <li>若輸入 <code>37</code>，<code>cin &gt;&gt; *ptrA</code> 就把 <code>37</code> 寫進 <code>a</code>，最後輸出 <code>37</code>。</li>
+          </ol>
+          <div class="source-actions"><a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_02_modify_sol.cpp">查看原始 08_02 解答</a></div>
+        </article>
+
+        <article class="example-card" id="week5-example-3">
+          <span class="example-number">Problem 3</span>
+          <h3>把兩個指標傳進函式，回傳較大值的位址</h3>
+          <p><code>maxPtr</code> 收到的是 <code>a</code>、<code>b</code> 的位址。它先用 <code>*a</code>、<code>*b</code> 比較兩個值，再回傳其中一個原始位址。</p>
+
+          <div class="code-card">
+            <div class="code-head"><span>08_03_passPointer_sol.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int* maxPtr(int* a, int* b) {
+    if (*a &gt; *b)
+        return a;
+    return b;
+}
+
+int main() {
+    int a = 0, b = 0;
+    cin &gt;&gt; a &gt;&gt; b;
+    cout &lt;&lt; *maxPtr(&amp;a, &amp;b) &lt;&lt; '\n';
+    return 0;
+}</code></pre>
+          </div>
+
+          <p class="trace-line"><strong>小例子：輸入 8 13</strong><code>&amp;a</code>、<code>&amp;b</code> 傳入函式 → <code>*a &gt; *b</code> 是 <code>8 &gt; 13</code>，結果為 false → 回傳 <code>b</code> 的位址 → 呼叫端用最外層的 <code>*</code> 取得該位址中的值 → 輸出 <code>13</code>。</p>
+          <p class="note"><strong>為什麼回傳這個指標是安全的？</strong>函式回傳的是 <code>main</code> 中變數 <code>a</code> 或 <code>b</code> 的位址。當 <code>maxPtr</code> 結束時，<code>main</code> 還沒結束，所以這兩個物件仍然存在。</p>
+          <div class="source-actions"><a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_03_passPointer_sol.cpp">查看原始 08_03 解答</a></div>
+        </article>
+
+        <article class="example-card" id="week5-example-4">
+          <span class="example-number">Problem 4</span>
+          <h3>不能回傳區域變數的位址</h3>
+          <p>原程式在 <code>maxAddr</code> 裡建立區域變數 <code>c</code>，然後回傳 <code>&amp;c</code>。函式結束後 <code>c</code> 的生命週期已結束，回傳的指標變成 dangling pointer（懸空指標）。</p>
+
+          <div class="code-card">
+            <div class="code-head"><span>原本的危險寫法</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>int* maxAddr(int a, int b) {
+    int c = a;
+    if (b &gt; a)
+        c = b;
+    return &amp;c;
+}</code></pre>
+          </div>
+
+          <p class="danger"><strong>直接後果</strong>呼叫端執行 <code>*maxLoc</code> 是 undefined behavior。程式可能碰巧印出正確數字、印出垃圾值或直接崩潰；「某次執行看起來正常」不能證明它正確。</p>
+
+          <div class="code-card">
+            <div class="code-head"><span>08_04_returnPointer_solWithModification.cpp｜安全修法</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int* maxPtr(int* a, int* b) {
+    if (*a &gt; *b)
+        return a;
+    return b;
+}
+
+int main() {
+    int a = 0, b = 0;
+    cin &gt;&gt; a &gt;&gt; b;
+
+    int* maxAddr = maxPtr(&amp;a, &amp;b);
+    cout &lt;&lt; *maxAddr &lt;&lt; '\n';
+    return 0;
+}</code></pre>
+          </div>
+          <div class="source-actions">
+            <a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_04_returnPointer_solWithCommentsOnly.cpp">查看危險版本</a>
+            <a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_04_returnPointer_solWithModification.cpp">查看修正版</a>
+          </div>
+        </article>
+
+        <article class="example-card" id="week5-example-5">
+          <span class="example-number">Problem 5</span>
+          <h3>回傳 heap 位址後，呼叫端負責 delete</h3>
+          <p>這題改用 <code>new int</code> 建立動態物件。函式結束後，heap 物件不會像區域變數一樣自動消失，因此回傳它的位址可以繼續使用；代價是必須明確決定誰負責釋放。</p>
+
+          <div class="code-card">
+            <div class="code-head"><span>08_05_DMA_sol.cpp｜修正原檔 typo</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int* maxAddr(int a, int b) {
+    int* cPtr = new int(a);
+    if (b &gt; a)
+        *cPtr = b;
+    return cPtr;
+}
+
+int main() {
+    int a = 0, b = 0;
+    cin &gt;&gt; a &gt;&gt; b;
+
+    int* maxLoc = maxAddr(a, b);
+    cout &lt;&lt; *maxLoc &lt;&lt; '\n';
+
+    delete maxLoc;
+    maxLoc = nullptr;
+    return 0;
+}</code></pre>
+          </div>
+
+          <div class="explain-grid">
+            <div class="explain-box"><strong>函式做什麼？</strong><p><code>new int(a)</code> 建立一個 heap 上的整數並以 <code>a</code> 初始化；若 <code>b</code> 較大，就把該整數改成 <code>b</code>。</p></div>
+            <div class="explain-box"><strong>呼叫端做什麼？</strong><p><code>maxLoc</code> 接住位址、讀取結果，最後用 <code>delete maxLoc</code> 釋放同一個物件。</p></div>
+          </div>
+
+          <p class="danger"><strong>原始檔有一個確定的編譯錯誤</strong>原始第 21 行寫成 <code>delete maxAddr;</code>，但 <code>maxAddr</code> 是函式名稱，不能 delete。正確目標是指標變數 <code>maxLoc</code>。上方程式已修正。</p>
+          <p class="note"><strong>更簡單的設計</strong>這個函式若只需要回傳最大值，直接回傳 <code>int</code> 比配置動態記憶體更簡單。這題使用 <code>new</code> 的主要目的，是練習動態物件的生命週期與釋放責任。</p>
+          <div class="source-actions"><a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_05_DMA_sol.cpp">查看含 typo 的原始 08_05 解答</a></div>
+        </article>
+
+        <article class="example-card" id="week5-example-6">
+          <span class="example-number">Problem 6</span>
+          <h3>大型區域陣列與動態陣列</h3>
+          <p>兩支程式都嘗試建立 100,000,000 個 <code>int</code>。若 <code>sizeof(int) == 4</code>，大約需要 400 MB。差別在於儲存空間與失敗方式。</p>
+
+          <div class="code-card">
+            <div class="code-head"><span>stack_array.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; 123;
+    int array[100000000];
+    cout &lt;&lt; 456;
+    return 0;
+}</code></pre>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head"><span>heap_array.cpp｜補上釋放</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; 123;
+    int* array = new int[100000000];
+    cout &lt;&lt; 456;
+
+    delete[] array;
+    return 0;
+}</code></pre>
+          </div>
+
+          <div class="compare-wrap">
+            <table>
+              <thead><tr><th>比較</th><th>大型區域陣列</th><th><code>new[]</code> 動態陣列</th></tr></thead>
+              <tbody>
+                <tr><td>儲存區域</td><td>通常使用 stack</td><td>使用 dynamic storage，實作上通常稱 heap</td></tr>
+                <tr><td>常見結果</td><td>可能因 stack 空間不足而失敗</td><td>可能成功；空間不足時 <code>new</code> 通常丟出 <code>std::bad_alloc</code></td></tr>
+                <tr><td>釋放方式</td><td>離開作用域自動結束生命週期</td><td>使用完必須 <code>delete[]</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="warning"><strong>執行結果不是每台電腦都相同</strong>stack 限制、可用記憶體、編譯器最佳化都會影響結果。另外第一個 <code>cout &lt;&lt; 123</code> 沒有換行或手動 flush；若程式隨後異常終止，畫面上不一定來得及看到 123。</p>
+        </article>
+
+        <article class="example-card" id="week5-example-7">
+          <span class="example-number">Problem 7</span>
+          <h3>Adjacency list 轉 adjacency matrix</h3>
+          <p>這題把每個節點的鄰居清單讀進 <code>int** neighbors</code>，再輸出 <code>n × n</code> 的矩陣。對節點 <code>i</code> 而言，若 <code>j</code> 出現在 <code>neighbors[i]</code>，矩陣的 <code>matrix[i][j]</code> 就是 1。</p>
+
+          <div class="code-card">
+            <div class="code-head"><span>讀入 adjacency list 的核心結構</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>int nodeCnt = 0;
+cin &gt;&gt; nodeCnt;
+
+int** neighbors = new int*[nodeCnt];
+int* degrees = new int[nodeCnt];
+
+for (int i = 0; i &lt; nodeCnt; ++i) {
+    cin &gt;&gt; degrees[i];
+    neighbors[i] = new int[degrees[i]];
+
+    for (int j = 0; j &lt; degrees[i]; ++j)
+        cin &gt;&gt; neighbors[i][j];
+}</code></pre>
+          </div>
+
+          <div class="explain-grid">
+            <div class="explain-box"><strong><code>neighbors</code> 的角色</strong><p>它指向一個「指標陣列」。第 <code>i</code> 格是 <code>int*</code>，再指向節點 <code>i</code> 的鄰居陣列。</p></div>
+            <div class="explain-box"><strong><code>degrees</code> 的角色</strong><p><code>degrees[i]</code> 告訴程式第 <code>i</code> 個鄰居陣列有幾格，避免讀取超出範圍。</p></div>
+          </div>
+
+          <h3>慢速解法：每個矩陣位置都回頭搜尋清單</h3>
+          <div class="code-card">
+            <div class="code-head"><span>slow solution｜核心三層迴圈</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>for (int i = 0; i &lt; nodeCnt; ++i) {
+    for (int j = 0; j &lt; nodeCnt; ++j) {
+        bool isNeighbor = false;
+
+        for (int k = 0; k &lt; degrees[i]; ++k) {
+            if (neighbors[i][k] == j) {
+                isNeighbor = true;
+                break;
+            }
+        }
+
+        cout &lt;&lt; (isNeighbor ? 1 : 0);
+    }
+}</code></pre>
+          </div>
+          <p>這個版本對每個 <code>(i, j)</code> 都搜尋一次節點 <code>i</code> 的鄰居清單。若圖有 <code>m</code> 條無向邊，總搜尋量可寫成 <code>O(nm)</code>，稠密圖最壞可到 <code>O(n³)</code>。有函式版只是把搜尋動作包進 <code>isNeighbor()</code>，複雜度不會因此改變。</p>
+
+          <h3>快速解法：先建立矩陣，再直接填 1</h3>
+          <div class="code-card">
+            <div class="code-head"><span>08_07_adjacencyList_fastSol.cpp｜核心步驟</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>int** matrix = new int*[nodeCnt];
+
+for (int i = 0; i &lt; nodeCnt; ++i) {
+    matrix[i] = new int[nodeCnt];
+    for (int j = 0; j &lt; nodeCnt; ++j)
+        matrix[i][j] = 0;
+}
+
+for (int i = 0; i &lt; nodeCnt; ++i) {
+    for (int j = 0; j &lt; degrees[i]; ++j) {
+        int neighborID = neighbors[i][j];
+        matrix[i][neighborID] = 1;
+    }
+}
+
+for (int i = 0; i &lt; nodeCnt; ++i) {
+    for (int j = 0; j &lt; nodeCnt; ++j) {
+        if (j &gt; 0)
+            cout &lt;&lt; ' ';
+        cout &lt;&lt; matrix[i][j];
+    }
+    cout &lt;&lt; '\n';
+}
+
+for (int i = 0; i &lt; nodeCnt; ++i)
+    delete[] matrix[i];
+delete[] matrix;</code></pre>
+          </div>
+
+          <ol class="step-list">
+            <li>配置 <code>n</code> 列，每列再配置 <code>n</code> 個 <code>int</code>，並把矩陣全部設成 0。</li>
+            <li>只走訪 adjacency list 中實際存在的鄰居，把對應的 <code>matrix[i][neighborID]</code> 設成 1。</li>
+            <li>逐列輸出矩陣；最後先釋放每一列，再釋放最外層的指標陣列。</li>
+          </ol>
+
+          <p class="trace-line"><strong>複雜度</strong>初始化與輸出矩陣各需要 <code>O(n²)</code>；填入鄰接關係需要 <code>O(m)</code>。總時間是 <code>O(n² + m)</code>，對 simple graph 可簡化為 <code>O(n²)</code>。代價是另外使用 <code>O(n²)</code> 的矩陣空間。</p>
+
+          <div class="source-actions">
+            <a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_07_adjacencyList_slowSol_withoutFunction.cpp">慢速版（無函式）</a>
+            <a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_07_adjacencyList_slowSol_withFunction.cpp">慢速版（有函式）</a>
+            <a class="source-link" href="../../../in-class-practice/week5/PD_08_pointer_practice_answers/08_07_adjacencyList_fastSol.cpp">快速版</a>
+          </div>
+
+          <p class="warning"><strong>釋放順序不能反過來</strong>若先 <code>delete[] neighbors</code>，就失去每一列 <code>neighbors[i]</code> 的位址，後面無法逐列釋放。正確順序是先刪內層陣列，再刪外層指標陣列，最後刪 <code>degrees</code>。</p>
+        </article>
+      </section>
+
+      <section class="lesson-section" id="practice">
+        <p class="section-label">08 · Practice</p>
+        <h2>課後練習</h2>
+        <p class="section-intro">建議先在紙上預測答案，再貼到編譯器執行。若答案不同，從每個指標目前存的位址開始追。</p>
+
+        <article class="exercise-card">
+          <h3>練習 1：執行後 x 是多少？</h3>
+          <p>先不要執行程式，請追蹤每一行後 <code>x</code> 的值，並寫下最後答案。</p>
+          <div class="code-card">
+            <div class="code-head"><span>practice_1.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>int x = 5;
+int* p = &amp;x;
+*p = *p + 3;</code></pre>
+          </div>
+          <details class="answer-box">
+            <summary>查看參考答案</summary>
+            <div>
+              <p>答案：<code>x</code> 是 <code>8</code>。<code>p</code> 指向 <code>x</code>，所以 <code>*p</code> 就是原本的 <code>x</code>。</p>
+            </div>
+          </details>
+        </article>
+
+        <article class="exercise-card">
+          <h3>練習 2：完成 doubleValue</h3>
+          <p>請在空白處補上一行，讓函式能把外面的 <code>number</code> 乘以 <code>2</code>。</p>
+          <div class="code-card">
+            <div class="code-head"><span>practice_2.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>void doubleValue(int* value) {
+    // 請完成這一行
+}
+
+int main() {
+    int number = 7;
+    doubleValue(&amp;number);
+    // number 應該變成 14
+}</code></pre>
+          </div>
+          <details class="answer-box">
+            <summary>查看參考答案</summary>
+            <div>
+              <p>參考答案：<code>*value = *value * 2;</code>。左邊表示要修改指向的物件，右邊先讀出原值再乘以 <code>2</code>。</p>
+            </div>
+          </details>
+        </article>
+
+        <article class="exercise-card">
+          <h3>練習 3：找出動態陣列的錯誤</h3>
+          <p>下面的程式可以編譯，但記憶體釋放方式不正確。請指出錯誤並改寫最後一行。</p>
+          <div class="code-card">
+            <div class="code-head"><span>practice_3.cpp</span><button class="copy-button" type="button">複製程式碼</button></div>
+            <pre><code>int* data = new int[5];
+data[0] = 10;
+delete data;</code></pre>
+          </div>
+          <details class="answer-box">
+            <summary>查看參考答案</summary>
+            <div>
+              <p>錯在最後一行。因為前面使用 <code>new int[5]</code> 建立陣列，釋放時必須使用 <code>delete[] data;</code>。</p>
+            </div>
+          </details>
+        </article>
+
+        <h3>離開教室前，確認自己能回答</h3>
+        <div class="checklist">
+          <div class="check-item"><strong><code>&amp;x</code> 得到什麼？</strong>變數 <code>x</code> 的記憶體位址。</div>
+          <div class="check-item"><strong><code>*p</code> 得到什麼？</strong><code>p</code> 指向的物件；可以讀取，也可以修改。</div>
+          <div class="check-item"><strong>swap 為何要指標或參考？</strong>因為必須改到呼叫端的原始變數，而不是只交換複本。</div>
+          <div class="check-item"><strong>new 之後要記得什麼？</strong>清楚保留位址、用完正確 delete，之後不再使用舊位址。</div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        Week 1 · C++ 指標入門 · 可直接離線開啟與列印
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const cppTokenPattern = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|^\s*#.*$|\b(?:alignas|alignof|asm|auto|break|case|catch|class|const|constexpr|continue|default|delete|do|else|enum|explicit|export|extern|for|friend|goto|if|inline|mutable|namespace|new|noexcept|operator|private|protected|public|register|return|sizeof|static|struct|switch|template|this|throw|try|typedef|typename|union|using|virtual|volatile|while)\b|\b(?:bool|char|double|float|int|long|short|signed|unsigned|void|wchar_t)\b|\b(?:nullptr|true|false)\b|\b(?:std|cin|cout|cerr|clog|endl|string|vector)\b|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*(?=\s*\())/gm;
+
+    function escapeHtml(text) {
+      return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+    }
+
+    function tokenClass(token) {
+      if (token.startsWith('//') || token.startsWith('/*')) return 'tok-comment';
+      if (token.trimStart().startsWith('#')) return 'tok-preprocessor';
+      if (token.startsWith('"') || token.startsWith("'")) return 'tok-string';
+      if (/^(bool|char|double|float|int|long|short|signed|unsigned|void|wchar_t)$/.test(token)) return 'tok-type';
+      if (/^(nullptr|true|false)$/.test(token)) return 'tok-literal';
+      if (/^(std|cin|cout|cerr|clog|endl|string|vector)$/.test(token)) return 'tok-builtin';
+      if (/^\d/.test(token)) return 'tok-number';
+      if (/^[A-Za-z_]\w*$/.test(token)) {
+        const keywords = new Set([
+          'alignas', 'alignof', 'asm', 'auto', 'break', 'case', 'catch', 'class',
+          'const', 'constexpr', 'continue', 'default', 'delete', 'do', 'else',
+          'enum', 'explicit', 'export', 'extern', 'for', 'friend', 'goto', 'if',
+          'inline', 'mutable', 'namespace', 'new', 'noexcept', 'operator', 'private',
+          'protected', 'public', 'register', 'return', 'sizeof', 'static', 'struct',
+          'switch', 'template', 'this', 'throw', 'try', 'typedef', 'typename',
+          'union', 'using', 'virtual', 'volatile', 'while'
+        ]);
+        return keywords.has(token) ? 'tok-keyword' : 'tok-function';
+      }
+      return 'tok-keyword';
+    }
+
+    function highlightCpp(source) {
+      let result = '';
+      let previousEnd = 0;
+
+      source.replace(cppTokenPattern, (token, _capture, offset) => {
+        result += escapeHtml(source.slice(previousEnd, offset));
+        result += `<span class="${tokenClass(token)}">${escapeHtml(token)}</span>`;
+        previousEnd = offset + token.length;
+        return token;
+      });
+
+      return result + escapeHtml(source.slice(previousEnd));
+    }
+
+    document.querySelectorAll('pre code').forEach((code) => {
+      code.innerHTML = highlightCpp(code.textContent);
+    });
+
+    document.querySelectorAll('.copy-button').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const code = button.closest('.code-card').querySelector('code').textContent;
+        const originalText = button.textContent;
+
+        try {
+          await navigator.clipboard.writeText(code);
+          button.textContent = '已複製';
+        } catch (error) {
+          const textArea = document.createElement('textarea');
+          textArea.value = code;
+          textArea.style.position = 'fixed';
+          textArea.style.opacity = '0';
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          textArea.remove();
+          button.textContent = '已複製';
+        }
+
+        window.setTimeout(() => {
+          button.textContent = originalText;
+        }, 1600);
+      });
+    });
+  </script>
+</body>
+</html>

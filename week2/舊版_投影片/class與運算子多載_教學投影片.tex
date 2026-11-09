@@ -1,0 +1,347 @@
+% Compile with: tectonic class與運算子多載_教學投影片.tex
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{listings}
+\usepackage{amsmath}
+\setmainfont{Arial}
+\setsansfont{Arial}
+\setmonofont{Menlo}[Scale=0.88]
+\setCJKmainfont{Heiti TC}
+\setCJKsansfont{Heiti TC}
+\setCJKmonofont{Heiti TC}
+
+\definecolor{navy}{HTML}{17324D}
+\definecolor{blue}{HTML}{176D9A}
+\definecolor{teal}{HTML}{087F8C}
+\definecolor{pale}{HTML}{EAF4F7}
+\definecolor{codebg}{HTML}{F4F6F8}
+\definecolor{orange}{HTML}{B95F22}
+\definecolor{lightorange}{HTML}{FFF3E8}
+\definecolor{muted}{HTML}{586B7A}
+
+\setbeamercolor{normal text}{fg=navy,bg=white}
+\setbeamercolor{frametitle}{fg=navy,bg=pale}
+\setbeamercolor{title}{fg=navy}
+\setbeamercolor{structure}{fg=blue}
+\setbeamercolor{block title}{fg=white,bg=teal}
+\setbeamercolor{block body}{fg=navy,bg=pale}
+\setbeamercolor{alerted text}{fg=orange}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{footline}{%
+  \hfill\scriptsize Week 2｜class 與運算子多載\quad\insertframenumber\,/\,\inserttotalframenumber\hspace{1em}\vspace{0.8em}}
+\setbeamersize{text margin left=1.1cm,text margin right=1.1cm}
+\setlength{\parskip}{0.35em}
+
+\lstdefinestyle{cpp}{
+  language=C++,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{muted},
+  stringstyle=\color{orange},
+  backgroundcolor=\color{codebg},
+  showstringspaces=false,
+  breaklines=true,
+  keepspaces=true,
+  tabsize=2,
+  frame=single,
+  rulecolor=\color{pale},
+  xleftmargin=0.3em,
+  xrightmargin=0.3em,
+  aboveskip=0.4em,
+  belowskip=0.3em
+}
+\lstset{style=cpp}
+
+\newcommand{\key}[1]{\textcolor{teal}{\textbf{#1}}}
+\newcommand{\practice}[2]{%
+  \begin{frame}[plain]
+    \vspace*{1.5cm}
+    {\large\color{muted} 第 #1 章完成}\par\vspace{0.45cm}
+    {\Huge\bfseries\color{teal} 接下來可以練習第#1關}\par\vspace{0.7cm}
+    {\Large #2}\par\vfill
+    {\small\color{muted} 打開 week2／學生練習.md，先預測，再自己打程式與測試。}
+  \end{frame}
+}
+
+\title{class 與 operator overloading}
+\subtitle{Week 2｜邊講邊跑、七次動手寫}
+\author{程式設計家教教材}
+\date{2026 年 10 月}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \vspace*{1.3cm}
+  {\Large\color{teal} 程式設計｜Week 2}\par\vspace{0.35cm}
+  {\Huge\bfseries class 與運算子多載}\par\vspace{0.55cm}
+  {\Large 讓自己的類別可以安全地保存資料，也能使用 \texttt{==}、\texttt{+}、\texttt{[]}。}\par
+  \vfill
+  {\small\color{muted} 對照老師講義：第 11 章 Classes、第 12 章 Operator Overloading。}
+\end{frame}
+
+\begin{frame}{今天要完成什麼？}
+  \begin{block}{最後的作品：\texttt{Vec2}}
+    \texttt{Vec2(2, 5)} 代表 x = 2、y = 5。你會逐步決定它如何建立、比較、相加和讀寫座標。
+  \end{block}
+  \begin{enumerate}
+    \item 先用 \texttt{class} 決定哪些資料能被外部直接碰到。
+    \item 再用成員函式定義物件能做的事。
+    \item 最後用運算子多載，讓 \texttt{a == b}、\texttt{a + b}、\texttt{a[0]} 有清楚的意思。
+  \end{enumerate}
+  \vspace{0.4em}
+  \key{上課節奏：}先猜結果 → 看幾行示範 → 自己寫 → 編譯執行。
+\end{frame}
+
+\section{第 1 章：class、private 與建構子}
+\begin{frame}[fragile]{第 1 章｜為什麼要把資料設為 private？}
+  想像帳戶的餘額可以直接從外面改：
+\begin{lstlisting}
+struct BankAccount {
+    int balance;
+};
+BankAccount a{100};
+a.balance = -500;
+\end{lstlisting}
+  程式可以編譯，但餘額變成不合理的 $-500$。
+  \begin{block}{改成 class 後}
+    把 \texttt{balance} 放在 \texttt{private}，外面只能呼叫公開方法。公開方法可以先檢查輸入，再決定是否改餘額。
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{第 1 章｜建立物件時給初始值}
+\begin{lstlisting}
+class BankAccount {
+private:
+    int balance;
+public:
+    BankAccount() : balance(0) {}
+    bool deposit(int amount) {
+        if (amount <= 0) return false;
+        balance += amount;
+        return true;
+    }
+    int getBalance() const { return balance; }
+};
+\end{lstlisting}
+  \texttt{BankAccount()} 是\key{建構子}：建立物件時自動執行，讓餘額先成為 0。\texttt{deposit(50)} 回傳真且餘額變 50；\texttt{deposit(-3)} 回傳假，餘額保持 50。
+\end{frame}
+
+\begin{frame}{第 1 章｜讀程式時問四件事}
+  \begin{enumerate}
+    \item \key{資料在哪裡？}\quad \texttt{balance} 在每個帳戶物件裡。
+    \item \key{誰能改資料？}\quad 類別內的方法可以；類別外不能直接寫 \texttt{a.balance = ...}。
+    \item \key{輸入是什麼？}\quad \texttt{deposit} 收到一個整數 \texttt{amount}。
+    \item \key{結果是什麼？}\quad 正數才增加餘額，並回傳是否成功。
+  \end{enumerate}
+  \vspace{0.7em}
+  \begin{block}{換成自己的題目}
+    \texttt{Vec2} 要保存兩個座標。建立它時應給什麼值？外面需要直接改 \texttt{x}、\texttt{y} 嗎？
+  \end{block}
+\end{frame}
+\practice{1}{從空白檔定義 \texttt{Vec2}，自己寫建構子、讀取與印出。}
+
+\section{第 2 章：成員函式與 const}
+\begin{frame}[fragile]{第 2 章｜同一個物件，有些方法會改它}
+\begin{lstlisting}
+class Counter {
+private:
+    int count;
+public:
+    Counter(int start) : count(start) {}
+    void addOne() { count += 1; }
+    int value() const { return count; }
+};
+\end{lstlisting}
+  \texttt{addOne()} 把這個 Counter 的 \texttt{count} 加 1。\texttt{value()} 只讀取並回傳 count；方法後面的 \texttt{const} 表示它不修改這個物件。
+\end{frame}
+
+\begin{frame}[fragile]{第 2 章｜const 物件只能呼叫不修改它的方法}
+\begin{lstlisting}
+const Counter frozen(5);
+cout << frozen.value();  // 5
+// frozen.addOne();       // 編譯錯誤
+\end{lstlisting}
+  \texttt{frozen} 建立後不允許改值。呼叫 \texttt{value()} 沒有問題；\texttt{addOne()} 會改值，所以不能呼叫。
+  \begin{block}{準備寫 Vec2}
+    \texttt{move(dx,dy)} 會改座標；\texttt{lengthSquared()} 只計算 $x^2+y^2$，不改座標。哪一個方法後面需要 \texttt{const}？
+  \end{block}
+\end{frame}
+\practice{2}{讓 \texttt{Vec2} 可以移動，並計算移動後的長度平方。}
+
+\section{第 3 章：比較運算子}
+\begin{frame}[fragile]{第 3 章｜a == b 其實是在呼叫函式}
+\begin{lstlisting}
+class Box {
+private:
+    int value;
+public:
+    Box(int v) : value(v) {}
+    bool operator==(const Box& other) const {
+        return value == other.value;
+    }
+};
+\end{lstlisting}
+  \texttt{a == b} 可以讀成 \texttt{a.operator==(b)}：左邊是呼叫函式的物件，右邊傳入 \texttt{other}。
+  \vspace{0.3em}
+  若 a 的值是 5、b 的值也是 5，結果是真；若 b 的值是 8，結果是假。
+\end{frame}
+
+\begin{frame}{第 3 章｜const 寫在哪裡，各保護誰？}
+  \Large
+  \texttt{bool operator==(const Box\& other) const}
+  \normalsize
+  \vspace{0.8em}
+  \begin{itemize}
+    \item \texttt{const Box\& other}：用右邊原本的物件，且不修改它。
+    \item 最後的 \texttt{const}：這個方法不修改左邊物件。
+    \item 回傳 \texttt{bool}：比較結果只有真或假。
+  \end{itemize}
+  \begin{block}{\texttt{!=} 可以怎麼寫？}
+    如果已經會判斷「相等」，「不相等」可以直接使用它的相反結果；不必再複製一次比較條件。
+  \end{block}
+\end{frame}
+\practice{3}{讓兩個 \texttt{Vec2} 能用 \texttt{==} 和 \texttt{!=} 比較。}
+
+\section{第 4 章：會改左邊的 +=}
+\begin{frame}{第 4 章｜先決定運算的意思}
+  設 a = (1,2)、b = (3,4)。執行 \texttt{a += b} 後：
+  \begin{center}
+  \begin{tabular}{c|c|c}
+    物件 & 執行前 & 執行後 \\ \hline
+    a & (1,2) & \textbf{(4,6)} \\
+    b & (3,4) & (3,4)
+  \end{tabular}
+  \end{center}
+  \key{只有左邊 a 改變。}右邊 b 只是提供要加進來的值。
+\end{frame}
+
+\begin{frame}[fragile]{第 4 章｜為什麼要回傳左邊物件？}
+\begin{lstlisting}
+Counter& operator+=(const Counter& other) {
+    count += other.count;
+    return *this;
+}
+\end{lstlisting}
+  \texttt{this} 指向正在執行方法的左邊物件；\texttt{*this} 就是左邊物件本身。
+  \begin{block}{回傳參考的用途}
+    \texttt{(a += b) += c} 要在第一次加完後，繼續修改\emph{同一個 a}。因此回傳 \texttt{Counter\&}，而不是另外造一份 Counter。
+  \end{block}
+\end{frame}
+
+\begin{frame}{第 4 章｜自己檢查兩種容易漏的情況}
+  \begin{enumerate}
+    \item \texttt{a += b} 之後，b 應保持原樣。
+    \item \texttt{a += a} 時，左右其實是同一個物件；每個座標應變成原來的兩倍。
+  \end{enumerate}
+  \vspace{0.8em}
+  \begin{block}{寫之前先說出來}
+    \texttt{Vec2} 有 x、y 兩個欄位。若把 \texttt{other.x} 加到 x，下一行應把哪個值加到 y？
+  \end{block}
+\end{frame}
+\practice{4}{寫 \texttt{+=}，確認它只改左邊，並能連續使用。}
+
+\section{第 5 章：產生新物件的 +}
+\begin{frame}{第 5 章｜+ 和 += 的差別}
+  一樣設 a = (1,2)、b = (3,4)：
+  \begin{center}
+  \begin{tabular}{c|c|c}
+    寫法 & 得到的結果 & 原本的 a \\ \hline
+    \texttt{a += b} & a 變 (4,6) & 改變 \\
+    \texttt{c = a + b} & 新的 c 是 (4,6) & 保持 (1,2)
+  \end{tabular}
+  \end{center}
+  \key{\texttt{+} 要產生新物件。}如果它偷偷改掉 a，後面的程式會很難預測。
+\end{frame}
+
+\begin{frame}[fragile]{第 5 章｜先複製，再重用 +=}
+\begin{lstlisting}
+Counter operator+(const Counter& other) const {
+    Counter result(*this);
+    result += other;
+    return result;
+}
+\end{lstlisting}
+  \texttt{result} 是新物件；只改它，不改左右原物件。\texttt{return result;} 回傳\key{值}。
+  \begin{block}{為什麼不能回傳 \texttt{Counter\&}？}
+    \texttt{result} 是函式內的區域物件。函式結束後它就不存在；若回傳它的參考，呼叫端會拿到無效的參考。
+  \end{block}
+\end{frame}
+\practice{5}{寫 \texttt{+}，產生新 \texttt{Vec2}，保留左右原值。}
+
+\section{第 6 章：可讀可寫的 []}
+\begin{frame}[fragile]{第 6 章｜回傳「值」和「參考」有何不同？}
+\begin{lstlisting}
+int x = 2;
+int copy = x;
+copy = 9;       // x 仍是 2
+
+int& alias = x;
+alias = 9;      // x 變成 9
+\end{lstlisting}
+  若 \texttt{v[0]} 只回傳一個整數值，\texttt{v[0] = 9} 無法改到原本的 x；可寫入版本需要回傳欄位的\key{參考}。
+\end{frame}
+
+\begin{frame}[fragile]{第 6 章｜同一個 []，兩種使用方式}
+\begin{lstlisting}
+int  operator[](int index) const; // const 物件：讀取
+int& operator[](int index);       // 一般物件：可改欄位
+\end{lstlisting}
+  \begin{itemize}
+    \item \texttt{const Vec2 fixed(3,4); fixed[1]}：讀取 y，得到 4。
+    \item \texttt{Vec2 v(1,2); v[0] = 9;}：改寫 x，v 變 (9,2)。
+    \item \texttt{fixed[1] = 9;} 不能編譯，因為 fixed 是 const 物件。
+  \end{itemize}
+  \begin{block}{索引邊界}
+    我們只約定 0 是 x、1 是 y；其他索引要明確報錯。錯誤索引會結束程式，請另開一次執行來測。
+  \end{block}
+\end{frame}
+\practice{6}{寫兩個 \texttt{[]}，讓一般物件可改、const 物件只讀。}
+
+\section{第 7 章：成員與全域運算子}
+\begin{frame}{第 7 章｜左邊是誰，決定能呼叫誰的方法}
+  設 v = (2,5)，我們約定「加整數」是兩個座標都加上它。
+  \begin{itemize}
+    \item \texttt{v + 3}：左邊是 \texttt{Vec2}，可以呼叫 \texttt{Vec2} 的成員運算子。
+    \item \texttt{3 + v}：左邊是 \texttt{int}，不會去呼叫 \texttt{Vec2} 的成員運算子。
+  \end{itemize}
+  \vspace{0.5em}
+  兩個式子都應產生 (5,8)，而 v 仍保持 (2,5)。第二種寫法需要\key{類別外的函式}。
+\end{frame}
+
+\begin{frame}[fragile]{第 7 章｜用 Box 看兩種位置}
+\begin{lstlisting}
+// Box 類別內：box + 3
+Box operator+(int n) const {
+    return Box(value + n);
+}
+
+// Box 類別外：3 + box
+Box operator+(int n, const Box& box) {
+    return box + n;
+}
+\end{lstlisting}
+  類別外版本重用 \texttt{box + n}，不需要碰 \texttt{Box} 的私有欄位。
+  \begin{block}{注意}
+    Box 只有一個值；你要寫的 \texttt{Vec2} 有兩個座標。兩個座標都要加上整數。
+  \end{block}
+\end{frame}
+
+\begin{frame}{第 7 章｜下筆前的最後整理}
+  \begin{center}
+  \begin{tabular}{c|c|c}
+    運算 & 左邊物件會改嗎？ & 主要回傳什麼？ \\ \hline
+    \texttt{a == b} & 不會 & 真／假 \\
+    \texttt{a += b} & 會 & 左邊物件的參考 \\
+    \texttt{a + b} & 不會 & 新物件 \\
+    \texttt{v[0] = 9} & 會 & 欄位的參考 \\
+    \texttt{v + 3} & 不會 & 新物件
+  \end{tabular}
+  \end{center}
+  \vspace{0.5em}
+  \key{先決定行為，再決定函式的參數、const 與回傳型別。}
+\end{frame}
+\practice{7}{讓 \texttt{v + 3} 和 \texttt{3 + v} 都得到新向量。}
+
+\end{document}

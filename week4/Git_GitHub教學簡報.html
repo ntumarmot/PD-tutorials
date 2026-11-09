@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Git 與 GitHub：把每次修改變成可理解的歷史</title>
+<style>
+:root{--paper:#F4F6F7;--ink:#13202C;--ink2:#3F4D5A;--rule:#CBD3D9;--blue:#0066B3;--green:#007A52;--orange:#E8820C;--neutral:#7A8996;--signal:#FFC72C;--alert:#C8102E;--code:#0F1B26;--sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--mono:"SFMono-Regular","JetBrains Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0B141C}body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}button{font-family:inherit}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;background:var(--paper);transform-origin:0 0}
+.slide{position:absolute;inset:0;display:none;width:1920px;height:1080px;padding:84px 120px 140px;overflow:hidden;background:var(--paper);font-size:36px;line-height:1.55}
+.slide.active{display:block;animation:fade .18s ease-out}.slide.cover.active{display:flex;flex-direction:column;justify-content:center}.slide.divider.active{display:flex;align-items:center;gap:116px}@keyframes fade{from{opacity:0}to{opacity:1}}.content{transform-origin:0 0}
+h1,h2,h3,p{margin-top:0}.h1{margin-bottom:30px;font-size:68px;line-height:1.2;letter-spacing:-.02em}.h1.sm{font-size:56px}.lead{max-width:1540px;margin-bottom:30px;color:var(--ink2);font-size:42px;line-height:1.55}.big{margin:0;max-width:1560px;font-size:102px;font-weight:900;line-height:1.12;letter-spacing:-.025em}.course{margin:0;font-size:44px;font-weight:750}.meta{margin-top:14px;color:var(--ink2);font-size:31px}.hint{position:absolute;top:84px;right:120px;color:var(--ink2);font-size:25px;line-height:1.7;text-align:right}.bar{display:flex;width:1000px;height:16px;margin:48px 0 42px;overflow:hidden;border-radius:8px}.bar i{flex:1}.small{font-size:29px;line-height:1.5}.dim{color:var(--ink2)}.mono{font-family:var(--mono)}code.i{padding:2px 9px;border-radius:6px;background:#E3E8EC;font-family:var(--mono);font-size:.85em}strong{font-weight:800}
+.row{display:flex;gap:58px;align-items:flex-start}.row>*{min-width:0}.grow{flex:1}.w45{width:45%}.w50{width:50%}.w55{width:55%}.cols{display:grid;gap:0}.cols.c2{grid-template-columns:repeat(2,1fr)}.cols.c3{grid-template-columns:repeat(3,1fr)}.cols>div{padding:2px 48px;border-left:3px solid var(--rule)}.cols>div:first-child{padding-left:0;border-left:0}.cols h3{margin-bottom:12px;font-size:48px;line-height:1.25}.cols p{margin-bottom:0;color:var(--ink2);font-size:35px;line-height:1.52}
+.note{padding:20px 34px;border-left:10px solid var(--signal);border-radius:0 12px 12px 0;background:rgba(255,199,44,.18);font-size:36px;line-height:1.5}.note.good{border-left-color:var(--green);background:rgba(0,122,82,.09)}.note.bad{border-left-color:var(--alert);background:rgba(200,16,46,.08)}.note+.note{margin-top:20px}
+.ann{margin:0;padding:0;list-style:none}.ann li{display:flex;gap:22px;margin-bottom:24px;font-size:37px;line-height:1.48}.ann .n{display:flex;flex:none;align-items:center;justify-content:center;width:52px;height:52px;margin-top:2px;border-radius:50%;background:var(--ink);color:#fff;font-size:29px;font-weight:800}.ann small{display:block;color:var(--ink2);font-size:29px;line-height:1.42}.plain{margin:0;padding-left:1.3em;font-size:38px;line-height:1.65}.plain li{margin-bottom:12px}
+.codebox{position:relative}.codebox>pre.code{padding-right:108px}pre.code{margin:0;padding:27px 34px;overflow:hidden;border-radius:16px;background:var(--code);color:#E6EDF3;font-family:var(--mono);font-size:28px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}pre.code.sm{font-size:24px;line-height:1.48}pre.code.xs{font-size:21px;line-height:1.42}.out{color:#8EE3B0}.com{color:#8B9BAB}.cmd{color:#7CC4FF}.arg{color:#FFD479}.danger{color:#FF8A8A}.copy{position:absolute;top:14px;right:14px;min-width:76px;height:42px;padding:0 10px;border:2px solid #728396;border-radius:10px;background:#172737;color:#F4F6F7;font-size:19px;font-weight:700;cursor:pointer}.copy:hover{border-color:var(--signal);color:var(--signal)}
+.route{position:relative;display:flex;margin-top:58px}.route:before{position:absolute;top:25px;right:0;left:0;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--blue) 0 31%,var(--green) 31% 61%,var(--orange) 61% 90%,var(--neutral) 90%);content:""}.route .stop{position:relative;flex:1;padding-right:46px}.route .dot{position:relative;z-index:1;width:62px;height:62px;border:12px solid var(--c);border-radius:50%;background:var(--paper)}.route h3{margin:26px 0 4px;font-size:44px;line-height:1.2}.route p{color:var(--ink2);font-size:31px;line-height:1.48}
+.zones{display:grid;grid-template-columns:repeat(4,1fr);margin-top:34px;border-top:5px solid var(--ink)}.zone{min-height:330px;padding:26px 30px;border-left:3px solid var(--rule)}.zone:first-child{border-left:0}.zone h3{margin-bottom:10px;font-size:38px;line-height:1.25}.zone .where{color:var(--ink2);font-size:26px}.zone p{font-size:31px;line-height:1.48}.zone .verb{display:inline-block;margin-top:22px;padding:5px 15px;border-radius:8px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:26px}
+.divider{background:var(--sec);color:var(--on)}.sec-blue{--sec:var(--blue);--on:#fff}.sec-green{--sec:var(--green);--on:#fff}.sec-orange{--sec:var(--orange);--on:var(--ink)}.plate{flex:none;width:900px;overflow:hidden;border-radius:24px;background:#fff;color:var(--ink)}.plate .top{padding:16px 48px;background:var(--ink);color:#fff;font-size:36px;font-weight:700}.plate .name{padding:34px 48px 2px;font-size:84px;font-weight:900;line-height:1.15}.plate .en{padding:0 48px 40px;color:var(--ink2);font-size:34px}.divider .qs h2{margin-bottom:18px;font-size:43px}.divider .qs ol{margin:0;padding-left:1.4em;font-size:39px;line-height:1.6}
+.steps{position:relative;display:flex;margin-top:42px}.steps:before{position:absolute;top:30px;right:30px;left:30px;height:10px;border-radius:5px;background:var(--c,var(--blue));opacity:.3;content:""}.steps .s{position:relative;flex:1;padding-right:34px}.steps .num{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:62px;height:62px;border-radius:50%;background:var(--c,var(--blue));color:#fff;font-size:31px;font-weight:800}.steps.orange .num{color:var(--ink)}.steps h3{margin:20px 0 5px;font-size:34px;line-height:1.3}.steps p{margin:0;color:var(--ink2);font-size:28px;line-height:1.45}
+.commits{position:relative;display:flex;gap:82px;margin-top:54px;padding:0 40px}.commits:before{position:absolute;top:27px;right:48px;left:48px;height:8px;border-radius:4px;background:var(--ink);content:""}.commit{position:relative;z-index:1;flex:1}.commit .dot{width:62px;height:62px;border:10px solid var(--ink);border-radius:50%;background:var(--signal)}.commit h3{margin:18px 0 2px;font-family:var(--mono);font-size:28px}.commit p{color:var(--ink2);font-size:29px;line-height:1.4}
+.branch-map{position:relative;flex:none;width:930px;height:500px}.branch-map .shared,.branch-map .feature-line,.branch-map .feature-rise{position:absolute;height:10px;border-radius:5px}.branch-map .shared{top:205px;left:100px;width:540px;background:var(--blue)}.branch-map .feature-rise{top:205px;left:640px;width:170px;background:var(--orange);transform:rotate(41deg);transform-origin:left center}.branch-map .feature-line{top:315px;left:768px;width:120px;background:var(--orange)}.branch-map .node{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:66px;height:66px;border:9px solid var(--ink);border-radius:50%;background:#fff;font-family:var(--mono);font-size:22px;font-weight:800}.branch-map .node.feature-node{border-color:#A44C00}.branch-map .label{position:absolute;font-size:26px;font-weight:800;line-height:1.35}.branch-map .label small{display:block;color:var(--ink2);font-size:21px;font-weight:500}.branch-map .shared-caption{position:absolute;top:278px;left:100px;color:var(--ink2);font-size:27px}.branch-map .origin{position:absolute;top:66px;left:390px;width:360px;padding-left:18px;border-left:8px solid var(--orange);color:#7D3A00;font-size:25px;font-weight:750;line-height:1.35}.branch-map .origin small{display:block;color:var(--ink2);font-size:21px;font-weight:500}.branch-lead{margin:-6px 0 30px;color:var(--ink2);font-size:34px;line-height:1.5}
+table.t{width:100%;border-collapse:collapse;font-size:34px;line-height:1.42}table.t th{padding:13px 20px;border-bottom:4px solid var(--ink);text-align:left}table.t td{padding:16px 20px;border-bottom:2px solid var(--rule);vertical-align:top}table.t td:first-child{font-weight:700}.quiz{padding:22px 34px;border-top:5px solid var(--ink);background:#fff}.quiz .q{margin-bottom:12px;font-size:41px;font-weight:800;line-height:1.35}.quiz .ans{padding-left:26px;border-left:9px solid var(--signal);color:var(--ink2);font-size:34px;line-height:1.48}.step{visibility:hidden;opacity:0;transition:opacity .2s}.step.on{visibility:visible;opacity:1}.sources{margin:0;padding:0;list-style:none}.sources li{margin-bottom:22px;font-size:32px;line-height:1.45}.sources a{color:var(--blue);text-decoration-thickness:2px;text-underline-offset:5px}
+#rail{position:absolute;right:0;bottom:0;left:0;z-index:10;height:104px;border-top:2px solid var(--rule);background:var(--paper)}#track{position:absolute;top:35px;left:120px;width:1415px;height:10px;border-radius:5px;background:var(--rule)}.seg{position:absolute;top:0;height:10px;background:var(--c);opacity:.42}.tick{position:absolute;top:-2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--c)}.tick.current{top:-12px;width:36px;height:36px;margin-left:-18px;border:6px solid var(--ink);background:var(--signal)}.seglabel{position:absolute;top:28px;width:250px;margin-left:-125px;color:var(--ink2);font-size:22px;font-weight:700;text-align:center}#count{position:absolute;top:25px;left:1560px;color:var(--ink2);font-size:27px;font-weight:750;font-variant-numeric:tabular-nums}#nav{position:absolute;right:112px;bottom:25px;z-index:20;display:flex;gap:12px}#nav button{width:54px;height:54px;padding:0;border:3px solid var(--ink);border-radius:50%;background:var(--paper);color:var(--ink);font-size:27px;font-weight:800;cursor:pointer}#nav button:hover{background:var(--signal)}#notes{position:absolute;right:0;bottom:104px;left:0;z-index:15;display:none;max-height:440px;padding:28px 120px 34px;overflow:auto;background:rgba(15,27,38,.97);color:#fff;font-size:30px;line-height:1.55}#notes.on{display:block}#notes .nt{margin-bottom:5px;color:var(--signal);font-size:24px;font-weight:800}#live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}:focus-visible{outline:5px solid var(--blue);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.slide.active{animation:none}.step{transition:none}}
+@media print{@page{size:13.333in 7.5in;margin:0}html,body{height:auto;overflow:visible;background:#fff}#stage{position:static;width:1920px;height:auto;transform:none!important}.slide,.slide.cover,.slide.divider{position:relative;display:block!important;width:1920px;height:1080px;break-after:page;animation:none}.slide.cover,.slide.divider{display:flex!important}.step{visibility:visible!important;opacity:1!important}.codebox>pre.code{padding-right:34px}#rail,#nav,#notes,#live,.copy{display:none!important}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="Git 與 GitHub 教學簡報">
+<section class="slide cover" data-title="標題" data-group="start">
+<div class="content">
+<div class="hint">方向鍵／空白鍵：下一步<br>F：全螢幕　N：講者提示</div>
+<h1 class="big">Git 與 GitHub<br>把每次修改變成可理解的歷史</h1>
+<div class="bar" aria-hidden="true"><i style="background:var(--blue)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+<p class="course">程式設計小老師｜Week 4</p>
+<p class="meta">從第一個 commit，到分支、衝突與 Pull Request</p>
+</div>
+<aside class="notes" hidden>先建立「版本快照」的心智模型，再進入指令。Git 和 GitHub 要分開介紹，避免學生一開始就把兩者混成同一個工具。</aside>
+</section>
+
+<section class="slide" data-title="上課前安裝" data-group="start"><div class="content">
+<h1 class="h1 sm">上課前先安裝 Git 與 GitHub CLI</h1>
+<p class="lead" style="font-size:36px">以下指令適用於已安裝 Homebrew 的 macOS。請在終端機逐行執行。</p>
+<div class="row"><div class="w55 codebox"><pre class="code"><span class="cmd">$ brew</span> install git
+<span class="cmd">$ brew</span> install gh
+
+<span class="cmd">$ git</span> --version
+<span class="cmd">$ gh</span> --version</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>Git</strong><small>在電腦上建立 commit、查看紀錄與管理 branch。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>GitHub CLI</strong><small><code class="i">gh</code> 是 GitHub 的終端機工具，之後可以用它登入 GitHub。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>確認安裝完成</strong><small>最後兩行能顯示版本號，就表示終端機找得到這兩個工具。</small></div></li>
+</ul></div></div>
+<div class="note step" data-step="3" style="margin-top:42px"><strong>如果出現 <code class="i">brew: command not found</code>：</strong>請先依照 <span class="mono">brew.sh</span> 的說明安裝 Homebrew，再重新開啟終端機。</div>
+</div></section>
+
+<section class="slide" data-title="登入 GitHub" data-group="start"><div class="content">
+<h1 class="h1 sm">用 GitHub CLI 登入自己的帳號</h1>
+<p class="lead" style="font-size:36px"><code class="i">gh</code> 會把登入流程交給瀏覽器，不需要在終端機輸入 GitHub 密碼。</p>
+<div class="row"><div class="w55 codebox"><pre class="code"><span class="cmd">$ gh</span> auth login --web --clipboard
+
+<span class="com"># 完成瀏覽器授權後，再回到終端機確認</span>
+<span class="cmd">$ gh</span> auth status</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>執行登入指令</strong><small><code class="i">--web</code> 會開啟瀏覽器，<code class="i">--clipboard</code> 會複製一次性驗證碼。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>在瀏覽器完成授權</strong><small>確認目前登入的是自己的 GitHub 帳號。網頁要求驗證碼時，直接貼上後按下授權。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>確認登入成功</strong><small><code class="i">gh auth status</code> 會顯示目前登入的 GitHub 帳號。</small></div></li>
+</ul></div></div>
+<div class="note step" data-step="3" style="margin-top:42px"><strong>容易選錯帳號：</strong>如果瀏覽器原本登入了別人的 GitHub，請先切換成自己的帳號，再按下授權。</div>
+</div><aside class="notes" hidden>資料來源：https://cli.github.com/manual/gh_auth_login 與 https://cli.github.com/manual/gh_auth_status 。GitHub CLI 的畫面文字可能因版本而略有不同。</aside></section>
+
+<section class="slide" data-title="今天的路線" data-group="start"><div class="content">
+<h1 class="h1">今天的路線</h1><p class="lead">同一個小專案會一路演進。每學一組指令，就立刻用一次。</p>
+<div class="route">
+<div class="stop" style="--c:var(--blue)"><div class="dot"></div><h3>Git 基礎</h3><p>建立版本、挑選變更、回看歷史</p></div>
+<div class="stop" style="--c:var(--green)"><div class="dot"></div><h3>連上 GitHub</h3><p>遠端 repository、push、pull、clone</p></div>
+<div class="stop" style="--c:var(--orange)"><div class="dot"></div><h3>分支與協作</h3><p>branch、merge、conflict、Pull Request</p></div>
+<div class="stop" style="--c:var(--neutral)"><div class="dot"></div><h3>整合挑戰</h3><p>獨立完成一輪團隊工作流程</p></div>
+</div>
+<div class="note step" data-step="1"><strong>課堂主角：</strong><span class="mono">campus-eats</span>，一個記錄校園餐廳的純文字小專案。</div>
+</div></section>
+
+<section class="slide" data-title="沒有版本控制時" data-group="start"><div class="content">
+<h1 class="h1">沒有版本控制時，檔名會替你記歷史</h1>
+<div class="row"><div class="w50"><pre class="code"><span class="out">報告_final.cpp</span>
+報告_final2.cpp
+報告_真的final.cpp
+報告_真的final_可跑.cpp
+報告_不要再改了.cpp</pre></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div>不知道每個版本改了什麼<small>只能打開檔案逐一比較。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div>很難只還原某一次修改<small>回到舊版本時，也可能把後來正確的內容一起丟掉。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div>多人修改時容易互相覆蓋<small>寄檔案無法清楚回答「誰改了哪一行」。</small></div></li>
+</ul></div></div>
+<div class="note step" data-step="3"><strong>Git 的核心用途：</strong>替專案保存一連串可描述、可比較、可回復的版本快照。</div>
+</div></section>
+
+<section class="slide" data-title="Git 與 GitHub" data-group="start"><div class="content">
+<h1 class="h1">Git 與 GitHub 是兩個不同層次</h1>
+<div class="cols c2">
+<div><h3 style="color:var(--blue)">Git</h3><p>安裝在電腦上的版本控制工具。即使沒有網路，也能建立 commit、切換 branch、查看歷史。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">GitHub</h3><p>託管 Git repository 的線上平台。它增加備份、分享、Issue、Pull Request 與 code review。</p></div>
+</div>
+<div class="note step" data-step="2" style="margin-top:56px"><strong>小例子：</strong>你可以只用 Git 管理自己的作業；當你要和組員交換 commit，才需要 GitHub 這類遠端平台。</div>
+</div></section>
+
+<section class="slide divider sec-blue" data-title="第一站：Git 基礎" data-group="git">
+<div class="plate"><div class="top">FIRST STOP</div><div class="name">Git 基礎</div><div class="en">Local version history</div></div>
+<div class="qs"><h2>這一站要回答</h2><ol><li>Git 到底保存了什麼？</li><li>add 和 commit 為什麼要分開？</li><li>如何看懂 status 與 log？</li></ol></div>
+</section>
+
+<section class="slide" data-title="四個位置" data-group="git"><div class="content">
+<h1 class="h1">先記住四個位置</h1><p class="lead">Git 指令的差別，通常只是「把內容從哪裡送到哪裡」。</p>
+<div class="zones">
+<div class="zone"><h3>工作目錄</h3><div class="where">你正在編輯的檔案</div><p>檔案新增、修改或刪除，都先出現在這裡。</p><span class="verb">edit</span></div>
+<div class="zone step" data-step="1"><h3>暫存區</h3><div class="where">下一個 commit 的清單</div><p>你挑選哪些修改要一起成為下一張快照。</p><span class="verb">git add</span></div>
+<div class="zone step" data-step="2"><h3>本機 repository</h3><div class="where">電腦裡的版本歷史</div><p>每次 commit 會留下內容、作者、時間與說明。</p><span class="verb">git commit</span></div>
+<div class="zone step" data-step="3"><h3>遠端 repository</h3><div class="where">例如 GitHub</div><p>讓其他人取得你的 commit，也保存線上副本。</p><span class="verb">git push</span></div>
+</div></div></section>
+
+<section class="slide" data-title="commit 身分設定" data-group="git"><div class="content">
+<h1 class="h1 sm">設定 commit 使用的名字與信箱</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="cmd">$ git</span> config --global user.name <span class="arg">"你的名字"</span>
+<span class="cmd">$ git</span> config --global user.email <span class="arg">"你的信箱"</span>
+<span class="cmd">$ git</span> config --global init.defaultBranch <span class="arg">main</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><code class="i">--global</code> 表示套用到這台電腦上的所有 repository。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div>名字與信箱會寫進 commit。<small>這是版本作者資訊，不等於 GitHub 登入帳號或密碼。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div>最後一行把新 repository 的預設分支設成 <code class="i">main</code>。</div></li>
+</ul></div></div></div></section>
+
+<section class="slide" data-title="建立第一個 repository" data-group="git"><div class="content">
+<h1 class="h1 sm">範例專案：建立第一個 repository</h1>
+<div class="row"><div class="w55 codebox"><pre class="code"><span class="cmd">$</span> mkdir campus-eats
+<span class="cmd">$</span> cd campus-eats
+<span class="cmd">$ git</span> init
+<span class="out">Initialized empty Git repository in .../campus-eats/.git/</span>
+<span class="cmd">$</span> printf <span class="arg">"# Campus Eats&#92;n"</span> &gt; README.md
+<span class="cmd">$ git</span> status</pre><button class="copy" type="button">複製</button></div>
+<div class="grow">
+<div class="note"><strong><code class="i">git init</code> 的輸入：</strong>一個普通資料夾。</div>
+<div class="note good step" data-step="1"><strong>它做的事：</strong>新增隱藏的 <code class="i">.git</code> 目錄，用來保存版本資料。</div>
+<div class="note step" data-step="2"><strong>輸出：</strong>原本檔案不會被改寫；資料夾開始具備 Git 版本歷史。</div>
+</div></div></div></section>
+
+<section class="slide" data-title="看懂 git status" data-group="git"><div class="content">
+<h1 class="h1 sm">先問 Git：目前發生了什麼？</h1>
+<div class="row"><div class="w55"><pre class="code"><span class="cmd">$ git</span> status
+On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+        <span class="danger">README.md</span>
+
+nothing added to commit but untracked files present</pre></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>On branch main</strong><small>現在站在 main 分支。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>No commits yet</strong><small>版本歷史目前是空的。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>Untracked</strong><small>Git 看到 README.md，但你還沒決定要不要追蹤它。</small></div></li>
+</ul></div></div>
+<div class="note step" data-step="3"><strong>習慣：</strong>不確定下一步時，先執行 <code class="i">git status</code>。它只讀取狀態，不會改變檔案。</div>
+</div></section>
+
+<section class="slide" data-title="git add 與暫存區" data-group="git"><div class="content">
+<h1 class="h1 sm"><code class="i">git add</code> 是挑選下一張快照</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="cmd">$ git</span> add README.md
+<span class="cmd">$ git</span> status
+Changes to be committed:
+        <span class="out">new file:   README.md</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><p style="font-size:38px"><code class="i">git add README.md</code> 把<strong>當下這份 README.md 的內容</strong>放進暫存區。</p>
+<div class="note step" data-step="1"><strong>容易誤會：</strong>add 不是「以後自動追蹤所有修改」。如果 add 之後又改了檔案，要再 add 一次，新的內容才會進入下一個 commit。</div></div></div>
+<div class="quiz step" data-step="2" style="margin-top:38px"><div class="q">小問題：同時改了 README.md 和 menu.txt，但這次只想提交 README.md，怎麼做？</div><div class="ans step" data-step="3"><code class="i">git add README.md</code>。暫存區讓一次 commit 只包含相關修改。</div></div>
+</div></section>
+
+<section class="slide" data-title="第一個 commit" data-group="git"><div class="content">
+<h1 class="h1 sm"><code class="i">git commit</code> 把暫存區存成版本</h1>
+<div class="row"><div class="w55 codebox"><pre class="code"><span class="cmd">$ git</span> commit -m <span class="arg">"docs: add project introduction"</span>
+<span class="out">[main (root-commit) a1b2c3d] docs: add project introduction</span>
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+
+<span class="cmd">$ git</span> log --oneline
+<span class="out">a1b2c3d docs: add project introduction</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><code class="i">-m</code> 後面是這個版本的說明。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">a1b2c3d</code> 是示意的 commit ID。<small>Git 用它識別特定版本；你的實際 ID 會不同。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div>好的訊息說明「完成了什麼」。<small><span class="mono">fix: correct lunch price</span> 比 <span class="mono">update</span> 更容易理解。</small></div></li>
+</ul></div></div></div></section>
+
+<section class="slide" data-title="新增菜單資料" data-group="git"><div class="content">
+<h1 class="h1 sm">第二次提交：新增第一筆菜單資料</h1>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="cmd">$</span> printf <span class="arg">"台大牛肉麵,120&#92;n"</span> &gt; menu.csv
+<span class="cmd">$ git</span> status
+<span class="cmd">$ git</span> add menu.csv
+<span class="cmd">$ git</span> diff --staged
+<span class="out">+台大牛肉麵,120</span>
+
+<span class="cmd">$ git</span> commit -m <span class="arg">"data: add first restaurant"</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow">
+<div class="note"><strong><code class="i">git diff</code>：</strong>看尚未放進暫存區的已追蹤檔案修改。</div>
+<div class="note good step" data-step="1"><strong><code class="i">git diff --staged</code>：</strong>看下一個 commit 實際會包含什麼。</div>
+<div class="note step" data-step="2"><strong>這一頁做的是新增：</strong>先建立 menu.csv，內容是牛肉麵 120 元。下一頁才會修改這個價格。</div>
+</div></div></div></section>
+
+<section class="slide" data-title="修改既有價格" data-group="git"><div class="content">
+<h1 class="h1 sm">第三次提交：把 120 修改成 130</h1>
+<p class="lead">現在 <code class="i">menu.csv</code> 已經存在。先在終端機開啟檔案，修改後再讓 Git 比較前後差異。</p>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="cmd">$</span> nano menu.csv
+
+<span class="com"># 在 nano 編輯器裡，把這一行：</span>
+台大牛肉麵,120
+<span class="com"># 改成：</span>
+<span class="out">台大牛肉麵,130</span>
+
+<span class="com"># 儲存：Control + O，再按 Enter</span>
+<span class="com"># 離開：Control + X</span>
+
+<span class="cmd">$ git</span> diff
+<span class="danger">-台大牛肉麵,120</span>
+<span class="out">+台大牛肉麵,130</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>輸入：</strong>已經被 Git 追蹤的 menu.csv，原本價格是 120。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">nano menu.csv</code><small>在終端機中開啟文字編輯器。用方向鍵移動游標，把 120 刪掉並輸入 130。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>儲存與離開</strong><small>Control + O 寫入檔案，Enter 確認檔名，Control + X 回到終端機。</small></div></li>
+<li class="step" data-step="3"><span class="n">4</span><div><code class="i">git diff</code><small>減號是舊內容，加號是新內容。此時 Git 已看到價格變更，但還沒有建立 commit。</small></div></li>
+</ul></div></div>
+<div class="row step" data-step="4" style="margin-top:28px">
+<div class="grow codebox"><pre class="code xs"><span class="cmd">$ git</span> add menu.csv
+<span class="cmd">$ git</span> diff --staged
+<span class="cmd">$ git</span> commit -m <span class="arg">"data: correct lunch price"</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="note"><strong>只有一行時的快捷做法：</strong><code class="i">printf "台大牛肉麵,130&#92;n" &gt; menu.csv</code><br><span class="small"><code class="i">&gt;</code> 會覆寫整個檔案。menu.csv 有很多行時，使用 nano 比較安全。</span></div></div>
+</div></div></section>
+
+<section class="slide" data-title="版本歷史" data-group="git"><div class="content">
+<h1 class="h1">三次提交形成一條可回看的歷史</h1>
+<div class="commits">
+<div class="commit"><div class="dot"></div><h3>a1b2c3d</h3><p>docs: add project introduction</p></div>
+<div class="commit step" data-step="1"><div class="dot"></div><h3>d4e5f6a</h3><p>data: add first restaurant</p></div>
+<div class="commit step" data-step="2"><div class="dot"></div><h3>7b8c9d0</h3><p>data: correct lunch price</p></div>
+</div>
+<div class="row step" data-step="3" style="margin-top:54px">
+<div class="grow codebox"><pre class="code"><span class="cmd">$ git</span> log --oneline --graph --decorate --all</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><div class="note"><strong>輸出：</strong>每個 commit 的簡短 ID、分支位置與訊息。</div></div>
+</div></div></section>
+
+<section class="slide" data-title="練習一" data-group="git"><div class="content">
+<h1 class="h1">練習一：獨立完成一個 commit</h1>
+<p class="lead">新增 <code class="i">hours.txt</code>，內容是「週一至週五 11:00–20:00」，並留下清楚的版本。</p>
+<div class="cols c3">
+<div><h3>題目</h3><p>寫出建立檔案、查看狀態、加入暫存區、提交與查看歷史的指令。</p></div>
+<div class="step" data-step="1"><h3>自我檢查</h3><p>commit 只包含 hours.txt；訊息能說明這次加入營業時間。</p></div>
+<div class="step" data-step="2"><h3>加分</h3><p>提交前使用 <code class="i">git diff --staged</code>，確認實際內容。</p></div>
+</div>
+<div class="codebox step" data-step="3" style="margin-top:42px"><pre class="code sm"><span class="com"># 參考答案</span>
+<span class="cmd">$</span> printf <span class="arg">"週一至週五 11:00–20:00&#92;n"</span> &gt; hours.txt
+<span class="cmd">$ git</span> status
+<span class="cmd">$ git</span> add hours.txt
+<span class="cmd">$ git</span> diff --staged
+<span class="cmd">$ git</span> commit -m <span class="arg">"docs: add opening hours"</span>
+<span class="cmd">$ git</span> log --oneline</pre><button class="copy" type="button">複製</button></div>
+</div></section>
+
+<section class="slide" data-title="常見失誤" data-group="git"><div class="content">
+<h1 class="h1">第一站常見失誤</h1>
+<table class="t"><thead><tr><th>看到的情況</th><th>原因</th><th>下一步</th></tr></thead><tbody>
+<tr><td>nothing to commit</td><td>目前沒有已暫存的新內容</td><td>先執行 <code class="i">git status</code>，確認是否尚未 add</td></tr>
+<tr class="step" data-step="1"><td>untracked files</td><td>Git 看見新檔案，但還未追蹤</td><td>需要就 add；不需要就放入 .gitignore</td></tr>
+<tr class="step" data-step="2"><td>Author identity unknown</td><td>尚未設定 commit 作者</td><td>設定 <code class="i">user.name</code> 與 <code class="i">user.email</code></td></tr>
+<tr class="step" data-step="3"><td>一次 add 太多檔案</td><td>使用 <code class="i">git add .</code>，但沒有先檢查</td><td>初學時優先 add 明確檔名，再看 <code class="i">diff --staged</code></td></tr>
+</tbody></table></div></section>
+
+<section class="slide divider sec-green" data-title="第二站：GitHub 遠端" data-group="github">
+<div class="plate"><div class="top">SECOND STOP</div><div class="name">GitHub 遠端</div><div class="en">Share commits online</div></div>
+<div class="qs"><h2>這一站要回答</h2><ol><li>本機與遠端如何連接？</li><li>push、pull、clone 差在哪裡？</li><li>哪些檔案不該上傳？</li></ol></div>
+</section>
+
+<section class="slide" data-title="本機與遠端" data-group="github"><div class="content">
+<h1 class="h1">GitHub 收到的是 commit，不是即時編輯畫面</h1>
+<div class="steps" style="--c:var(--green)">
+<div class="s"><div class="num">1</div><h3>本機修改</h3><p>你在工作目錄編輯檔案。</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>本機 commit</h3><p>add 後 commit，版本先存在你的電腦。</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>push</h3><p>把本機已有的 commit 上傳到遠端。</p></div>
+<div class="s step" data-step="3"><div class="num">4</div><h3>GitHub 顯示</h3><p>組員可以查看、clone 或提出 review。</p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:54px"><strong>因果關係：</strong>如果你只修改檔案但沒有 commit，<code class="i">git push</code> 沒有新版本可以上傳。</div>
+</div></section>
+
+<section class="slide" data-title="連接 GitHub repository" data-group="github"><div class="content">
+<h1 class="h1 sm">把本機 repository 連到 GitHub</h1>
+<div class="row"><div class="w50"><ol class="plain">
+<li>在 GitHub 建立空的 repository，例如 <span class="mono">campus-eats</span>。</li>
+<li class="step" data-step="1">複製它的 HTTPS 或 SSH URL。</li>
+<li class="step" data-step="2">在本機加入名為 <span class="mono">origin</span> 的遠端位置。</li>
+</ol></div>
+<div class="grow codebox step" data-step="2"><pre class="code sm"><span class="cmd">$ git</span> remote add origin https://github.com/YOUR-NAME/campus-eats.git
+<span class="cmd">$ git</span> remote -v
+<span class="cmd">$ git</span> push -u origin main</pre><button class="copy" type="button">複製</button></div></div>
+<div class="note step" data-step="3" style="margin-top:38px"><strong><code class="i">origin</code>：</strong>遠端 URL 的慣用別名。<strong><code class="i">-u</code>：</strong>記住本機 main 對應 origin/main，之後通常只要輸入 <code class="i">git push</code>。</div>
+</div></section>
+
+<section class="slide" data-title="clone、fetch、pull、push" data-group="github"><div class="content">
+<h1 class="h1 sm">四個遠端指令，各自搬動不同內容</h1>
+<table class="t"><thead><tr><th>指令</th><th>輸入</th><th>做的事</th><th>結果</th></tr></thead><tbody>
+<tr><td><code class="i">git clone URL</code></td><td>遠端 repository</td><td>第一次下載完整專案、歷史與遠端設定</td><td>新的本機資料夾</td></tr>
+<tr class="step" data-step="1"><td><code class="i">git fetch</code></td><td>遠端新 commit</td><td>下載遠端資訊，但先不改目前工作分支</td><td>可先比較差異</td></tr>
+<tr class="step" data-step="2"><td><code class="i">git pull</code></td><td>遠端新 commit</td><td>先 fetch，再整合到目前分支</td><td>本機分支更新</td></tr>
+<tr class="step" data-step="3"><td><code class="i">git push</code></td><td>本機新 commit</td><td>把本機分支的 commit 上傳</td><td>遠端分支更新</td></tr>
+</tbody></table></div></section>
+
+<section class="slide" data-title="安全同步順序" data-group="github"><div class="content">
+<h1 class="h1 sm">多人協作前，先同步再開始改</h1>
+<div class="steps" style="--c:var(--green)">
+<div class="s"><div class="num">1</div><h3>確認工作目錄</h3><p><code class="i">git status</code><br>不要帶著不明修改同步。</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>取得最新版本</h3><p><code class="i">git pull --ff-only</code><br>只接受可直接前進的更新。</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>開始修改</h3><p>完成一件小事後 add、commit。</p></div>
+<div class="s step" data-step="3"><div class="num">4</div><h3>上傳 commit</h3><p><code class="i">git push</code><br>讓遠端取得本機新版本。</p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:50px"><strong><code class="i">--ff-only</code>：</strong>如果本機與遠端各自有新 commit，Git 會停止並請你處理分岔，不會自動產生你沒預期的 merge commit。</div>
+</div></section>
+
+<section class="slide" data-title=".gitignore 與敏感資料" data-group="github"><div class="content">
+<h1 class="h1 sm">不是每個檔案都適合進入 Git</h1>
+<div class="row"><div class="w45 codebox"><pre class="code"><span class="com"># .gitignore</span>
+.DS_Store
+build/
+.env
+*.log</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div>作業系統產生的檔案<small>例如 macOS 的 .DS_Store。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div>可以重新生成的建置結果<small>例如 build/、大型暫存檔與 log。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>密碼、token、API key</strong><small>.gitignore 能防止誤加新檔，但已 commit 的秘密仍留在歷史中。</small></div></li>
+</ul></div></div>
+<div class="note bad step" data-step="3"><strong>不要把 private repository 當成密碼保險箱。</strong>如果秘密已 commit，要先撤銷憑證，再處理 Git 歷史。</div>
+</div></section>
+
+<section class="slide" data-title="練習二" data-group="github"><div class="content">
+<h1 class="h1">練習二：判斷該用哪個指令</h1>
+<div class="quiz"><div class="q">A. 第一次把組員的 GitHub 專案完整下載到電腦</div><div class="ans step" data-step="1"><code class="i">git clone URL</code></div></div>
+<div class="quiz step" data-step="2"><div class="q">B. 想先知道遠端有沒有更新，但暫時不改目前檔案</div><div class="ans step" data-step="3"><code class="i">git fetch</code></div></div>
+<div class="quiz step" data-step="4"><div class="q">C. 已經 commit，要把新版本送到 GitHub</div><div class="ans step" data-step="5"><code class="i">git push</code></div></div>
+<div class="quiz step" data-step="6"><div class="q">D. 取得遠端更新並整合到目前分支</div><div class="ans step" data-step="7"><code class="i">git pull</code></div></div>
+</div></section>
+
+<section class="slide" data-title="non-fast-forward" data-group="github"><div class="content">
+<h1 class="h1 sm">push 被拒絕：遠端已有你沒有的 commit</h1>
+<div class="row"><div class="w55"><pre class="code sm"><span class="cmd">$ git</span> push
+<span class="danger">! [rejected] main -&gt; main (non-fast-forward)</span>
+error: failed to push some refs
+hint: Updates were rejected because the remote contains work
+hint: that you do not have locally.</pre></div>
+<div class="grow"><p style="font-size:37px">Git 不敢直接上傳，因為那可能讓遠端看不到組員已經 push 的 commit。</p>
+<div class="note step" data-step="1"><strong>先做：</strong><code class="i">git pull --ff-only</code>。若不能直接前進，代表本機與遠端都各自有新 commit。</div>
+<div class="note bad step" data-step="2"><strong>不要直接：</strong><code class="i">git push --force</code>。它可能覆寫遠端歷史。</div>
+</div></div></div></section>
+
+<section class="slide divider sec-orange" data-title="第三站：分支與協作" data-group="branch">
+<div class="plate"><div class="top">THIRD STOP</div><div class="name">分支與協作</div><div class="en">Branches, merge and review</div></div>
+<div class="qs"><h2>這一站要回答</h2><ol><li>為什麼不直接在 main 修改？</li><li>merge conflict 是什麼？</li><li>Pull Request 在審查什麼？</li></ol></div>
+</section>
+
+<section class="slide" data-title="branch 心智模型" data-group="branch"><div class="content">
+<h1 class="h1 sm">branch：從同一個 commit 開始，之後各自前進</h1>
+<p class="branch-lead">把 C 當成目前的穩定版本。建立 <code class="i">feature/menu</code> 時，兩個 branch 一開始都指向 C。</p>
+<div class="row">
+<div class="branch-map" aria-label="main 與 feature/menu 從 commit C 分開的示意圖">
+<div class="shared"></div>
+<div class="node" style="left:67px;top:177px">A</div><div class="node" style="left:327px;top:177px">B</div><div class="node" style="left:607px;top:177px">C</div>
+<div class="label" style="left:685px;top:155px;color:var(--blue)">main 指向 C<small>穩定版本留在這裡</small></div>
+<div class="shared-caption">A、B、C 是兩個 branch 共有的歷史</div>
+<div class="origin step" data-step="1">feature/menu 也先指向 C<small>此時還沒有新的 commit</small></div>
+<div class="feature-rise step" data-step="2"></div><div class="feature-line step" data-step="2"></div>
+<div class="node feature-node step" data-step="2" style="left:735px;top:282px">D</div><div class="node feature-node step" data-step="2" style="left:855px;top:282px">E</div>
+<div class="label step" data-step="2" style="left:600px;top:390px;width:320px;color:#A44C00">feature/menu 指向 E<small>新功能的 commit 只讓它往前</small></div>
+</div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>起點：</strong>main 指向 C。<small>C 保存目前穩定的檔案內容。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>建立 branch：</strong>Git 新增 <code class="i">feature/menu</code> 這個名稱。<small>它先指向同一個 C，不會另外複製一個專案資料夾。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>在 feature 上 commit：</strong>新增 D、E。<small>feature/menu 移到 E，main 仍然停在 C。</small></div></li>
+</ul>
+<div class="note step" data-step="3"><strong>為什麼要這樣做：</strong>新功能還沒完成時，main 仍保留可用版本；完成後再 merge。</div>
+</div></div>
+</div></section>
+
+<section class="slide" data-title="建立與切換 branch" data-group="branch"><div class="content">
+<h1 class="h1 sm">建立功能分支，完成一個小改動</h1>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="cmd">$ git</span> switch -c feature/add-vegetarian
+<span class="out">Switched to a new branch 'feature/add-vegetarian'</span>
+<span class="cmd">$</span> echo <span class="arg">"蔬食自助餐,90"</span> &gt;&gt; menu.csv
+<span class="cmd">$ git</span> add menu.csv
+<span class="cmd">$ git</span> commit -m <span class="arg">"data: add vegetarian option"</span>
+<span class="cmd">$ git</span> log --oneline --graph --decorate --all</pre><button class="copy" type="button">複製</button></div>
+<div class="grow">
+<div class="note"><strong><code class="i">switch -c</code>：</strong>從目前 commit 建立新分支，並立刻切換過去。</div>
+<div class="note" style="font-size:30px;line-height:1.45"><strong>為什麼這裡用 <code class="i">echo</code>：</strong><code class="i">echo "文字"</code> 預設會在結尾換行；<code class="i">printf "文字"</code> 則要自己加上 <code class="i">&#92;n</code>。這裡的 <code class="i">&gt;&gt;</code> 會把新的一行加到 menu.csv 最後，不會覆蓋原本內容。</div>
+<div class="note good step" data-step="1"><strong>輸出：</strong>main 仍指向原本版本；feature 分支前進到新 commit。</div>
+<div class="note step" data-step="2"><strong>命名：</strong>用短而具體的名稱，例如 <span class="mono">fix/wrong-price</span>。</div>
+</div></div></div></section>
+
+<section class="slide" data-title="merge" data-group="branch"><div class="content">
+<h1 class="h1 sm">把功能分支整合回 main</h1>
+<div class="row"><div class="w50 codebox"><pre class="code"><span class="cmd">$ git</span> switch main
+<span class="cmd">$ git</span> merge feature/add-vegetarian
+<span class="out">Updating ...</span>
+<span class="out">Fast-forward</span>
+<span class="cmd">$ git</span> log --oneline --graph --decorate --all</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div>先切回「要接收修改」的 main。</div></li>
+<li class="step" data-step="1"><span class="n">2</span><div>執行 merge，指定「要被合進來」的功能分支。</div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><strong>Fast-forward</strong><small>main 在功能開發期間沒有新增 commit，因此只要把 main 指標向前移動。</small></div></li>
+</ul></div></div>
+<div class="note step" data-step="3"><strong>檢查：</strong>merge 後執行測試、查看 <code class="i">git status</code>，再 push 更新遠端 main。</div>
+</div></section>
+
+<section class="slide" data-title="merge conflict" data-group="branch"><div class="content">
+<h1 class="h1 sm">conflict：Git 不知道同一處該保留哪個版本</h1>
+<div class="cols c2">
+<div><h3 style="color:var(--blue)">main</h3><p><span class="mono">台大牛肉麵,130</span><br><span class="dim">組員把價格改成 130。</span></p></div>
+<div class="step" data-step="1"><h3 style="color:#A44C00">feature/discount</h3><p><span class="mono">台大牛肉麵,110</span><br><span class="dim">你把同一行改成優惠價 110。</span></p></div>
+</div>
+<div class="note bad step" data-step="2" style="margin-top:46px"><strong>Git 能確定：</strong>兩個分支都改了同一行。<br><strong>Git 無法確定：</strong>130 和 110 哪個才符合團隊的真實需求。</div>
+<div class="note step" data-step="3"><strong>所以 conflict 不是程式壞掉。</strong>它是 Git 停下來，要求人決定最後內容。</div>
+</div></section>
+
+<section class="slide" data-title="解決 conflict" data-group="branch"><div class="content">
+<h1 class="h1 sm">conflict 檔案中的兩個版本</h1>
+<p class="lead" style="font-size:34px">Git 把兩個版本都放進 <span class="mono">menu.csv</span>，等你決定最後要留下哪一個。</p>
+<div class="row"><div class="w50"><pre class="code"><span class="danger">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+台大牛肉麵,130
+<span class="arg">=======</span>
+台大牛肉麵,110
+<span class="danger">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/discount</span></pre></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><strong>目前的 main</strong><small><code class="i">HEAD</code> 下方到分隔線以前，是 main 的內容：130 元。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><strong>要合進來的 feature/discount</strong><small>分隔線下方到最後一行以前，是功能分支的內容：110 元。</small></div></li>
+</ul></div></div>
+<div class="row step" data-step="2" style="margin-top:40px;align-items:center"><div class="grow"><p style="margin:0;font-size:36px;line-height:1.55"><strong>假設團隊決定保留優惠價 110：</strong><br>用編輯器刪掉 130 和標記，只留下右邊這一行。</p></div>
+<div class="w45"><pre class="code"><span class="out">台大牛肉麵,110</span></pre></div></div>
+</div></section>
+
+<section class="slide" data-title="完成 conflict merge" data-group="branch"><div class="content">
+<h1 class="h1 sm">修改檔案後，完成這次 merge</h1>
+<p class="lead" style="font-size:36px">你已經在編輯器把 <span class="mono">menu.csv</span> 改成最後要保留的內容。接下來才回到終端機。</p>
+<div class="row"><div class="w55 codebox"><pre class="code sm"><span class="cmd">$ git</span> add menu.csv
+<span class="cmd">$ git</span> status
+<span class="out">All conflicts fixed but you are still merging.</span>
+
+<span class="cmd">$ git</span> commit -m <span class="arg">"merge: resolve lunch price conflict"</span></pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><ul class="ann">
+<li><span class="n">1</span><div><code class="i">git add menu.csv</code><small>把修改後的內容放進暫存區。Git 也會把這個檔案視為已解決。</small></div></li>
+<li class="step" data-step="1"><span class="n">2</span><div><code class="i">git status</code><small>如果看到上面的訊息，表示檔案衝突都已處理，但 merge 還沒完成。</small></div></li>
+<li class="step" data-step="2"><span class="n">3</span><div><code class="i">git commit</code><small>建立這次 merge 的 commit，整個 merge 到這裡完成。</small></div></li>
+</ul></div></div>
+<div class="note step" data-step="3" style="margin-top:42px"><strong>如果決定不合併：</strong><code class="i">git merge --abort</code> 取消這次 merge。</div>
+</div></section>
+
+<section class="slide" data-title="Pull Request" data-group="branch"><div class="content">
+<h1 class="h1">Pull Request 是「請團隊審查這組 commit」</h1>
+<div class="steps orange" style="--c:var(--orange)">
+<div class="s"><div class="num">1</div><h3>Push branch</h3><p>把功能分支上傳到 GitHub。</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>Open PR</h3><p>說明問題、修改內容與測試方式。</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>Review</h3><p>組員閱讀 diff、留言並要求修改。</p></div>
+<div class="s step" data-step="3"><div class="num">4</div><h3>Merge</h3><p>通過檢查後，把 branch 整合進 main。</p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:46px"><strong>PR 描述至少回答：</strong>為什麼要改？改了什麼？別人如何驗證？</div>
+</div></section>
+
+<section class="slide" data-title="團隊工作流程" data-group="branch"><div class="content">
+<h1 class="h1 sm">一輪完整的 GitHub Flow</h1>
+<div class="row"><div class="w50"><ol class="plain">
+<li>切回 main，取得最新版本。</li>
+<li class="step" data-step="1">從 main 建立功能分支。</li>
+<li class="step" data-step="2">完成小範圍修改，分成清楚的 commit。</li>
+<li class="step" data-step="3">push branch，開 Pull Request。</li>
+<li class="step" data-step="4">回應 review，測試通過後 merge。</li>
+</ol></div>
+<div class="grow codebox step" data-step="4"><pre class="code sm"><span class="cmd">$ git</span> switch main
+<span class="cmd">$ git</span> pull --ff-only
+<span class="cmd">$ git</span> switch -c feature/add-map
+<span class="com"># 修改、測試</span>
+<span class="cmd">$ git</span> add map.md
+<span class="cmd">$ git</span> commit -m <span class="arg">"docs: add restaurant map"</span>
+<span class="cmd">$ git</span> push -u origin feature/add-map</pre><button class="copy" type="button">複製</button></div></div>
+</div></section>
+
+<section class="slide" data-title="練習三" data-group="branch"><div class="content">
+<h1 class="h1">練習三：分支整合</h1>
+<p class="lead">main 已有 menu.csv。請在 <span class="mono">feature/add-breakfast</span> 加入早餐店，然後整合回 main。</p>
+<div class="cols c3">
+<div><h3>必做</h3><p>建立 branch、修改、add、commit、切回 main、merge。</p></div>
+<div class="step" data-step="1"><h3>驗證</h3><p><code class="i">git log --graph --all</code> 能看到 commit；main 有早餐店。</p></div>
+<div class="step" data-step="2"><h3>思考</h3><p>若 main 同時修改同一行，merge 時可能發生什麼？誰來決定內容？</p></div>
+</div>
+<div class="codebox step" data-step="3" style="margin-top:40px"><pre class="code xs"><span class="com"># 參考答案</span>
+<span class="cmd">$ git</span> switch -c feature/add-breakfast
+<span class="cmd">$</span> echo <span class="arg">"晨間早餐,65"</span> &gt;&gt; menu.csv
+<span class="cmd">$ git</span> add menu.csv
+<span class="cmd">$ git</span> commit -m <span class="arg">"data: add breakfast option"</span>
+<span class="cmd">$ git</span> switch main
+<span class="cmd">$ git</span> merge feature/add-breakfast
+<span class="cmd">$ git</span> log --oneline --graph --decorate --all</pre><button class="copy" type="button">複製</button></div>
+</div></section>
+
+<section class="slide" data-title="修正錯誤的選擇" data-group="branch"><div class="content">
+<h1 class="h1 sm">修正錯誤前，先判斷 commit 是否已分享</h1>
+<table class="t"><thead><tr><th>情況</th><th>較安全的工具</th><th>原因</th></tr></thead><tbody>
+<tr><td>工作目錄改壞，尚未 add</td><td><code class="i">git restore 檔名</code></td><td>丟棄尚未暫存的修改；執行前先確認真的不要</td></tr>
+<tr class="step" data-step="1"><td>已 add，想移出暫存區</td><td><code class="i">git restore --staged 檔名</code></td><td>保留工作內容，只取消這次暫存</td></tr>
+<tr class="step" data-step="2"><td>錯誤 commit 已 push</td><td><code class="i">git revert COMMIT</code></td><td>建立相反修改的新 commit，不改寫共享歷史</td></tr>
+<tr class="step" data-step="3"><td>尚未分享的本機歷史</td><td>amend、reset 或 rebase</td><td>可能改寫 commit；先備份並確認影響範圍</td></tr>
+</tbody></table>
+<div class="note bad step" data-step="4" style="margin-top:28px"><strong>高風險：</strong><code class="i">reset --hard</code> 會丟棄工作內容。不要把它當成萬用復原按鈕。</div>
+</div></section>
+
+<section class="slide" data-title="整合挑戰" data-group="finish"><div class="content">
+<h1 class="h1">整合挑戰：完成一次可審查的修改</h1>
+<p class="lead">兩人一組。一人負責功能分支，另一人扮演 reviewer。</p>
+<div class="steps" style="--c:var(--neutral)">
+<div class="s"><div class="num">1</div><h3>同步</h3><p>從最新 main 建立 <span class="mono">feature/add-rating</span>。</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>實作</h3><p>為 menu.csv 新增 rating 欄位與兩筆資料。</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>提交</h3><p>拆成清楚 commit，push branch。</p></div>
+<div class="s step" data-step="3"><div class="num">4</div><h3>審查</h3><p>說明驗證方式，reviewer 檢查 diff 後回覆。</p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:45px"><strong>完成條件：</strong>main 沒有未提交修改；PR 包含目的、修改摘要與驗證方式；reviewer 指出至少一個具體檢查結果。</div>
+</div></section>
+
+<section class="slide" data-title="指令地圖" data-group="finish"><div class="content">
+<h1 class="h1 sm">不知道下一步時，回到這張地圖</h1>
+<table class="t"><thead><tr><th>你想回答的問題</th><th>指令</th><th>會不會改東西</th></tr></thead><tbody>
+<tr><td>現在有哪些修改？</td><td><code class="i">git status</code>、<code class="i">git diff</code></td><td>不會，只讀取</td></tr>
+<tr><td>下一個 commit 要放什麼？</td><td><code class="i">git add 檔名</code>、<code class="i">git diff --staged</code></td><td>add 會改暫存區</td></tr>
+<tr><td>保存一個版本？</td><td><code class="i">git commit -m "訊息"</code></td><td>新增 commit</td></tr>
+<tr><td>查看版本歷史？</td><td><code class="i">git log --oneline --graph --all</code></td><td>不會，只讀取</td></tr>
+<tr><td>與 GitHub 同步？</td><td><code class="i">git fetch</code>、<code class="i">git pull</code>、<code class="i">git push</code></td><td>下載、整合或更新遠端</td></tr>
+<tr><td>隔離一個新功能？</td><td><code class="i">git switch -c branch</code></td><td>建立並切換分支</td></tr>
+</tbody></table></div></section>
+
+<section class="slide" data-title="總結" data-group="finish"><div class="content">
+<h1 class="h1">今天帶走的核心模型</h1>
+<div class="cols c3">
+<div><h3 style="color:var(--blue)">一個 commit</h3><p>先用 add 挑選相關修改，再用 commit 留下可理解的版本與訊息。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">兩個 repository</h3><p>本機先保存 commit；push 與 pull 才讓本機和 GitHub 交換版本。</p></div>
+<div class="step" data-step="2"><h3 style="color:#A44C00">多條 branch</h3><p>新功能在獨立分支完成。PR 讓團隊先看 diff、討論、測試，再合併。</p></div>
+</div>
+<div class="note step" data-step="3" style="margin-top:58px"><strong>最重要的習慣：</strong>小步修改、先看 status、提交前看 diff、同步前確認工作目錄。</div>
+</div></section>
+
+<section class="slide" data-title="延伸資源" data-group="finish"><div class="content">
+<h1 class="h1">官方延伸資源</h1>
+<ul class="sources">
+<li><strong>Pro Git 線上書：</strong><a href="https://git-scm.com/book/zh-tw/v2" target="_blank" rel="noreferrer">git-scm.com/book/zh-tw/v2</a><br><span class="dim small">完整理解 commit、branch、remote 與 Git 內部模型。</span></li>
+<li><strong>Git 指令參考：</strong><a href="https://git-scm.com/docs" target="_blank" rel="noreferrer">git-scm.com/docs</a><br><span class="dim small">查詢每個參數的正式定義與範例。</span></li>
+<li><strong>GitHub Git 基礎：</strong><a href="https://docs.github.com/zh/get-started/git-basics" target="_blank" rel="noreferrer">docs.github.com/zh/get-started/git-basics</a><br><span class="dim small">GitHub 官方的 remote、認證、workflow 與 .gitignore 說明。</span></li>
+<li><strong>GitHub Pull Request：</strong><a href="https://docs.github.com/zh/pull-requests" target="_blank" rel="noreferrer">docs.github.com/zh/pull-requests</a><br><span class="dim small">PR、code review、merge 與 conflict 的官方文件。</span></li>
+</ul>
+<p class="small dim" style="margin-top:28px">簡報中的 commit ID 與部分終端機輸出為教學示意；實際文字會依 Git 版本、作業系統與 repository 狀態不同。</p>
+</div></section>
+
+<div id="rail" aria-hidden="true"><div id="track"></div><div id="count"></div></div>
+<nav id="nav" aria-label="投影片導覽"><button id="prev" type="button" aria-label="上一步">‹</button><button id="next" type="button" aria-label="下一步">›</button></nav>
+<aside id="notes" aria-live="polite"></aside><div id="live" aria-live="polite"></div>
+</main>
+<script>
+(function(){
+var stage=document.getElementById("stage"),slides=[].slice.call(document.querySelectorAll(".slide")),notes=document.getElementById("notes"),live=document.getElementById("live"),track=document.getElementById("track"),count=document.getElementById("count"),index=0,step=0;
+var groups=[{key:"start",label:"啟程",color:"#7A8996"},{key:"git",label:"Git 基礎",color:"#0066B3"},{key:"github",label:"GitHub 遠端",color:"#007A52"},{key:"branch",label:"分支與協作",color:"#E8820C"},{key:"finish",label:"收尾",color:"#7A8996"}];
+function maxStep(slide){var values=[0];slide.querySelectorAll(".step").forEach(function(el){values.push(Number(el.dataset.step||0))});return Math.max.apply(null,values)}
+function fitStage(){var scale=Math.min(innerWidth/1920,innerHeight/1080),x=(innerWidth-1920*scale)/2,y=(innerHeight-1080*scale)/2;stage.style.transform="translate("+(x/scale)+"px,"+(y/scale)+"px) scale("+scale+")"}
+function fitContent(slide){var c=slide.querySelector(".content");if(!c)return;c.style.transform="";var s=Math.min(1,(1080-84-140)/Math.max(1,c.scrollHeight),(1920-240)/Math.max(1,c.scrollWidth));if(s<.998)c.style.transform="scale("+s.toFixed(3)+")"}
+function rail(){track.innerHTML="";var total=slides.length,unit=100/Math.max(1,total-1);groups.forEach(function(g){var ids=[];slides.forEach(function(s,i){if(s.dataset.group===g.key)ids.push(i)});if(!ids.length)return;var first=ids[0],last=ids[ids.length-1],seg=document.createElement("i");seg.className="seg";seg.style.setProperty("--c",g.color);seg.style.left=(first*unit)+"%";seg.style.width=Math.max(unit,(last-first)*unit)+"%";track.appendChild(seg);var label=document.createElement("span");label.className="seglabel";label.style.left=(((first+last)/2)*unit)+"%";label.textContent=g.label;track.appendChild(label)});slides.forEach(function(s,i){var g=groups.find(function(x){return x.key===s.dataset.group})||groups[0],t=document.createElement("i");t.className="tick"+(i===index?" current":"");t.style.setProperty("--c",g.color);t.style.left=(i*unit)+"%";track.appendChild(t)});count.textContent=(index+1)+" / "+total}
+function fillNotes(){var n=slides[index].querySelector(".notes");notes.innerHTML='<div class="nt">講者提示</div>'+(n?n.innerHTML:"這一頁沒有額外提示。")}
+function render(){slides.forEach(function(s,i){var active=i===index;s.classList.toggle("active",active);s.setAttribute("aria-hidden",active?"false":"true");s.querySelectorAll(".step").forEach(function(el){el.classList.toggle("on",Number(el.dataset.step||0)<=step)})});rail();fillNotes();fitContent(slides[index]);live.textContent="第 "+(index+1)+" 頁，共 "+slides.length+" 頁："+slides[index].dataset.title;var h="#"+(index+1);if(location.hash!==h)history.replaceState(null,"",h)}
+function go(i,st){index=Math.max(0,Math.min(slides.length-1,i));step=Math.max(0,Math.min(maxStep(slides[index]),st||0));render()}
+function next(){var m=maxStep(slides[index]);if(step<m){step++;render()}else if(index<slides.length-1)go(index+1,0)}
+function prev(){if(step>0){step--;render()}else if(index>0)go(index-1,maxStep(slides[index-1]))}
+function copy(btn){var text=btn.parentElement.querySelector("pre").innerText.replace(/(^|\n)([ \t]*)\$[ \t]?/g,"$1$2");function done(){var old=btn.textContent;btn.textContent="已複製";setTimeout(function(){btn.textContent=old},1000)}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done()})}else{fallback(text);done()}}
+function fallback(text){var a=document.createElement("textarea");a.value=text;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}
+document.getElementById("prev").addEventListener("click",prev);document.getElementById("next").addEventListener("click",next);stage.addEventListener("click",function(e){var b=e.target.closest(".copy");if(b)copy(b)});
+document.addEventListener("keydown",function(e){if(e.metaKey||e.ctrlKey||e.altKey)return;if((e.key===" "||e.key==="Enter")&&e.target.closest("button,a"))return;if(["ArrowRight","PageDown"," ","Enter"].indexOf(e.key)>=0){e.preventDefault();next()}else if(["ArrowLeft","PageUp","Backspace"].indexOf(e.key)>=0){e.preventDefault();prev()}else if(e.key==="Home"){e.preventDefault();go(0,0)}else if(e.key==="End"){e.preventDefault();go(slides.length-1,0)}else if(e.key.toLowerCase()==="f"){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen()}else if(e.key.toLowerCase()==="n")notes.classList.toggle("on")});
+var tx=null;stage.addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});stage.addEventListener("touchend",function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>60)d<0?next():prev()},{passive:true});
+addEventListener("resize",fitStage);addEventListener("hashchange",function(){var n=Number(location.hash.slice(1));if(n>=1&&n<=slides.length&&n-1!==index)go(n-1,0)});var start=Number(location.hash.slice(1));if(start>=1&&start<=slides.length)index=start-1;fitStage();slides.forEach(function(s){s.style.display="block";s.style.visibility="hidden";fitContent(s);s.style.display="";s.style.visibility=""});render();
+})();
+</script>
+</body>
+</html>
