@@ -130,7 +130,10 @@ a.balance = <span class="danger">-500</span>;</pre><button class="copy" type="bu
 <li class="step" data-step="1"><span class="n">2</span><div><strong>初始化列表：</strong>在進入建構子本體前，直接建立兩個成員。</div></li>
 <li class="step" data-step="2"><span class="n">3</span><div><strong>輸出：</strong>每個新帳戶都有擁有者，且餘額從 0 開始。</div></li>
 </ul></div></div>
-<div class="note step" data-step="3"><strong>為什麼需要：</strong>若物件一建立就可能不合法，後面的 public 方法再安全也救不了初始狀態。</div>
+<div class="note step" data-step="3" style="font-size:31px;line-height:1.45">
+<div><strong>為什麼需要：</strong>建構子讓物件一建立就有擁有者，且餘額從 0 開始。</div>
+<div style="margin-top:8px"><strong>名稱後的 <code class="i">_</code>：</strong>只是常見的成員變數命名習慣，不是 C++ 語法。<code class="i">owner_(owner)</code> 左邊是成員變數、右邊是參數；<code class="i">balance_</code> 也能與 <code class="i">balance()</code> 區分。</div>
+</div>
 </div></section>
 
 <section class="slide" data-title="存款方法" data-group="encap"><div class="content">
@@ -217,7 +220,64 @@ std::cout &lt;&lt; a.balance();</pre><button class="copy" type="button">複製</
     <span class="type">double</span> <span class="fn">fahrenheit</span>() <span class="kw">const</span>;
 };</pre><button class="copy" type="button">複製</button></div>
 <div class="grow"><ul class="ann"><li><span class="n">1</span><div>非法建構值改存 -273.15。</div></li><li><span class="n">2</span><div>華氏公式：攝氏 × 9 / 5 + 32。</div></li><li><span class="n">3</span><div>測試 -300、0、100。</div></li></ul></div></div>
-<div class="note good step" data-step="1"><strong>參考核心：</strong><code class="i">celsius_(celsius &lt; -273.15 ? -273.15 : celsius)</code>。兩個讀取方法尾端都要有 <code class="i">const</code>。</div>
+<div class="note good step" data-step="1"><strong>提示：</strong><code class="i">celsius_(celsius &lt; -273.15 ? -273.15 : celsius)</code>。兩個讀取方法尾端都要有 <code class="i">const</code>；完整解答在下一頁。</div>
+</div></section>
+
+<section class="slide" data-title="練習二解答：Temperature" data-group="encap"><div class="content">
+<h1 class="h1 sm">練習二解答：先限制狀態，再提供只讀方法</h1>
+<div class="row"><div class="w60 codebox"><pre class="code sm"><span class="kw">class</span> <span class="type">Temperature</span> {
+    <span class="type">double</span> celsius_;
+<span class="kw">public</span>:
+    <span class="kw">explicit</span> <span class="fn">Temperature</span>(<span class="type">double</span> celsius)
+        : celsius_(celsius &lt; -<span class="arg">273.15</span>
+                       ? -<span class="arg">273.15</span> : celsius) {}
+
+    <span class="type">double</span> <span class="fn">celsius</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> celsius_;
+    }
+
+    <span class="type">double</span> <span class="fn">fahrenheit</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> celsius_ * <span class="arg">9.0</span> / <span class="arg">5.0</span> + <span class="arg">32.0</span>;
+    }
+};</pre><button class="copy" type="button">複製</button></div>
+<div class="grow"><h3 style="font-size:38px;margin-bottom:12px"><code class="i">main()</code> 中的測試</h3><div class="codebox"><pre class="code sm"><span class="type">Temperature</span> a(-<span class="arg">300</span>);
+<span class="type">Temperature</span> b(<span class="arg">0</span>);
+<span class="type">Temperature</span> c(<span class="arg">100</span>);
+
+std::cout &lt;&lt; a.<span class="fn">celsius</span>() &lt;&lt; <span class="arg">' '</span>
+          &lt;&lt; a.<span class="fn">fahrenheit</span>() &lt;&lt; <span class="arg">'\n'</span>;
+std::cout &lt;&lt; b.<span class="fn">celsius</span>() &lt;&lt; <span class="arg">' '</span>
+          &lt;&lt; b.<span class="fn">fahrenheit</span>() &lt;&lt; <span class="arg">'\n'</span>;
+std::cout &lt;&lt; c.<span class="fn">celsius</span>() &lt;&lt; <span class="arg">' '</span>
+          &lt;&lt; c.<span class="fn">fahrenheit</span>() &lt;&lt; <span class="arg">'\n'</span>;</pre><button class="copy" type="button">複製</button></div>
+<div class="note good step" data-step="1" style="margin-top:20px;font-size:28px"><strong>輸出：</strong><span class="mono">-273.15 -459.67<br>0 32<br>100 212</span></div></div></div>
+<div class="note info step" data-step="2" style="font-size:30px"><strong>讀法：</strong>輸入 -300 → 建構子改存 -273.15 → <code class="i">celsius()</code> 回傳 -273.15 → <code class="i">fahrenheit()</code> 算出 -459.67。</div>
+</div></section>
+
+<section class="slide" data-title="explicit 阻止自動轉換" data-group="encap"><div class="content">
+<h1 class="h1 sm"><code class="i">explicit</code>：要求呼叫者明確建立物件</h1>
+<p class="lead">只有一個主要參數的建構子，可能被編譯器用來自動轉換型別。</p>
+<div class="cols c2">
+<div><h3 style="color:var(--alert)">沒有 <code class="i">explicit</code></h3><pre class="code sm"><span class="kw">class</span> <span class="type">Temperature</span> {
+<span class="kw">public</span>:
+    <span class="fn">Temperature</span>(<span class="type">double</span> celsius);
+};
+
+<span class="type">void</span> <span class="fn">show</span>(<span class="type">Temperature</span> t);
+
+<span class="type">Temperature</span> a = <span class="arg">25.0</span>; <span class="com">// 允許</span>
+<span class="fn">show</span>(<span class="arg">100.0</span>);         <span class="com">// 允許</span></pre><p style="margin-top:14px;font-size:30px">編譯器會自動建立 <code class="i">Temperature(25.0)</code> 或 <code class="i">Temperature(100.0)</code>。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">加入 <code class="i">explicit</code></h3><pre class="code sm"><span class="kw">class</span> <span class="type">Temperature</span> {
+<span class="kw">public</span>:
+    <span class="kw">explicit</span> <span class="fn">Temperature</span>(<span class="type">double</span> celsius);
+};
+
+<span class="type">Temperature</span> a = <span class="arg">25.0</span>; <span class="danger">// 錯誤</span>
+<span class="type">Temperature</span> b(<span class="arg">25.0</span>);  <span class="com">// 可以</span>
+
+<span class="fn">show</span>(<span class="type">Temperature</span>(<span class="arg">100.0</span>)); <span class="com">// 可以</span></pre><p style="margin-top:14px;font-size:30px">呼叫者必須寫出「我要建立 <code class="i">Temperature</code>」。</p></div>
+</div>
+<div class="note info step" data-step="2" style="margin-top:30px;font-size:30px"><strong>注意：</strong><code class="i">explicit</code> 不負責檢查 -273.15°C。它只阻止非預期的自動轉換；溫度範圍仍由建構子內的條件式負責。</div>
 </div></section>
 
 <section class="slide" data-title="練習三：InventoryItem" data-group="encap"><div class="content">
@@ -228,7 +288,60 @@ std::cout &lt;&lt; a.balance();</pre><button class="copy" type="button">複製</
 <div class="step" data-step="1"><h3>出售</h3><p>數量必須大於 0 且不可超過庫存；失敗時庫存不變。</p></div>
 <div class="step" data-step="2"><h3>讀取</h3><p>提供庫存量與總價。總價 = 單價 × 庫存量。</p></div>
 </div>
-<div class="quiz step" data-step="3" style="margin-top:42px"><div class="q">至少列出六個邊界測試</div><div class="ans step" data-step="4">補貨 0、補貨負數、補貨 1、出售 0、出售負數、出售等於庫存、出售超過庫存。每次都檢查回傳值與庫存是否正確。</div></div>
+<div class="quiz step" data-step="3" style="margin-top:42px"><div class="q">至少列出六個邊界測試</div><div class="ans step" data-step="4">補貨 0、補貨負數、補貨 1、出售 0、出售負數、出售等於庫存、出售超過庫存。每次都檢查回傳值與庫存是否正確；完整解答在下一頁。</div></div>
+</div></section>
+
+<section class="slide" data-title="練習三解答：InventoryItem" data-group="encap"><div class="content">
+<h1 class="h1 sm">練習三解答：所有修改都先檢查</h1>
+<div class="cols c2">
+<div><h3 style="font-size:38px">資料與建構子</h3><pre class="code xs"><span class="kw">class</span> <span class="type">InventoryItem</span> {
+<span class="kw">private</span>:
+    <span class="type">std::string</span> name_;
+    <span class="type">double</span> unitPrice_;
+    <span class="type">int</span> stock_;
+
+<span class="kw">public</span>:
+    <span class="fn">InventoryItem</span>(<span class="type">std::string</span> name,
+                  <span class="type">double</span> unitPrice,
+                  <span class="type">int</span> stock)
+        : name_(name),
+          unitPrice_(unitPrice &lt; <span class="arg">0</span> ? <span class="arg">0</span> : unitPrice),
+          stock_(stock &lt; <span class="arg">0</span> ? <span class="arg">0</span> : stock) {}</pre></div>
+<div class="step" data-step="1"><h3 style="font-size:38px">公開操作與讀取</h3><pre class="code xs">    <span class="type">bool</span> <span class="fn">restock</span>(<span class="type">int</span> amount) {
+        <span class="kw">if</span> (amount &lt;= <span class="arg">0</span>) <span class="kw">return false</span>;
+        stock_ += amount;
+        <span class="kw">return true</span>;
+    }
+
+    <span class="type">bool</span> <span class="fn">sell</span>(<span class="type">int</span> amount) {
+        <span class="kw">if</span> (amount &lt;= <span class="arg">0</span> || amount &gt; stock_)
+            <span class="kw">return false</span>;
+        stock_ -= amount;
+        <span class="kw">return true</span>;
+    }
+
+    <span class="type">int</span> <span class="fn">stock</span>() <span class="kw">const</span> { <span class="kw">return</span> stock_; }
+    <span class="type">double</span> <span class="fn">totalPrice</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> unitPrice_ * stock_;
+    }
+};</pre></div>
+</div>
+<div class="note info step" data-step="2" style="margin-top:26px;font-size:29px"><strong>本解答的設計選擇：</strong>題目沒有指定負單價或負初始庫存要如何處理；這裡選擇改存 0。實務上也可改成拒絕建立或丟出例外。</div>
+</div></section>
+
+<section class="slide" data-title="練習三解答：邊界測試" data-group="encap"><div class="content">
+<h1 class="h1 sm">練習三解答：七個邊界測試</h1>
+<p class="lead" style="font-size:35px;margin-bottom:16px">從 <code class="i">InventoryItem item("Pen", 12.5, 10);</code> 開始，下列測試依序執行。</p>
+<table class="t" style="font-size:29px;line-height:1.25"><thead><tr><th>#</th><th>呼叫</th><th>預期回傳</th><th>呼叫後的 <code class="i">stock()</code></th></tr></thead><tbody>
+<tr><td>1</td><td><code class="i">restock(0)</code></td><td>false</td><td>10（不變）</td></tr>
+<tr class="step" data-step="1"><td>2</td><td><code class="i">restock(-2)</code></td><td>false</td><td>10（不變）</td></tr>
+<tr class="step" data-step="2"><td>3</td><td><code class="i">restock(1)</code></td><td>true</td><td>11</td></tr>
+<tr class="step" data-step="3"><td>4</td><td><code class="i">sell(0)</code></td><td>false</td><td>11（不變）</td></tr>
+<tr class="step" data-step="4"><td>5</td><td><code class="i">sell(-1)</code></td><td>false</td><td>11（不變）</td></tr>
+<tr class="step" data-step="5"><td>6</td><td><code class="i">sell(11)</code></td><td>true</td><td>0（剛好售完）</td></tr>
+<tr class="step" data-step="6"><td>7</td><td><code class="i">sell(1)</code></td><td>false</td><td>0（超過庫存）</td></tr>
+</tbody></table>
+<div class="note good step" data-step="7" style="margin-top:24px;font-size:29px"><strong>再檢查計算：</strong>第 3 步後 <code class="i">totalPrice()</code> 是 12.5 × 11 = 137.5；第 6 步後庫存為 0，總價也是 0。</div>
 </div></section>
 
 <section class="slide divider sec-green" data-title="繼承" data-group="inherit">
@@ -249,8 +362,36 @@ std::cout &lt;&lt; a.balance();</pre><button class="copy" type="button">複製</
 <div class="note step" data-step="2" style="margin-top:48px"><strong>觀察：</strong>兩者都是 Person，都需要 name 與 id。這個 is-a 關係才是考慮繼承的主要理由。</div>
 </div></section>
 
-<section class="slide" data-title="public inheritance" data-group="inherit"><div class="content">
-<h1 class="h1 sm">public inheritance 表達「衍生類別是一種基底類別」</h1>
+<section class="slide" data-title="inheritance 是什麼" data-group="inherit"><div class="content">
+<h1 class="h1"><code class="i">inheritance</code> 是什麼？</h1>
+<p class="lead">繼承（inheritance）是「以既有類別為基礎，建立一個更具體的新類別」。</p>
+<div class="flow">
+<div class="box" style="--c:var(--blue)"><h3>Person</h3><p><strong>base class（基底類別）</strong><br>放共同的 name、id 與相關方法。</p></div>
+<div class="arrow">→</div>
+<div class="box step" data-step="1" style="--c:var(--green)"><h3>Student</h3><p><strong>derived class（衍生類別）</strong><br>含有 Person 部分，再新增 credits。</p></div>
+</div>
+<div class="steps" style="--c:var(--green);margin-top:36px">
+<div class="s"><div class="num">1</div><h3>輸入</h3><p>Student 需要 Person 已有的共同資料與方法。</p></div>
+<div class="s step" data-step="2"><div class="num">2</div><h3>建立關係</h3><p>讓 Student 從 Person 衍生，不重複定義共同部分。</p></div>
+<div class="s step" data-step="3"><div class="num">3</div><h3>結果</h3><p>Student 使用 Person 允許的介面，並加上自己的能力。</p></div>
+</div>
+<div class="note good step" data-step="4" style="margin-top:28px;font-size:30px"><strong>語意：</strong>Student <strong>是一種</strong> Person（is-a）；繼承不只是為了少寫程式碼。</div>
+</div></section>
+
+<section class="slide" data-title="繼承語法拆解" data-group="inherit"><div class="content">
+<h1 class="h1 sm">逐字拆開 <code class="i">class Student : public Person</code></h1>
+<pre class="code" style="font-size:38px;text-align:center"><span class="kw">class</span> <span class="type">Student</span> : <span class="kw">public</span> <span class="type">Person</span> { };</pre>
+<div class="zones" style="margin-top:28px">
+<div class="zone"><h3><code class="i">Student</code></h3><div class="where">新建的類別</div><p>Student 是衍生類別，後面可以再新增自己的成員。</p></div>
+<div class="zone step" data-step="1"><h3><code class="i">:</code></h3><div class="where">開始繼承清單</div><p>冒號後面列出 Student 要從哪些基底類別衍生。</p></div>
+<div class="zone step" data-step="2"><h3><code class="i">public</code></h3><div class="where">繼承方式</div><p>Person 原本的 public 介面，對 Student 物件的外部使用者仍是 public。</p></div>
+<div class="zone step" data-step="3"><h3><code class="i">Person</code></h3><div class="where">既有的類別</div><p>Person 是基底類別，提供 Student 的共同部分。</p></div>
+</div>
+<div class="note info step" data-step="4" style="margin-top:26px;font-size:29px"><strong>兩個 <code class="i">public</code> 不同：</strong><code class="i">public:</code> 放在類別內，決定後面成員的存取權限；<code class="i">: public Person</code> 放在類別名稱後，決定繼承方式。它不會把 Person 的 private 成員變成 public。</div>
+</div></section>
+
+<section class="slide" data-title="public 繼承的效果" data-group="inherit"><div class="content">
+<h1 class="h1 sm"><code class="i">public</code> 繼承讓 Student 保留 Person 的公開介面</h1>
 <div class="row"><div class="w50 codebox"><pre class="code"><span class="kw">class</span> <span class="type">Person</span> {
 <span class="kw">public</span>:
     <span class="type">std::string</span> <span class="fn">name</span>() <span class="kw">const</span>;
