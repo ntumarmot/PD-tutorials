@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>C++ Operator Overloading 課堂練習詳解</title>
+<style>
+:root{--paper:#F4F6F7;--ink:#13202C;--ink2:#3F4D5A;--rule:#CBD3D9;--blue:#0066B3;--green:#007A52;--orange:#E8820C;--purple:#7254A3;--teal:#007C87;--neutral:#7A8996;--signal:#FFC72C;--alert:#C8102E;--code:#0F1B26;--sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--mono:"SFMono-Regular","JetBrains Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0B141C}body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}button{font-family:inherit}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;background:var(--paper);transform-origin:0 0}
+.slide{position:absolute;inset:0;display:none;width:1920px;height:1080px;padding:84px 120px 140px;overflow:hidden;background:var(--paper);font-size:36px;line-height:1.55}
+.slide.active{display:block;animation:fade .18s ease-out}.slide.cover.active{display:flex;flex-direction:column;justify-content:center}.slide.divider.active{display:flex;align-items:center;gap:116px}@keyframes fade{from{opacity:0}to{opacity:1}}.content{transform-origin:0 0;width:100%}
+h1,h2,h3,p{margin-top:0}.h1{margin-bottom:30px;font-size:68px;line-height:1.2;letter-spacing:-.02em}.h1.sm{font-size:56px}.lead{max-width:1580px;margin-bottom:30px;color:var(--ink2);font-size:41px;line-height:1.55}.big{margin:0;max-width:1600px;font-size:92px;font-weight:900;line-height:1.13;letter-spacing:-.025em}.course{margin:0;font-size:42px;font-weight:750}.meta{margin-top:14px;color:var(--ink2);font-size:29px}.hint{position:absolute;top:84px;right:120px;color:var(--ink2);font-size:24px;line-height:1.7;text-align:right}.bar{display:flex;width:1000px;height:16px;margin:48px 0 42px;overflow:hidden;border-radius:8px}.bar i{flex:1}.small{font-size:28px;line-height:1.5}.tiny{font-size:23px;line-height:1.45}.dim{color:var(--ink2)}.mono{font-family:var(--mono)}code.i{padding:2px 9px;border-radius:6px;background:#E3E8EC;font-family:var(--mono);font-size:.85em}strong{font-weight:800}.accent-blue{color:var(--blue)}.accent-green{color:var(--green)}.accent-orange{color:#A44C00}.accent-purple{color:var(--purple)}
+.row{display:flex;gap:58px;align-items:flex-start}.row.center{align-items:center}.row>*{min-width:0}.grow{flex:1}.w40{width:40%}.w45{width:45%}.w50{width:50%}.w55{width:55%}.w60{width:60%}.cols{display:grid;gap:0}.cols.c2{grid-template-columns:repeat(2,1fr)}.cols.c3{grid-template-columns:repeat(3,1fr)}.cols>div{padding:2px 48px;border-left:3px solid var(--rule)}.cols>div:first-child{padding-left:0;border-left:0}.cols h3{margin-bottom:12px;font-size:45px;line-height:1.25}.cols p{margin-bottom:0;color:var(--ink2);font-size:34px;line-height:1.52}
+.note{padding:20px 34px;border-left:10px solid var(--signal);border-radius:0 12px 12px 0;background:rgba(255,199,44,.18);font-size:35px;line-height:1.5}.note.good{border-left-color:var(--green);background:rgba(0,122,82,.09)}.note.bad{border-left-color:var(--alert);background:rgba(200,16,46,.08)}.note.info{border-left-color:var(--blue);background:rgba(0,102,179,.08)}.note+.note{margin-top:20px}
+.ann{margin:0;padding:0;list-style:none}.ann li{display:flex;gap:22px;margin-bottom:22px;font-size:36px;line-height:1.48}.ann .n{display:flex;flex:none;align-items:center;justify-content:center;width:52px;height:52px;margin-top:2px;border-radius:50%;background:var(--ink);color:#fff;font-size:29px;font-weight:800}.ann small{display:block;color:var(--ink2);font-size:28px;line-height:1.42}.plain{margin:0;padding-left:1.3em;font-size:37px;line-height:1.62}.plain li{margin-bottom:12px}
+.codebox{position:relative}.codebox>pre.code{padding-right:108px}pre.code{margin:0;padding:27px 34px;overflow:hidden;border-radius:16px;background:var(--code);color:#E6EDF3;font-family:var(--mono);font-size:28px;line-height:1.52;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}pre.code.sm{font-size:24px;line-height:1.46}pre.code.xs{font-size:20px;line-height:1.4}.kw{color:#FF9DB1}.type{color:#7CC4FF}.fn{color:#FFD479}.numc{color:#B9E77C}.str{color:#8EE3B0}.com{color:#8B9BAB}.danger{color:#FF8A8A}.copy{position:absolute;top:14px;right:14px;min-width:76px;height:42px;padding:0 10px;border:2px solid #728396;border-radius:10px;background:#172737;color:#F4F6F7;font-size:19px;font-weight:700;cursor:pointer}.copy:hover{border-color:var(--signal);color:var(--signal)}.copy:focus-visible,#nav button:focus-visible{outline:5px solid var(--signal);outline-offset:4px}
+.route{position:relative;display:flex;margin-top:58px}.route:before{position:absolute;top:25px;right:0;left:0;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--blue) 0 16%,var(--green) 16% 33%,var(--orange) 33% 49%,var(--purple) 49% 65%,var(--teal) 65% 82%,var(--neutral) 82%);content:""}.route .stop{position:relative;flex:1;padding-right:34px}.route .dot{position:relative;z-index:1;width:62px;height:62px;border:12px solid var(--c);border-radius:50%;background:var(--paper)}.route h3{margin:24px 0 4px;font-size:38px;line-height:1.2}.route p{color:var(--ink2);font-size:27px;line-height:1.4}
+.divider .mark{display:flex;flex:none;align-items:center;justify-content:center;width:280px;height:280px;border:24px solid var(--c);border-radius:50%;background:var(--paper);font-family:var(--mono);font-size:86px;font-weight:900}.divider .dtext{max-width:1200px}.divider .dtext h1{margin-bottom:18px;font-size:78px;line-height:1.18}.divider .dtext p{margin:0;color:var(--ink2);font-size:39px;line-height:1.55}.sec-blue{--c:var(--blue)}.sec-green{--c:var(--green)}.sec-orange{--c:var(--orange)}.sec-purple{--c:var(--purple)}.sec-teal{--c:var(--teal)}.sec-neutral{--c:var(--neutral)}
+.t{width:100%;border-collapse:collapse;font-size:31px;line-height:1.42}.t th,.t td{padding:17px 22px;border-bottom:3px solid var(--rule);text-align:left;vertical-align:top}.t th{background:#E2E7EA;font-size:29px}.t tr:last-child td{border-bottom:0}.t.compact{font-size:28px}.t.compact th,.t.compact td{padding:13px 18px}.yes{color:var(--green);font-weight:800}.no{color:var(--alert);font-weight:800}
+.equiv{display:grid;grid-template-columns:1fr 170px 1fr;align-items:center;gap:20px}.equiv .op{text-align:center;color:var(--ink2);font-family:var(--mono);font-size:48px;font-weight:900}.expr{padding:30px 34px;border:4px solid var(--rule);border-radius:16px;background:#fff;font-family:var(--mono);font-size:38px;line-height:1.45}.expr strong{color:var(--blue)}
+.flow{display:flex;align-items:stretch;gap:26px;margin-top:30px}.flow .box{flex:1;padding:26px 30px;border-top:10px solid var(--c,var(--blue));background:#fff;font-size:31px;line-height:1.45}.flow .box h3{margin-bottom:8px;font-size:37px}.flow .arrow{display:flex;align-items:center;color:var(--ink2);font-size:54px}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}.steps .s{padding:27px 29px;border-top:10px solid var(--c,var(--blue));background:#fff}.steps .num{font-size:29px;font-weight:900;color:var(--c,var(--blue))}.steps h3{margin:8px 0 8px;font-size:38px}.steps p{margin:0;color:var(--ink2);font-size:29px;line-height:1.45}
+.callout{display:inline-block;padding:8px 16px;border-radius:9px;background:rgba(255,199,44,.24);font-family:var(--mono);font-weight:800}.kbd{display:inline-flex;min-width:44px;height:44px;align-items:center;justify-content:center;padding:0 11px;border:2px solid #AAB5BD;border-bottom-width:5px;border-radius:8px;background:#fff;font-family:var(--mono);font-size:23px;font-weight:800}
+.toc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:70px;row-gap:22px;margin-top:35px}.toc a{display:grid;grid-template-columns:72px 1fr;gap:20px;align-items:center;min-height:108px;padding:18px 24px;border-left:10px solid var(--c);background:#fff;color:var(--ink);text-decoration:none}.toc a:hover{background:#E7EDF1}.toc a:focus-visible{outline:6px solid var(--signal);outline-offset:5px}.toc .tn{color:var(--c);font-family:var(--mono);font-size:31px;font-weight:900}.toc strong{display:block;font-size:35px;line-height:1.22}.toc small{display:block;margin-top:5px;color:var(--ink2);font-size:25px;line-height:1.35}
+.step{visibility:hidden;opacity:0;transition:opacity .14s ease}.step.on{visibility:visible;opacity:1}.notes{display:none}
+#rail{position:absolute;right:220px;bottom:48px;left:120px;height:62px}#track{position:absolute;right:0;bottom:18px;left:0;height:5px;background:var(--rule)}#track .seg{position:absolute;top:0;height:5px;background:var(--c)}#track .seglabel{position:absolute;bottom:13px;transform:translateX(-50%);color:var(--ink2);font-size:17px;white-space:nowrap}#track .tick{position:absolute;top:-6px;width:17px;height:17px;transform:translateX(-50%);border:4px solid var(--paper);border-radius:50%;background:var(--c)}#track .tick.current{width:25px;height:25px;top:-10px;box-shadow:0 0 0 4px var(--ink)}#count{position:absolute;right:0;bottom:-10px;padding-left:16px;background:var(--paper);font-family:var(--mono);font-size:20px;font-weight:800;white-space:nowrap}
+#nav{position:absolute;right:34px;bottom:34px;display:flex;gap:10px}#nav button{display:flex;width:54px;height:54px;align-items:center;justify-content:center;border:2px solid #AAB5BD;border-radius:50%;background:#fff;color:var(--ink);font-size:35px;line-height:1;cursor:pointer}#nav button:hover{border-color:var(--blue);color:var(--blue)}
+#notes{position:absolute;right:32px;bottom:104px;display:none;width:560px;max-height:360px;padding:24px 28px;overflow:auto;border:3px solid var(--ink);border-radius:14px;background:#FFFDF2;box-shadow:0 18px 50px rgba(0,0,0,.26);font-size:24px;line-height:1.5}#notes.on{display:block}#notes .nt{margin-bottom:8px;font-weight:900}#live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.slide.active{animation:none}.step{transition:none}}
+@media print{@page{size:13.333in 7.5in;margin:0}html,body{height:auto;overflow:visible;background:#fff}#stage{position:static;width:1920px;height:auto;transform:none!important}.slide,.slide.cover,.slide.divider{position:relative;display:block!important;width:1920px;height:1080px;break-after:page;animation:none}.slide.cover,.slide.divider{display:flex!important}.step{visibility:visible!important;opacity:1!important}.codebox>pre.code{padding-right:34px}#rail,#nav,#notes,#live,.copy{display:none!important}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="C++ Operator Overloading 課堂練習詳解簡報">
+
+<section class="slide cover" data-title="標題" data-group="start">
+  <p class="course">Programming Design · In-class Practice</p>
+  <h1 class="big">C++ Operator Overloading<br>課堂練習詳解</h1>
+  <div class="bar"><i style="background:var(--blue)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i><i style="background:var(--purple)"></i><i style="background:var(--teal)"></i><i style="background:var(--neutral)"></i></div>
+  <p class="meta">從運算元位置、const correctness，到 stream 與 template 的實際需求</p>
+  <div class="hint">← → 翻頁　N 講者提示<br>F 全螢幕　可直接雙擊離線開啟</div>
+</section>
+
+<section class="slide" data-title="目錄" data-group="start"><div class="content">
+  <h1 class="h1">目錄：點選章節直接跳轉</h1>
+  <p class="lead">每個連結會前往該節的第一頁。使用鍵盤時，可按 Tab 選擇章節，再按 Enter。</p>
+  <nav class="toc" aria-label="章節目錄">
+    <a href="#part-equality" style="--c:var(--blue)"><span class="tn">01</span><span><strong>比較運算子</strong><small>member operator 與浮點數容許誤差</small></span></a>
+    <a href="#part-index" style="--c:var(--green)"><span class="tn">02</span><span><strong>索引運算子</strong><small>const 與 non-const overload</small></span></a>
+    <a href="#part-assignment" style="--c:var(--orange)"><span class="tn">03</span><span><strong>this 與 assignment</strong><small>self-assignment、物件身分與內容</small></span></a>
+    <a href="#part-unary" style="--c:var(--purple)"><span class="tn">04</span><span><strong>對稱與單元負號</strong><small>global operator 與回傳新物件</small></span></a>
+    <a href="#part-stream" style="--c:var(--teal)"><span class="tn">05</span><span><strong>串流運算子</strong><small>operator&lt;&lt;、operator&gt;&gt; 與串接</small></span></a>
+    <a href="#part-template" style="--c:var(--neutral)"><span class="tn">06</span><span><strong>Template 與運算契約</strong><small>Bubble sort 需要類別支援哪些操作</small></span></a>
+    <a href="#part-finish" style="--c:var(--ink2)"><span class="tn">07</span><span><strong>整合挑戰與總結</strong><small>綜合練習、核心判斷順序與答案對照</small></span></a>
+  </nav>
+</div></section>
+
+<section class="slide" data-title="使用方式" data-group="start"><div class="content">
+  <h1 class="h1">這份簡報怎麼使用</h1>
+  <div class="cols c3">
+    <div><h3 class="accent-blue">先預測</h3><p>每題先看需求或錯誤寫法。暫停 30 秒，說出你預期能否編譯，以及原因。</p></div>
+    <div class="step" data-step="1"><h3 class="accent-green">再追資料</h3><p>逐行看運算元進到哪個參數、函式改了什麼、回傳值交給下一個運算做什麼。</p></div>
+    <div class="step" data-step="2"><h3 class="accent-orange">最後驗證</h3><p>用小例子確認輸出。答案不是背語法，而是能解釋呼叫如何發生。</p></div>
+  </div>
+  <div class="note step" data-step="3" style="margin-top:58px"><strong>操作：</strong>按空白鍵或右方向鍵逐步顯示答案。程式碼右上角可以複製。</div>
+  <div class="notes">先讓學生知道每題都會先問再揭曉。不要一開始就把答案全部講完。</div>
+</div></section>
+
+<section class="slide" data-title="學習路線" data-group="start"><div class="content">
+  <h1 class="h1">九題其實是一條連續路線</h1>
+  <p class="lead">每一站都在回答同一件事：某個運算式會被 C++ 翻成哪個函式呼叫？</p>
+  <div class="route">
+    <div class="stop" style="--c:var(--blue)"><div class="dot"></div><h3>比較</h3><p><span class="mono">v == d</span><br>容許誤差</p></div>
+    <div class="stop" style="--c:var(--green)"><div class="dot"></div><h3>索引</h3><p><span class="mono">v[i]</span><br>const 正確性</p></div>
+    <div class="stop" style="--c:var(--orange)"><div class="dot"></div><h3>指派</h3><p><span class="mono">this</span><br>物件身分</p></div>
+    <div class="stop" style="--c:var(--purple)"><div class="dot"></div><h3>對稱與負號</h3><p>global operator<br>新物件</p></div>
+    <div class="stop" style="--c:var(--teal)"><div class="dot"></div><h3>串流</h3><p><span class="mono">&lt;&lt;</span> 與 <span class="mono">&gt;&gt;</span><br>串接</p></div>
+    <div class="stop" style="--c:var(--neutral)"><div class="dot"></div><h3>Template</h3><p>泛型程式<br>要求哪些操作</p></div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="MyVector 背景" data-group="start"><div class="content">
+  <h1 class="h1 sm">共同主角：動態配置記憶體的 <span class="mono">MyVector</span></h1>
+  <div class="row">
+    <div class="w50 codebox"><pre class="code sm"><span class="kw">class</span> <span class="type">MyVector</span> {
+<span class="kw">private</span>:
+  <span class="type">int</span> n;       <span class="com">// 元素個數</span>
+  <span class="type">double</span>* m; <span class="com">// 動態陣列起點</span>
+
+<span class="kw">public</span>:
+  MyVector();
+  MyVector(<span class="type">int</span> n, <span class="type">double</span> m[]);
+  MyVector(<span class="kw">const</span> MyVector&amp; v);
+  ~MyVector();
+};</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <ul class="ann">
+        <li><span class="n">1</span><div><strong><span class="mono">n</span></strong> 告訴我們要走訪幾個元素。<small>每個運算子都要避免超出 0 到 n - 1。</small></div></li>
+        <li class="step" data-step="1"><span class="n">2</span><div><strong><span class="mono">m</span></strong> 指向 heap 上的陣列。<small>所以 copy、assignment、destructor 都會影響記憶體是否安全。</small></div></li>
+        <li class="step" data-step="2"><span class="n">3</span><div><strong>這章不是只改符號。</strong><small>每個 operator 仍然是函式，必須決定參數、const、回傳型別與錯誤處理。</small></div></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="part-equality" class="slide divider sec-blue" data-title="比較運算子" data-group="equality">
+  <div class="mark">==</div><div class="dtext"><h1>Problem 1：比較運算子</h1><p>把 <span class="mono">v == d</span> 翻成 member function，並處理浮點數誤差。</p></div>
+</section>
+
+<section class="slide" data-title="Problem 1 題目" data-group="equality"><div class="content">
+  <h1 class="h1">需求先翻成可以檢查的規則</h1>
+  <div class="steps" style="--c:var(--blue)">
+    <div class="s"><div class="num">輸入</div><h3>一個物件與 d</h3><p>呼叫端是 <span class="mono">MyVector</span> 物件，參數是 <span class="mono">double d</span>。</p></div>
+    <div class="s step" data-step="1"><div class="num">檢查</div><h3>逐一比較</h3><p>所有 <span class="mono">m[i]</span> 都要與 d 足夠接近。</p></div>
+    <div class="s step" data-step="2"><div class="num">門檻</div><h3>最多 0.00001</h3><p><span class="mono">abs(m[i] - d)</span> 不能大於門檻。</p></div>
+    <div class="s step" data-step="3"><div class="num">輸出</div><h3>bool</h3><p>只要一個元素超出門檻就回傳 false，全部通過才是 true。</p></div>
+  </div>
+  <div class="note step" data-step="4" style="margin-top:45px"><strong>關鍵：</strong>「全部成立」最直接的寫法，是遇到第一個失敗就提早回傳 <span class="mono">false</span>。</div>
+</div></section>
+
+<section class="slide" data-title="member operator 呼叫" data-group="equality"><div class="content">
+  <h1 class="h1">member operator 的左邊是呼叫物件</h1>
+  <div class="equiv">
+    <div class="expr"><strong>v</strong> == d</div><div class="op">等同於</div><div class="expr"><strong>v</strong>.operator==(d)</div>
+  </div>
+  <div class="cols c2" style="margin-top:60px">
+    <div><h3>左運算元 <span class="mono">v</span></h3><p>不會出現在參數列。函式裡用 <span class="mono">this</span> 或直接用 <span class="mono">m</span>、<span class="mono">n</span> 代表它。</p></div>
+    <div class="step" data-step="1"><h3>右運算元 <span class="mono">d</span></h3><p>成為函式參數，因此宣告是 <span class="mono">operator==(double d)</span>。</p></div>
+  </div>
+  <div class="note info step" data-step="2" style="margin-top:48px"><strong>尾端的 const：</strong>比較只讀取向量，不應改變物件，所以 member function 應標成 <span class="mono">const</span>。</div>
+</div></section>
+
+<section class="slide" data-title="浮點數容許誤差" data-group="equality"><div class="content">
+  <h1 class="h1">浮點數比較使用差距，不直接用 <span class="mono">==</span></h1>
+  <div class="row center">
+    <div class="w55">
+      <div class="expr">abs(m[i] - d) &lt;= 0.00001</div>
+      <div class="flow">
+        <div class="box" style="--c:var(--blue)"><h3>先相減</h3><p>看兩個數值相隔多少。</p></div>
+        <div class="arrow">›</div>
+        <div class="box" style="--c:var(--green)"><h3>取絕對值</h3><p>不管誰比較大，差距都為正。</p></div>
+        <div class="arrow">›</div>
+        <div class="box" style="--c:var(--orange)"><h3>與門檻比較</h3><p>差距在容許範圍內就視為相等。</p></div>
+      </div>
+    </div>
+    <div class="grow">
+      <div class="note"><strong>例：</strong><br><span class="mono">m[i] = 1.23000001</span><br><span class="mono">d = 1.23</span><br><br>差距是 <span class="mono">0.00000001</span>，小於門檻。</div>
+      <div class="note bad step" data-step="1"><strong>不要寫：</strong><span class="mono">m[i] == d</span><br>計算過程可能留下極小誤差。</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="Problem 1 解法" data-group="equality"><div class="content">
+  <h1 class="h1">Problem 1 解法：找到第一個不合格元素就停止</h1>
+  <div class="row">
+    <div class="w55 codebox"><pre class="code"><span class="type">bool</span> MyVector::<span class="fn">operator==</span>(<span class="type">double</span> d) <span class="kw">const</span>
+{
+  <span class="kw">for</span>(<span class="type">int</span> i = <span class="numc">0</span>; i &lt; n; i++)
+  {
+    <span class="kw">if</span>(abs(m[i] - d) &gt; equalityGap)
+      <span class="kw">return false</span>;
+  }
+  <span class="kw">return true</span>;
+}</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <ul class="ann">
+        <li><span class="n">1</span><div><strong>for 逐格讀取</strong><small>輸入是物件內的 n 個 double。</small></div></li>
+        <li class="step" data-step="1"><span class="n">2</span><div><strong>差距太大就 false</strong><small>後面的元素已不可能讓「全部相等」重新成立。</small></div></li>
+        <li class="step" data-step="2"><span class="n">3</span><div><strong>走完整圈才 true</strong><small>能走到最後，代表每一格都沒有觸發失敗條件。</small></div></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="Problem 1 追蹤" data-group="equality"><div class="content">
+  <h1 class="h1">小例子：三個元素如何通過檢查</h1>
+  <table class="t"><thead><tr><th>i</th><th>m[i]</th><th>abs(m[i] - 1.23)</th><th>是否大於 0.00001</th><th>結果</th></tr></thead><tbody>
+    <tr><td>0</td><td>1.23</td><td>0</td><td class="no">否</td><td>繼續</td></tr>
+    <tr class="step" data-step="1"><td>1</td><td>1.23</td><td>0</td><td class="no">否</td><td>繼續</td></tr>
+    <tr class="step" data-step="2"><td>2</td><td>1.23000001</td><td>0.00000001</td><td class="no">否</td><td>繼續</td></tr>
+    <tr class="step" data-step="3"><td colspan="4"><strong>迴圈正常結束</strong></td><td class="yes">return true</td></tr>
+  </tbody></table>
+  <div class="note good step" data-step="4" style="margin-top:35px">實際答案檔 <span class="mono">12_01_equality.cpp</span> 的輸出是 <span class="mono">Equal!</span>。</div>
+</div></section>
+
+<section class="slide" data-title="Problem 1 常見錯誤" data-group="equality"><div class="content">
+  <h1 class="h1">常見錯誤不是語法，而是條件方向</h1>
+  <table class="t"><thead><tr><th>寫法</th><th>問題</th><th>修正</th></tr></thead><tbody>
+    <tr><td><code class="i">abs(m[i] - d) == 0</code></td><td>又回到精確浮點數比較</td><td>與 <code class="i">equalityGap</code> 比較</td></tr>
+    <tr class="step" data-step="1"><td>第一個相等就 <code class="i">return true</code></td><td>只證明「至少一個」相等</td><td>失敗時提早 false，最後才 true</td></tr>
+    <tr class="step" data-step="2"><td>忘記函式尾端 <code class="i">const</code></td><td>const 物件不能呼叫這個比較函式</td><td><code class="i">operator==(double d) const</code></td></tr>
+  </tbody></table>
+  <div class="note step" data-step="3" style="margin-top:32px"><strong>自我檢查：</strong>如果只有第 0 格相等、第 1 格不同，你的程式會回傳什麼？</div>
+</div></section>
+
+<section class="slide" data-title="Problem 1 練習" data-group="equality"><div class="content">
+  <h1 class="h1">停一下：邊界值算相等嗎？</h1>
+  <p class="lead">題目說「deviates by no more than 0.00001」。若差距剛好等於 0.00001，應回傳 true 還是 false？</p>
+  <div class="equiv" style="margin-top:60px">
+    <div class="expr">abs(m[i] - d) <strong>&gt;</strong> gap</div><div class="op">或</div><div class="expr">abs(m[i] - d) <strong>&gt;=</strong> gap</div>
+  </div>
+  <div class="note good step" data-step="1" style="margin-top:60px"><strong>答案：</strong>應使用 <span class="mono">&gt;</span>。差距剛好等於門檻時仍在「不超過」的範圍內。</div>
+</div></section>
+
+<section id="part-index" class="slide divider sec-green" data-title="索引運算子" data-group="index">
+  <div class="mark">[]</div><div class="dtext"><h1>Problem 2–3：索引運算子</h1><p>同一個 <span class="mono">v[i]</span>，為什麼通常需要 const 與 non-const 兩個版本？</p></div>
+</section>
+
+<section class="slide" data-title="兩個 operator[]" data-group="index"><div class="content">
+  <h1 class="h1">兩個版本的差別在「回傳後能不能修改」</h1>
+  <div class="row">
+    <div class="w50 codebox"><pre class="code"><span class="com">// const 物件使用：只能讀</span>
+<span class="type">double</span> <span class="fn">operator[]</span>(<span class="type">int</span> i) <span class="kw">const</span>;
+
+<span class="com">// non-const 物件使用：可讀也可寫</span>
+<span class="type">double</span>&amp; <span class="fn">operator[]</span>(<span class="type">int</span> i);</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <div class="note info"><strong>回傳 double：</strong>把元素值複製出去。改回傳值不會改陣列。</div>
+      <div class="note good step" data-step="1"><strong>回傳 double&amp;：</strong>把原本元素的別名交出去，因此 <span class="mono">v[i] = 9</span> 可以直接寫回陣列。</div>
+      <div class="note step" data-step="2"><strong>函式尾端 const：</strong>承諾這次呼叫不修改物件可觀察到的狀態。</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="operator[] 選擇" data-group="index"><div class="content">
+  <h1 class="h1">編譯器先看呼叫物件是不是 const</h1>
+  <table class="t"><thead><tr><th>物件宣告</th><th>運算式</th><th>選到的版本</th><th>能否放在 = 左邊</th></tr></thead><tbody>
+    <tr><td><code class="i">MyVector a(...);</code></td><td><code class="i">a[0]</code></td><td><code class="i">double&amp; operator[](int)</code></td><td class="yes">可以</td></tr>
+    <tr class="step" data-step="1"><td><code class="i">const MyVector c(...);</code></td><td><code class="i">c[0]</code></td><td><code class="i">double operator[](int) const</code></td><td class="no">不可以</td></tr>
+  </tbody></table>
+  <div class="note info step" data-step="2" style="margin-top:42px"><strong>為什麼 non-const 物件不用 const 版本？</strong>兩個都能呼叫時，編譯器偏好不需要把物件視為 const 的 non-const 版本。</div>
+</div></section>
+
+<section class="slide" data-title="移除 non-const 版本" data-group="index"><div class="content">
+  <h1 class="h1">若移除 non-const 版本：讀得到，但寫不回去</h1>
+  <div class="row">
+    <div class="w50 codebox"><pre class="code"><span class="type">MyVector</span> a(...);
+
+cout &lt;&lt; a[<span class="numc">0</span>]; <span class="com">// 可以</span>
+
+a[<span class="numc">0</span>] = <span class="numc">9</span>;
+<span class="danger">// 編譯失敗：左邊只是暫時的 double 值</span></pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <ul class="ann">
+        <li><span class="n">1</span><div><strong>non-const 物件可呼叫 const member</strong><small>「我承諾不改」對一般物件也成立。</small></div></li>
+        <li class="step" data-step="1"><span class="n">2</span><div><strong>但回傳型別是 double</strong><small>取得的是複製值，不是陣列元素本身。</small></div></li>
+        <li class="step" data-step="2"><span class="n">3</span><div><strong>因此失去寫入能力</strong><small>這不是找不到函式，而是回傳結果不能當可修改的左值。</small></div></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="移除 const 版本" data-group="index"><div class="content">
+  <h1 class="h1">若移除 const 版本：一般物件正常，const 物件不能索引</h1>
+  <div class="row">
+    <div class="w50 codebox"><pre class="code"><span class="type">MyVector</span> a(...);
+a[<span class="numc">0</span>] = <span class="numc">9</span>; <span class="com">// 可以</span>
+
+<span class="kw">const</span> <span class="type">MyVector</span> c(...);
+cout &lt;&lt; c[<span class="numc">0</span>];
+<span class="danger">// 編譯失敗：const 物件不能呼叫
+// non-const member function</span></pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <div class="note bad"><strong>問題：</strong>即使只是想讀取 const 向量，也沒有合法函式可呼叫。</div>
+      <div class="note info step" data-step="1"><strong>連鎖影響：</strong>接收 <span class="mono">const MyVector&amp;</span> 的函式也無法使用 <span class="mono">[]</span> 讀元素。</div>
+      <div class="note good step" data-step="2"><strong>結論：</strong>兩個 overload 讓「一般物件可寫、const 物件唯讀」同時成立。</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="Problem 3 提案" data-group="index"><div class="content">
+  <h1 class="h1">Problem 3：只留一個看似萬用的版本</h1>
+  <div class="row">
+    <div class="w55 codebox"><pre class="code"><span class="type">double</span>&amp; MyVector::<span class="fn">operator[]</span>(<span class="type">int</span> i) <span class="kw">const</span>
+{
+  <span class="kw">if</span>(i &lt; <span class="numc">0</span> || i &gt;= n)
+    exit(<span class="numc">1</span>);
+  <span class="kw">return</span> m[i];
+}</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <p class="lead" style="font-size:36px"><strong>朋友的主張：</strong></p>
+      <ul class="plain">
+        <li>const 與 non-const 物件都能呼叫。</li>
+        <li>回傳 reference，所以能放在 assignment 左邊。</li>
+      </ul>
+      <div class="note step" data-step="1" style="margin-top:35px"><strong>先猜：</strong>這段會不會通過編譯？如果會，代價是什麼？</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="Problem 3 為何能編譯" data-group="index"><div class="content">
+  <h1 class="h1">它會編譯，因為 const 限制的是指標本身</h1>
+  <div class="equiv">
+    <div class="expr">成員 <strong>double* m</strong></div><div class="op">在 const 函式內近似</div><div class="expr"><strong>double* const</strong> m</div>
+  </div>
+  <div class="cols c2" style="margin-top:60px">
+    <div><h3>不能改指標位置</h3><p>不能讓 <span class="mono">m</span> 改指向別的陣列。也就是指標本身受到 const 保護。</p></div>
+    <div class="step" data-step="1"><h3>但 pointee 仍是 double</h3><p><span class="mono">m[i]</span> 指到的元素沒有自動變成 const，因此語法上可回傳 <span class="mono">double&amp;</span>。</p></div>
+  </div>
+  <div class="note bad step" data-step="2" style="margin-top:48px"><strong>會編譯不代表設計正確：</strong>這個 reference 讓外部程式繞過 const 承諾。</div>
+</div></section>
+
+<section class="slide" data-title="Problem 3 破壞 const" data-group="index"><div class="content">
+  <h1 class="h1">實際結果：const 物件真的被改掉</h1>
+  <div class="row">
+    <div class="w50 codebox"><pre class="code"><span class="kw">const</span> <span class="type">MyVector</span> v(<span class="numc">3</span>, m);
+
+cout &lt;&lt; v[<span class="numc">0</span>] &lt;&lt; <span class="str">"\n"</span>;
+v[<span class="numc">0</span>] = <span class="numc">1</span>;
+cout &lt;&lt; v[<span class="numc">0</span>] &lt;&lt; <span class="str">"\n"</span>;</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <pre class="code"><span class="com">// 12_03_badConstMemberFunction.cpp</span>
+<span class="str">1.23
+1</span></pre>
+      <div class="note bad step" data-step="1" style="margin-top:32px"><strong>因果：</strong>operator[] 回傳原元素的 reference，assignment 透過這個別名寫入 heap 上的 double。</div>
+      <div class="note info step" data-step="2"><strong>真正問題：</strong>呼叫者看到 const 會相信物件不可修改，但 API 卻偷偷交出可修改入口。</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="正確的 operator[]" data-group="index"><div class="content">
+  <h1 class="h1">正確模式：const 版本回傳 const reference 或 value</h1>
+  <div class="row">
+    <div class="w50 codebox"><pre class="code"><span class="com">// 一般物件：可寫</span>
+<span class="type">double</span>&amp; <span class="fn">operator[]</span>(<span class="type">int</span> i);
+
+<span class="com">// const 物件：只讀</span>
+<span class="kw">const</span> <span class="type">double</span>&amp; <span class="fn">operator[]</span>(<span class="type">int</span> i) <span class="kw">const</span>;</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <div class="note good"><strong>教材原本版本：</strong>const overload 回傳 <span class="mono">double</span>，對小型基本型別很合理。</div>
+      <div class="note info step" data-step="1"><strong>常見標準寫法：</strong>回傳 <span class="mono">const double&amp;</span>，避免複製，同時禁止修改。</div>
+      <div class="note step" data-step="2"><strong>共同原則：</strong>const 物件取出的結果不能提供寫入原物件的能力。</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="索引練習" data-group="index"><div class="content">
+  <h1 class="h1">判斷四個運算式</h1>
+  <table class="t"><thead><tr><th>運算式</th><th>預期</th><th>原因</th></tr></thead><tbody>
+    <tr><td><code class="i">cout &lt;&lt; a[0];</code></td><td class="yes step" data-step="1">可編譯</td><td class="step" data-step="1">一般物件呼叫 non-const overload</td></tr>
+    <tr><td><code class="i">a[0] = 5;</code></td><td class="yes step" data-step="2">可編譯</td><td class="step" data-step="2">回傳 double&amp;，可寫回元素</td></tr>
+    <tr><td><code class="i">cout &lt;&lt; c[0];</code></td><td class="yes step" data-step="3">可編譯</td><td class="step" data-step="3">const 物件呼叫 const overload</td></tr>
+    <tr><td><code class="i">c[0] = 5;</code></td><td class="no step" data-step="4">不可編譯</td><td class="step" data-step="4">const overload 不交出可修改 reference</td></tr>
+  </tbody></table>
+</div></section>
+
+<section id="part-assignment" class="slide divider sec-orange" data-title="this 與 assignment" data-group="assignment">
+  <div class="mark">this</div><div class="dtext"><h1>Problem 4：self-assignment</h1><p>比較物件身分與比較物件內容，是兩個不同問題。</p></div>
+</section>
+
+<section class="slide" data-title="Problem 4 題目" data-group="assignment"><div class="content">
+  <h1 class="h1">為什麼 assignment operator 先檢查地址？</h1>
+  <div class="row">
+    <div class="w55 codebox"><pre class="code sm"><span class="kw">const</span> <span class="type">MyVector</span>&amp;
+MyVector::<span class="fn">operator=</span>(<span class="kw">const</span> MyVector&amp; v)
+{
+  <span class="kw">if</span>(<span class="callout">this != &amp;v</span>)
+  {
+    <span class="com">// 必要時刪除舊陣列、配置新陣列</span>
+    <span class="com">// 再逐格複製 v.m[i]</span>
+  }
+  <span class="kw">return</span> *<span class="kw">this</span>;
+}</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <p class="lead" style="font-size:35px">題目問：能不能換成 <span class="mono">*this != v</span>？</p>
+      <ul class="plain">
+        <li>會不會通過編譯？</li>
+        <li>能不能避免 <span class="mono">a1 = a1</span> 的複製？</li>
+      </ul>
+      <div class="note step" data-step="1" style="margin-top:35px">回答前先分清楚：<span class="mono">this</span> 是地址，<span class="mono">*this</span> 是物件。</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="身分與內容" data-group="assignment"><div class="content">
+  <h1 class="h1">地址比較回答「是不是同一個物件」</h1>
+  <table class="t"><thead><tr><th>比較式</th><th>比較的東西</th><th>想回答的問題</th><th>成本</th></tr></thead><tbody>
+    <tr><td><code class="i">this != &amp;v</code></td><td>兩個記憶體地址</td><td>左右是否為同一個物件</td><td>固定時間，O(1)</td></tr>
+    <tr class="step" data-step="1"><td><code class="i">*this != v</code></td><td>兩個物件的內容</td><td>目前數值是否不同</td><td>通常要走訪元素，O(n)</td></tr>
+  </tbody></table>
+  <div class="note info step" data-step="2" style="margin-top:42px"><strong>具體例子：</strong><span class="mono">a</span> 與 <span class="mono">b</span> 是不同物件，但內容都等於 <span class="mono">(1, 2, 3)</span>。地址不同，值相等。</div>
+</div></section>
+
+<section class="slide" data-title="值比較的問題" data-group="assignment"><div class="content">
+  <h1 class="h1">用值比較可能編譯，但做了不必要的工作</h1>
+  <div class="cols c2">
+    <div><h3>能否編譯</h3><p>只有在類別已定義可用的 <span class="mono">operator!=</span> 時才可以。題目片段本身不足以保證這件事。</p></div>
+    <div class="step" data-step="1"><h3>能否避開 a = a</h3><p>若 <span class="mono">operator!=</span> 依內容比較，自己與自己內容相等，確實會跳過複製。</p></div>
+  </div>
+  <div class="note bad step" data-step="2" style="margin-top:52px"><strong>但它先比較了整個向量：</strong>為了省下一次 O(n) 複製，先做一次 O(n) 比較；地址比較只需要一次指標比較。</div>
+  <div class="note info step" data-step="3"><strong>而且語意不同：</strong>兩個不同但內容相同的物件也會被當成「不用 assign」。結果目前相同，但這不是 self-assignment 檢查。</div>
+</div></section>
+
+<section class="slide" data-title="Problem 4 答案" data-group="assignment"><div class="content">
+  <h1 class="h1">Problem 4 結論</h1>
+  <div class="steps" style="--c:var(--orange)">
+    <div class="s"><div class="num">1</div><h3>編譯不一定</h3><p>必須先有符合的 <span class="mono">operator!=</span>。</p></div>
+    <div class="s step" data-step="1"><div class="num">2</div><h3>可跳過 a = a</h3><p>值相等時條件為 false，因此不進複製區塊。</p></div>
+    <div class="s step" data-step="2"><div class="num">3</div><h3>但比較較慢</h3><p>值比較要逐格看，地址比較只看兩個指標。</p></div>
+    <div class="s step" data-step="3"><div class="num">4</div><h3>應保留地址比較</h3><p><span class="mono">this != &amp;v</span> 精確表達 self-assignment。</p></div>
+  </div>
+  <div class="note good step" data-step="4" style="margin-top:46px"><strong>設計原則：</strong>用最直接的資訊回答問題。判斷物件身分就比較地址，不必先比較整份內容。</div>
+</div></section>
+
+<section class="slide" data-title="assignment 練習" data-group="assignment"><div class="content">
+  <h1 class="h1">為什麼 self-assignment 可能危險？</h1>
+  <div class="codebox"><pre class="code"><span class="com">// 若沒有 this != &amp;v 保護</span>
+<span class="kw">delete</span> [] m;      <span class="com">// a = a 時，把自己的資料刪掉</span>
+m = <span class="kw">new</span> <span class="type">double</span>[v.n];
+m[i] = v.m[i];      <span class="com">// v 就是自己，來源資料早已被刪除</span></pre><button class="copy" type="button">複製</button></div>
+  <div class="note bad step" data-step="1" style="margin-top:42px"><strong>因果：</strong>左邊與右邊是同一個物件時，刪除 destination 的舊資料，也等於刪除 source 要提供的資料。</div>
+  <div class="note info step" data-step="2"><strong>教材答案的實作：</strong>只有維度不同才 delete 與重新配置；self-check 仍讓意圖更清楚，也避免不必要的逐格複製。</div>
+</div></section>
+
+<section id="part-unary" class="slide divider sec-purple" data-title="對稱與單元負號" data-group="unary">
+  <div class="mark">d==v</div><div class="dtext"><h1>Problem 5–6：運算元位置與新物件</h1><p>member function 固定了左運算元。需要對稱時改用 global operator；單元負號則回傳新值。</p></div>
+</section>
+
+<section class="slide" data-title="左右不對稱" data-group="unary"><div class="content">
+  <h1 class="h1">member operator 只直接支援物件在左邊</h1>
+  <div class="equiv">
+    <div class="expr"><strong>v</strong> == d<br><span class="yes">可以</span></div><div class="op">對照</div><div class="expr"><strong>d</strong> == v<br><span class="no">找不到相同 member 呼叫</span></div>
+  </div>
+  <div class="row" style="margin-top:55px">
+    <div class="grow note info"><span class="mono">v == d</span> 會翻成<br><span class="mono">v.operator==(d)</span></div>
+    <div class="grow note bad step" data-step="1"><span class="mono">d == v</span> 若照 member 規則，會想在 <span class="mono">double</span> 上找接受 MyVector 的 operator，這不是我們能加給 double 的 member。</div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="global operator==" data-group="unary"><div class="content">
+  <h1 class="h1">global operator 接住 <span class="mono">d == v</span></h1>
+  <div class="row">
+    <div class="w55 codebox"><pre class="code"><span class="type">bool</span> <span class="fn">operator==</span>(<span class="type">double</span> d,
+                <span class="kw">const</span> MyVector&amp; v)
+{
+  <span class="kw">return</span> v == d;
+}</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <ul class="ann">
+        <li><span class="n">1</span><div><strong>兩邊都進參數列</strong><small>global function 沒有呼叫物件，也沒有 this。</small></div></li>
+        <li class="step" data-step="1"><span class="n">2</span><div><strong>把問題轉回既有實作</strong><small>不用重寫比較迴圈，直接呼叫 v == d。</small></div></li>
+        <li class="step" data-step="2"><span class="n">3</span><div><strong>避免兩份規則漂移</strong><small>容許誤差只由 member operator 維護。</small></div></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="global operator 不需 friend" data-group="unary"><div class="content">
+  <h1 class="h1">這個 global function 不需要 friend</h1>
+  <div class="cols c2">
+    <div><h3>它實際做的事</h3><p>只呼叫公開的 <span class="mono">v.operator==(d)</span>。沒有讀取 <span class="mono">v.n</span> 或 <span class="mono">v.m</span>。</p></div>
+    <div class="step" data-step="1"><h3>friend 何時需要</h3><p>只有非 member function 必須直接存取 private 成員時，才需要類別授權。</p></div>
+  </div>
+  <div class="note good step" data-step="2" style="margin-top:55px"><strong>最小權限：</strong>能用 public interface 完成，就不要增加 friend。這讓 private 資料的入口更少。</div>
+  <div class="note info step" data-step="3"><strong>實際驗證：</strong>答案檔把 friend 宣告註解掉，仍可編譯並輸出 <span class="mono">Equal!</span>。</div>
+</div></section>
+
+<section class="slide" data-title="Problem 6 需求" data-group="unary"><div class="content">
+  <h1 class="h1">單元負號的四個需求</h1>
+  <table class="t"><thead><tr><th>運算式</th><th>需求</th><th>對函式設計的影響</th></tr></thead><tbody>
+    <tr><td><code class="i">-v</code></td><td>不需要右運算元</td><td><code class="i">operator-()</code> 沒有參數</td></tr>
+    <tr class="step" data-step="1"><td><code class="i">-v</code></td><td>不能修改原本 v</td><td>member function 尾端加 <code class="i">const</code></td></tr>
+    <tr class="step" data-step="2"><td><code class="i">MyVector x = -v</code></td><td>產生另一個向量</td><td>回傳 <code class="i">MyVector</code> by value</td></tr>
+    <tr class="step" data-step="3"><td><code class="i">(-v) = x</code></td><td>教材要求禁止</td><td>答案用 <code class="i">const MyVector</code> 回傳值</td></tr>
+  </tbody></table>
+</div></section>
+
+<section class="slide" data-title="單元負號解法" data-group="unary"><div class="content">
+  <h1 class="h1">先複製，再改副本</h1>
+  <div class="row">
+    <div class="w55 codebox"><pre class="code"><span class="kw">const</span> <span class="type">MyVector</span>
+MyVector::<span class="fn">operator-</span>() <span class="kw">const</span>
+{
+  MyVector negatedVector(*<span class="kw">this</span>);
+  <span class="kw">for</span>(<span class="type">int</span> i = <span class="numc">0</span>; i &lt; n; i++)
+    negatedVector.m[i] = -negatedVector.m[i];
+  <span class="kw">return</span> negatedVector;
+}</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <ul class="ann">
+        <li><span class="n">1</span><div><strong>copy constructor 建副本</strong><small>副本有自己的動態陣列，不與原物件共用 m。</small></div></li>
+        <li class="step" data-step="1"><span class="n">2</span><div><strong>只改 negatedVector</strong><small>原本 this 指向的物件保持不變。</small></div></li>
+        <li class="step" data-step="2"><span class="n">3</span><div><strong>回傳完整新物件</strong><small>呼叫端可把結果 assign 給另一個 MyVector。</small></div></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="單元負號追蹤" data-group="unary"><div class="content">
+  <h1 class="h1">資料如何流動</h1>
+  <div class="flow">
+    <div class="box" style="--c:var(--purple)"><h3>原本 v</h3><p><span class="mono">(-1.23, -1.23, -1.23)</span></p></div>
+    <div class="arrow">›</div>
+    <div class="box" style="--c:var(--blue)"><h3>複製副本</h3><p>negatedVector 先得到相同內容。</p></div>
+    <div class="arrow">›</div>
+    <div class="box" style="--c:var(--orange)"><h3>副本逐格取負</h3><p><span class="mono">(1.23, 1.23, 1.23)</span></p></div>
+    <div class="arrow">›</div>
+    <div class="box" style="--c:var(--green)"><h3>v = -v</h3><p>assignment 把新結果寫回 v。</p></div>
+  </div>
+  <pre class="code step" data-step="1" style="margin-top:50px"><span class="str">(-1.23, -1.23, -1.23)
+(1.23, 1.23, 1.23)
+Equal!</span></pre>
+</div></section>
+
+<section class="slide" data-title="const 回傳值說明" data-group="unary"><div class="content">
+  <h1 class="h1">教材的 <span class="mono">const MyVector</span> 是較舊的防護寫法</h1>
+  <div class="cols c2">
+    <div><h3>教材意圖</h3><p>讓 <span class="mono">-v</span> 的暫時結果不能呼叫會修改物件的 assignment operator，因而阻止 <span class="mono">(-v) = x</span>。</p></div>
+    <div class="step" data-step="1"><h3>現代 C++ 注意</h3><p>回傳 const value 可能妨礙 move。現代設計通常回傳非 const value，並用 ref-qualifier 控制哪些物件能呼叫修改函式。</p></div>
+  </div>
+  <div class="note info step" data-step="2" style="margin-top:55px"><strong>事實與補充：</strong>答案檔確實回傳 <span class="mono">const MyVector</span>；關於 move 與 ref-qualifier 是延伸說明，不是原題要求。</div>
+</div></section>
+
+<section class="slide" data-title="對稱與負號練習" data-group="unary"><div class="content">
+  <h1 class="h1">選擇 member 還是 global</h1>
+  <table class="t"><thead><tr><th>需求</th><th>較合適的形式</th><th>理由</th></tr></thead><tbody>
+    <tr><td><code class="i">v == d</code></td><td>member</td><td>左邊是自訂類別物件，可直接讀自身資料</td></tr>
+    <tr class="step" data-step="1"><td><code class="i">d == v</code></td><td>global</td><td>左邊是 double，MyVector member 無法接住</td></tr>
+    <tr class="step" data-step="2"><td><code class="i">-v</code></td><td>member</td><td>只有一個 MyVector 運算元，直接以 this 表示</td></tr>
+    <tr class="step" data-step="3"><td><code class="i">cout &lt;&lt; v</code></td><td>global</td><td>左邊是 ostream，下一節會完整解釋</td></tr>
+  </tbody></table>
+</div></section>
+
+<section id="part-stream" class="slide divider sec-teal" data-title="串流運算子" data-group="stream">
+  <div class="mark">&lt;&lt;</div><div class="dtext"><h1>Problem 7–8：stream operators</h1><p>左運算元是 stream，所以要用 global function；回傳 stream reference 才能繼續串接。</p></div>
+</section>
+
+<section class="slide" data-title="cout 左運算元" data-group="stream"><div class="content">
+  <h1 class="h1"><span class="mono">cout &lt;&lt; v</span> 的左邊不是 MyVector</h1>
+  <div class="equiv">
+    <div class="expr"><strong>cout</strong> &lt;&lt; v</div><div class="op">呼叫</div><div class="expr">operator&lt;&lt;(<strong>cout</strong>, v)</div>
+  </div>
+  <div class="cols c2" style="margin-top:60px">
+    <div><h3>第一個參數：ostream&amp;</h3><p>接收現有的輸出串流。使用 reference，才不會複製 cout，也能保留串流狀態。</p></div>
+    <div class="step" data-step="1"><h3>第二個參數：const MyVector&amp;</h3><p>輸出只讀向量，不應修改它；用 reference 避免複製整個物件。</p></div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="operator<< 解法" data-group="stream"><div class="content">
+  <h1 class="h1">operator&lt;&lt;：把格式寫進傳入的 stream</h1>
+  <div class="row">
+    <div class="w60 codebox"><pre class="code sm"><span class="type">ostream</span>&amp; <span class="fn">operator&lt;&lt;</span>(<span class="type">ostream</span>&amp; out,
+                            <span class="kw">const</span> MyVector&amp; v)
+{
+  out &lt;&lt; <span class="str">"("</span>;
+  <span class="kw">for</span>(<span class="type">int</span> i = <span class="numc">0</span>; i &lt; v.n - <span class="numc">1</span>; i++)
+    out &lt;&lt; v.m[i] &lt;&lt; <span class="str">", "</span>;
+  out &lt;&lt; v.m[v.n - <span class="numc">1</span>] &lt;&lt; <span class="str">")"</span>;
+  <span class="kw">return</span> out;
+}</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <div class="note"><strong>為何 friend：</strong>這個 global function 直接讀取 private 的 <span class="mono">n</span> 與 <span class="mono">m</span>。</div>
+      <div class="note info step" data-step="1"><strong>為何不是 cout：</strong>寫入參數 <span class="mono">out</span>，同一份 operator 才能支援檔案串流等其他 ostream。</div>
+      <div class="note good step" data-step="2"><strong>輸出：</strong><span class="mono">(1.23, 1.23, 1.23)</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="串接原理" data-group="stream"><div class="content">
+  <h1 class="h1">回傳 <span class="mono">ostream&amp;</span> 才能繼續接下一個 <span class="mono">&lt;&lt;</span></h1>
+  <div class="flow">
+    <div class="box" style="--c:var(--teal)"><h3>cout &lt;&lt; v</h3><p>函式把 v 寫入 cout。</p></div>
+    <div class="arrow">›</div>
+    <div class="box" style="--c:var(--blue)"><h3>return out</h3><p>回傳同一個 cout 的 reference。</p></div>
+    <div class="arrow">›</div>
+    <div class="box" style="--c:var(--green)"><h3>&lt;&lt; v</h3><p>第二個 operator 繼續使用同一個 stream。</p></div>
+    <div class="arrow">›</div>
+    <div class="box" style="--c:var(--orange)"><h3>&lt;&lt; endl</h3><p>最後再寫入換行並 flush。</p></div>
+  </div>
+  <div class="expr step" data-step="1" style="margin-top:55px;text-align:center">cout &lt;&lt; v &lt;&lt; v &lt;&lt; endl;</div>
+</div></section>
+
+<section class="slide" data-title="cin 左運算元" data-group="stream"><div class="content">
+  <h1 class="h1"><span class="mono">cin &gt;&gt; v</span> 需要修改 v</h1>
+  <div class="equiv">
+    <div class="expr"><strong>cin</strong> &gt;&gt; v</div><div class="op">呼叫</div><div class="expr">operator&gt;&gt;(<strong>cin</strong>, v)</div>
+  </div>
+  <div class="cols c2" style="margin-top:60px">
+    <div><h3>istream&amp; in</h3><p>從既有輸入串流讀資料，並保留 fail、eof 等狀態供後續檢查。</p></div>
+    <div class="step" data-step="1"><h3>MyVector&amp; v</h3><p>不能加 const，因為函式會更新維度、重新配置陣列，並寫入每個元素。</p></div>
+  </div>
+  <div class="note bad step" data-step="2" style="margin-top:45px"><strong>如果參數是 const MyVector&amp;：</strong>函式宣告承諾不修改 v，卻又需要把輸入寫進 v，兩者互相矛盾。</div>
+</div></section>
+
+<section class="slide" data-title="operator>> 解法" data-group="stream"><div class="content">
+  <h1 class="h1">operator&gt;&gt;：先讀長度，再準備剛好的空間</h1>
+  <div class="codebox"><pre class="code sm"><span class="type">istream</span>&amp; <span class="fn">operator&gt;&gt;</span>(<span class="type">istream</span>&amp; in, MyVector&amp; v)
+{
+  <span class="type">int</span> tempN = <span class="numc">0</span>;
+  in &gt;&gt; tempN;
+  <span class="kw">if</span>(tempN != v.n)
+  {
+    v.n = tempN;
+    <span class="kw">delete</span> [] v.m;
+    v.m = <span class="kw">new</span> <span class="type">double</span>[tempN];
+  }
+  <span class="kw">for</span>(<span class="type">int</span> i = <span class="numc">0</span>; i &lt; v.n; i++) in &gt;&gt; v.m[i];
+  <span class="kw">return</span> in;
+}</pre><button class="copy" type="button">複製</button></div>
+</div></section>
+
+<section class="slide" data-title="operator>> 資料流" data-group="stream"><div class="content">
+  <h1 class="h1">輸入 <span class="mono">3 4 5 6</span> 時發生什麼</h1>
+  <div class="steps" style="--c:var(--teal)">
+    <div class="s"><div class="num">1</div><h3>讀 tempN</h3><p>第一個數 3 表示接下來有三個元素。</p></div>
+    <div class="s step" data-step="1"><div class="num">2</div><h3>比較 v.n</h3><p>若目前不是 3，先調整陣列容量。</p></div>
+    <div class="s step" data-step="2"><div class="num">3</div><h3>讀三個 double</h3><p>4、5、6 依序寫入 v.m[0..2]。</p></div>
+    <div class="s step" data-step="3"><div class="num">4</div><h3>回傳 in</h3><p>呼叫端可以再接另一個 <span class="mono">&gt;&gt;</span>。</p></div>
+  </div>
+  <pre class="code step" data-step="4" style="margin-top:45px"><span class="str">原本：(1.23, 1.23, 1.23)
+輸入後：(4, 5, 6)</span></pre>
+</div></section>
+
+<section class="slide" data-title="operator>> 限制" data-group="stream"><div class="content">
+  <h1 class="h1">答案檔能示範概念，但還不是完整防錯版本</h1>
+  <table class="t"><thead><tr><th>目前程式</th><th>可能問題</th><th>較完整做法</th></tr></thead><tbody>
+    <tr><td>直接接受 tempN</td><td>負數或過大的長度會造成錯誤配置</td><td>先驗證範圍，再配置</td></tr>
+    <tr class="step" data-step="1"><td>先 delete 舊陣列</td><td>後續配置或輸入失敗時，舊資料已消失</td><td>先讀進暫存物件，成功後再交換</td></tr>
+    <tr class="step" data-step="2"><td>每次 in &gt;&gt; 後不檢查</td><td>輸入不足或格式錯誤時，向量可能只更新一部分</td><td>檢查 stream 狀態，失敗時保留原值</td></tr>
+  </tbody></table>
+  <div class="note info step" data-step="3" style="margin-top:30px"><strong>範圍說明：</strong>以上是依答案程式做的風險分析；原題主要在練 operator signature 與 friend。</div>
+</div></section>
+
+<section class="slide" data-title="串流練習" data-group="stream"><div class="content">
+  <h1 class="h1">把兩個 signature 對照起來</h1>
+  <table class="t"><thead><tr><th>operator</th><th>stream 參數</th><th>MyVector 參數</th><th>回傳</th></tr></thead><tbody>
+    <tr><td><code class="i">operator&lt;&lt;</code></td><td><code class="i">ostream&amp; out</code></td><td><code class="i">const MyVector&amp; v</code></td><td><code class="i">ostream&amp;</code></td></tr>
+    <tr class="step" data-step="1"><td><code class="i">operator&gt;&gt;</code></td><td><code class="i">istream&amp; in</code></td><td><code class="i">MyVector&amp; v</code></td><td><code class="i">istream&amp;</code></td></tr>
+  </tbody></table>
+  <div class="note good step" data-step="2" style="margin-top:45px"><strong>唯一核心差異：</strong>輸出只讀 v，所以加 const；輸入要改 v，所以不能加 const。兩者都回傳原 stream reference 以支援串接。</div>
+</div></section>
+
+<section id="part-template" class="slide divider sec-neutral" data-title="Template 與運算契約" data-group="template">
+  <div class="mark">T</div><div class="dtext"><h1>Problem 9：為何需要 operator overloading</h1><p>泛型函式只看它使用了哪些語法。自訂類別若提供同樣操作，就能直接加入既有演算法。</p></div>
+</section>
+
+<section class="slide" data-title="為何不用函式名稱" data-group="template"><div class="content">
+  <h1 class="h1">template 不知道每個類別自訂的函式名稱</h1>
+  <div class="row">
+    <div class="w50 codebox"><pre class="code"><span class="kw">if</span>(sorted[j] &gt; sorted[j + <span class="numc">1</span>])
+{
+  T temp = sorted[j];
+  sorted[j] = sorted[j + <span class="numc">1</span>];
+  sorted[j + <span class="numc">1</span>] = temp;
+}</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <div class="note info"><strong>演算法作者只寫一次：</strong>他用標準語法 <span class="mono">&gt;</span> 與 <span class="mono">=</span> 表達需求。</div>
+      <div class="note bad step" data-step="1"><strong>若每類名稱不同：</strong>有的叫 <span class="mono">isGreaterThan</span>，有的叫 <span class="mono">larger</span>，template 無法事先知道要呼叫哪個。</div>
+      <div class="note good step" data-step="2"><strong>operator 的價值：</strong>類別把自己的比較規則接到演算法已使用的語法上。</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="Template 契約" data-group="template"><div class="content">
+  <h1 class="h1">Template 的真正契約：只要求程式裡用到的操作</h1>
+  <table class="t"><thead><tr><th>程式片段</th><th>T 必須支援</th><th>MyVector 對應</th></tr></thead><tbody>
+    <tr><td><code class="i">sorted[i] = unsorted[i]</code></td><td>assignment</td><td><code class="i">operator=</code></td></tr>
+    <tr class="step" data-step="1"><td><code class="i">sorted[j] &gt; sorted[j+1]</code></td><td>大於比較</td><td><code class="i">operator&gt;</code></td></tr>
+    <tr class="step" data-step="2"><td><code class="i">T temp = sorted[j]</code></td><td>從同型別物件建立新物件</td><td>copy constructor</td></tr>
+    <tr class="step" data-step="3"><td><code class="i">new T[len]</code></td><td>無參數建立 len 個物件</td><td>default constructor</td></tr>
+  </tbody></table>
+  <div class="note step" data-step="4" style="margin-top:30px"><strong>不需要的東西：</strong>bubble sort 沒用到 <span class="mono">operator&lt;&lt;</span>，所以排序本身不要求輸出 operator。</div>
+</div></section>
+
+<section class="slide" data-title="Bubble sort 迴圈" data-group="template"><div class="content">
+  <h1 class="h1">Bubble sort 每次比較相鄰兩格</h1>
+  <div class="row">
+    <div class="w55 codebox"><pre class="code sm"><span class="kw">for</span>(<span class="type">int</span> i = len - <span class="numc">1</span>; i &gt; <span class="numc">0</span>; i--)
+{
+  <span class="kw">for</span>(<span class="type">int</span> j = <span class="numc">0</span>; j &lt; i; j++)
+  {
+    <span class="kw">if</span>(sorted[j] &gt; sorted[j + <span class="numc">1</span>])
+    {
+      T temp = sorted[j];
+      sorted[j] = sorted[j + <span class="numc">1</span>];
+      sorted[j + <span class="numc">1</span>] = temp;
+    }
+  }
+}</pre><button class="copy" type="button">複製</button></div>
+    <div class="grow">
+      <ul class="ann">
+        <li><span class="n">1</span><div><strong>比較左右</strong><small>若左邊比較大，順序錯了。</small></div></li>
+        <li class="step" data-step="1"><span class="n">2</span><div><strong>用 temp 交換</strong><small>交換會用到 copy construction 與 assignment。</small></div></li>
+        <li class="step" data-step="2"><span class="n">3</span><div><strong>最大值逐輪往右</strong><small>每跑完一輪，右端至少多一個確定位置。</small></div></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="slide" data-title="MyVector 比較規則" data-group="template"><div class="content">
+  <h1 class="h1">答案檔把「向量較大」定義為元素總和較大</h1>
+  <div class="codebox"><pre class="code"><span class="type">bool</span> MyVector::<span class="fn">operator&gt;</span>(<span class="kw">const</span> MyVector&amp; v) <span class="kw">const</span>
+{
+  <span class="type">int</span> sum = <span class="numc">0</span>, sumV = <span class="numc">0</span>;
+  <span class="kw">for</span>(<span class="type">int</span> i = <span class="numc">0</span>; i &lt; n; i++) {
+    sum += m[i];
+    sumV += v.m[i];
+  }
+  <span class="kw">return</span> sum &gt; sumV;
+}</pre><button class="copy" type="button">複製</button></div>
+  <div class="note info step" data-step="1" style="margin-top:32px"><strong>這是類別自行定義的順序：</strong>C++ 不知道向量誰大。operator&gt; 把教材選定的「總和」規則提供給 bubble sort。</div>
+</div></section>
+
+<section class="slide" data-title="MyVector 排序追蹤" data-group="template"><div class="content">
+  <h1 class="h1">三個向量依總和排序</h1>
+  <table class="t"><thead><tr><th>向量</th><th>元素總和</th><th>排序後位置</th></tr></thead><tbody>
+    <tr><td><code class="i">(9, 2, 3)</code></td><td>14</td><td class="step" data-step="1">第 3</td></tr>
+    <tr><td><code class="i">(2, 7, 3)</code></td><td>12</td><td class="step" data-step="1">第 2</td></tr>
+    <tr><td><code class="i">(1, 3, 3)</code></td><td>7</td><td class="step" data-step="1">第 1</td></tr>
+  </tbody></table>
+  <pre class="code step" data-step="2" style="margin-top:38px"><span class="str">(1, 3, 3)
+(2, 7, 3)
+(9, 2, 3)</span></pre>
+  <div class="note good step" data-step="3" style="margin-top:28px">同一份 bubble sort 函式沒有改動。改的是 MyVector 提供的操作能力。</div>
+</div></section>
+
+<section class="slide" data-title="答案檔限制" data-group="template"><div class="content">
+  <h1 class="h1">讀答案時也要看見它的假設</h1>
+  <table class="t compact"><thead><tr><th>程式中的事實</th><th>影響</th><th>較穩健的調整</th></tr></thead><tbody>
+    <tr><td><code class="i">int sum</code> 累加 <code class="i">double</code></td><td>小數部分會被截斷，可能排錯順序</td><td>改為 <code class="i">double sum</code></td></tr>
+    <tr class="step" data-step="1"><td>註解假設維度相同</td><td>若 v.n 較小，可能讀取超出界線</td><td>先定義維度不同時的比較規則</td></tr>
+    <tr class="step" data-step="2"><td>09a 的 len 型別寫成 T</td><td>用 int 時可跑，但長度不應跟元素型別綁定</td><td>像 09b 一樣使用 <code class="i">int len</code> 或 <code class="i">size_t</code></td></tr>
+  </tbody></table>
+  <div class="note info step" data-step="3" style="margin-top:28px"><strong>區分：</strong>以上三點直接來自答案檔的程式碼；它們不是 operator overloading 必然的限制。</div>
+</div></section>
+
+<section id="part-finish" class="slide" data-title="整合挑戰" data-group="finish"><div class="content">
+  <h1 class="h1">整合挑戰：設計一個可排序、可輸出的 Grade</h1>
+  <div class="steps" style="--c:var(--neutral)">
+    <div class="s"><div class="num">資料</div><h3>兩個分數</h3><p><span class="mono">midterm</span> 與 <span class="mono">finalExam</span>。</p></div>
+    <div class="s step" data-step="1"><div class="num">比較</div><h3>operator&gt;</h3><p>依兩次考試總分比較。</p></div>
+    <div class="s step" data-step="2"><div class="num">輸出</div><h3>operator&lt;&lt;</h3><p>輸出格式 <span class="mono">(80, 90)</span>。</p></div>
+    <div class="s step" data-step="3"><div class="num">驗證</div><h3>bubbleSort</h3><p>建立三筆 Grade，確認由小到大。</p></div>
+  </div>
+  <div class="note step" data-step="4" style="margin-top:48px"><strong>說明要求：</strong>每個 operator 都要說出左、右運算元如何進入函式，以及為什麼參數需要或不需要 const。</div>
+</div></section>
+
+<section class="slide" data-title="總結" data-group="finish"><div class="content">
+  <h1 class="h1">今天真正要帶走的判斷順序</h1>
+  <div class="steps" style="--c:var(--neutral)">
+    <div class="s"><div class="num">1</div><h3>先看運算元</h3><p>左邊是不是自己的 class？這決定 member 或 global。</p></div>
+    <div class="s step" data-step="1"><div class="num">2</div><h3>再看是否修改</h3><p>只讀就加 const；要寫入就不能把目標宣告成 const。</p></div>
+    <div class="s step" data-step="2"><div class="num">3</div><h3>決定回傳型別</h3><p>要串接就回傳原物件 reference；要產生新值就 by value。</p></div>
+    <div class="s step" data-step="3"><div class="num">4</div><h3>追資料到下一步</h3><p>回傳值會被拿去 assign、比較，或接下一個 operator。</p></div>
+  </div>
+  <div class="note good step" data-step="4" style="margin-top:45px"><strong>一句話：</strong>operator overloading 沒有改變運算的本質，只是讓自訂類別用標準運算式呼叫你寫的函式。</div>
+</div></section>
+
+<section class="slide" data-title="答案與來源對照" data-group="finish"><div class="content">
+  <h1 class="h1 sm">題目、答案檔與驗證結果</h1>
+  <table class="t compact"><thead><tr><th>題目</th><th>主要答案檔</th><th>本次驗證</th></tr></thead><tbody>
+    <tr><td>1：<span class="mono">v == d</span></td><td><span class="mono">12_01_equality.cpp</span></td><td>編譯成功，輸出 Equal!</td></tr>
+    <tr><td>2–3：<span class="mono">operator[]</span></td><td><span class="mono">12_03_badConstMemberFunction.cpp</span></td><td>const 物件由 1.23 被改成 1</td></tr>
+    <tr><td>5：<span class="mono">d == v</span></td><td><span class="mono">12_05_globalEquality.cpp</span></td><td>編譯成功，輸出 Equal!</td></tr>
+    <tr><td>6：單元負號</td><td><span class="mono">12_06_negation.cpp</span></td><td>負值轉正，輸出 Equal!</td></tr>
+    <tr><td>7–8：stream</td><td><span class="mono">12_07_streamOut.cpp</span>、<span class="mono">12_08_streamIn.cpp</span></td><td>輸出、輸入與串接皆成功</td></tr>
+    <tr><td>9：template sort</td><td><span class="mono">12-09a...</span>、<span class="mono">12-09b...</span></td><td>int 與 MyVector 均成功排序</td></tr>
+  </tbody></table>
+  <p class="small dim" style="margin-top:26px">Problem 4 依題目中的 assignment 程式與既有 operator 語意分析；資料夾中沒有獨立的 12_04 答案檔。</p>
+</div></section>
+
+<div id="rail" aria-hidden="true"><div id="track"></div><div id="count"></div></div>
+<nav id="nav" aria-label="投影片導覽"><button id="prev" type="button" aria-label="上一步">‹</button><button id="next" type="button" aria-label="下一步">›</button></nav>
+<aside id="notes" aria-live="polite"></aside><div id="live" aria-live="polite"></div>
+</main>
+<script>
+(function(){
+var stage=document.getElementById("stage"),slides=[].slice.call(document.querySelectorAll(".slide")),notes=document.getElementById("notes"),live=document.getElementById("live"),track=document.getElementById("track"),count=document.getElementById("count"),index=0,step=0;
+var groups=[{key:"start",label:"起點",color:"#7A8996"},{key:"equality",label:"比較",color:"#0066B3"},{key:"index",label:"索引",color:"#007A52"},{key:"assignment",label:"指派",color:"#E8820C"},{key:"unary",label:"對稱與負號",color:"#7254A3"},{key:"stream",label:"串流",color:"#007C87"},{key:"template",label:"Template",color:"#7A8996"},{key:"finish",label:"收尾",color:"#3F4D5A"}];
+function maxStep(slide){var values=[0];slide.querySelectorAll(".step").forEach(function(el){values.push(Number(el.dataset.step||0))});return Math.max.apply(null,values)}
+function fitStage(){var scale=Math.min(innerWidth/1920,innerHeight/1080),x=(innerWidth-1920*scale)/2,y=(innerHeight-1080*scale)/2;stage.style.transform="translate("+(x/scale)+"px,"+(y/scale)+"px) scale("+scale+")"}
+function fitContent(slide){var c=slide.querySelector(".content");if(!c)return;c.style.transform="";var s=Math.min(1,(1080-84-140)/Math.max(1,c.scrollHeight),(1920-240)/Math.max(1,c.scrollWidth));if(s<.998)c.style.transform="scale("+s.toFixed(3)+")"}
+function rail(){track.innerHTML="";var total=slides.length,unit=100/Math.max(1,total-1);groups.forEach(function(g){var ids=[];slides.forEach(function(s,i){if(s.dataset.group===g.key)ids.push(i)});if(!ids.length)return;var first=ids[0],last=ids[ids.length-1],seg=document.createElement("i");seg.className="seg";seg.style.setProperty("--c",g.color);seg.style.left=(first*unit)+"%";seg.style.width=Math.max(unit,(last-first)*unit)+"%";track.appendChild(seg);var label=document.createElement("span");label.className="seglabel";label.style.left=(((first+last)/2)*unit)+"%";label.textContent=g.label;track.appendChild(label)});slides.forEach(function(s,i){var g=groups.find(function(x){return x.key===s.dataset.group})||groups[0],t=document.createElement("i");t.className="tick"+(i===index?" current":"");t.style.setProperty("--c",g.color);t.style.left=(i*unit)+"%";track.appendChild(t)});count.textContent=(index+1)+" / "+total}
+function fillNotes(){var n=slides[index].querySelector(".notes");notes.innerHTML='<div class="nt">講者提示</div>'+(n?n.innerHTML:"這一頁沒有額外提示。")}
+function render(){slides.forEach(function(s,i){var active=i===index;s.classList.toggle("active",active);s.setAttribute("aria-hidden",active?"false":"true");s.querySelectorAll(".step").forEach(function(el){el.classList.toggle("on",Number(el.dataset.step||0)<=step)})});rail();fillNotes();fitContent(slides[index]);live.textContent="第 "+(index+1)+" 頁，共 "+slides.length+" 頁："+slides[index].dataset.title;var h="#"+(index+1);if(location.hash!==h)history.replaceState(null,"",h)}
+function go(i,st){index=Math.max(0,Math.min(slides.length-1,i));step=Math.max(0,Math.min(maxStep(slides[index]),st||0));render()}
+function next(){var m=maxStep(slides[index]);if(step<m){step++;render()}else if(index<slides.length-1)go(index+1,0)}
+function prev(){if(step>0){step--;render()}else if(index>0)go(index-1,maxStep(slides[index-1]))}
+function hashIndex(){var raw=decodeURIComponent(location.hash.slice(1));if(!raw)return -1;var n=Number(raw);if(Number.isInteger(n)&&n>=1&&n<=slides.length)return n-1;var target=document.getElementById(raw);return target?slides.indexOf(target):-1}
+function copy(btn){var text=btn.parentElement.querySelector("pre").innerText;function done(){var old=btn.textContent;btn.textContent="已複製";setTimeout(function(){btn.textContent=old},1000)}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done()})}else{fallback(text);done()}}
+function fallback(text){var a=document.createElement("textarea");a.value=text;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}
+document.getElementById("prev").addEventListener("click",prev);document.getElementById("next").addEventListener("click",next);stage.addEventListener("click",function(e){var b=e.target.closest(".copy");if(b)copy(b)});
+document.addEventListener("keydown",function(e){if(e.metaKey||e.ctrlKey||e.altKey)return;if((e.key===" "||e.key==="Enter")&&e.target.closest("button,a"))return;if(["ArrowRight","PageDown"," ","Enter"].indexOf(e.key)>=0){e.preventDefault();next()}else if(["ArrowLeft","PageUp","Backspace"].indexOf(e.key)>=0){e.preventDefault();prev()}else if(e.key==="Home"){e.preventDefault();go(0,0)}else if(e.key==="End"){e.preventDefault();go(slides.length-1,0)}else if(e.key.toLowerCase()==="f"){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen()}else if(e.key.toLowerCase()==="n")notes.classList.toggle("on")});
+var tx=null;stage.addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});stage.addEventListener("touchend",function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>60)d<0?next():prev()},{passive:true});
+addEventListener("resize",fitStage);addEventListener("hashchange",function(){var targetIndex=hashIndex();if(targetIndex>=0&&targetIndex!==index)go(targetIndex,0)});var start=hashIndex();if(start>=0)index=start;fitStage();slides.forEach(function(s){s.style.display="block";s.style.visibility="hidden";fitContent(s);s.style.display="";s.style.visibility=""});render();
+})();
+</script>
+</body>
+</html>
