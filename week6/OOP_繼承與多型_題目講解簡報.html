@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Week 6｜繼承與多型題目講解</title><style>
+:root{--paper:#F4F6F7;--ink:#13202C;--ink2:#3F4D5A;--rule:#CBD3D9;--blue:#0066B3;--green:#007A52;--orange:#E8820C;--neutral:#7A8996;--signal:#FFC72C;--alert:#C8102E;--code:#0F1B26;--sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--mono:"SFMono-Regular","JetBrains Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0B141C}body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}button{font-family:inherit}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;background:var(--paper);transform-origin:0 0}
+.slide{position:absolute;inset:0;display:none;width:1920px;height:1080px;padding:84px 120px 140px;overflow:hidden;background:var(--paper);font-size:36px;line-height:1.55}
+.slide.active{display:block;animation:fade .18s ease-out}.slide.cover.active{display:flex;flex-direction:column;justify-content:center}.slide.divider.active{display:flex;align-items:center;gap:116px}@keyframes fade{from{opacity:0}to{opacity:1}}.content{transform-origin:0 0}
+h1,h2,h3,p{margin-top:0}.h1{margin-bottom:30px;font-size:68px;line-height:1.2;letter-spacing:-.02em}.h1.sm{font-size:56px}.lead{max-width:1540px;margin-bottom:30px;color:var(--ink2);font-size:42px;line-height:1.55}.big{margin:0;max-width:1560px;font-size:102px;font-weight:900;line-height:1.12;letter-spacing:-.025em}.course{margin:0;font-size:44px;font-weight:750}.meta{margin-top:14px;color:var(--ink2);font-size:31px}.hint{position:absolute;top:84px;right:120px;color:var(--ink2);font-size:25px;line-height:1.7;text-align:right}.bar{display:flex;width:1000px;height:16px;margin:48px 0 42px;overflow:hidden;border-radius:8px}.bar i{flex:1}.small{font-size:29px;line-height:1.5}.dim{color:var(--ink2)}.mono{font-family:var(--mono)}code.i{padding:2px 9px;border-radius:6px;background:#E3E8EC;font-family:var(--mono);font-size:.85em}strong{font-weight:800}
+.row{display:flex;gap:58px;align-items:flex-start}.row>*{min-width:0}.grow{flex:1}.w45{width:45%}.w50{width:50%}.w55{width:55%}.cols{display:grid;gap:0}.cols.c2{grid-template-columns:repeat(2,1fr)}.cols.c3{grid-template-columns:repeat(3,1fr)}.cols>div{padding:2px 48px;border-left:3px solid var(--rule)}.cols>div:first-child{padding-left:0;border-left:0}.cols h3{margin-bottom:12px;font-size:48px;line-height:1.25}.cols p{margin-bottom:0;color:var(--ink2);font-size:35px;line-height:1.52}
+.note{padding:20px 34px;border-left:10px solid var(--signal);border-radius:0 12px 12px 0;background:rgba(255,199,44,.18);font-size:36px;line-height:1.5}.note.good{border-left-color:var(--green);background:rgba(0,122,82,.09)}.note.bad{border-left-color:var(--alert);background:rgba(200,16,46,.08)}.note+.note{margin-top:20px}
+.ann{margin:0;padding:0;list-style:none}.ann li{display:flex;gap:22px;margin-bottom:24px;font-size:37px;line-height:1.48}.ann .n{display:flex;flex:none;align-items:center;justify-content:center;width:52px;height:52px;margin-top:2px;border-radius:50%;background:var(--ink);color:#fff;font-size:29px;font-weight:800}.ann small{display:block;color:var(--ink2);font-size:29px;line-height:1.42}.plain{margin:0;padding-left:1.3em;font-size:38px;line-height:1.65}.plain li{margin-bottom:12px}
+.codebox{position:relative}.codebox>pre.code{padding-right:108px}pre.code{margin:0;padding:27px 34px;overflow:hidden;border-radius:16px;background:var(--code);color:#E6EDF3;font-family:var(--mono);font-size:28px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}pre.code.sm{font-size:24px;line-height:1.48}pre.code.xs{font-size:21px;line-height:1.42}.out{color:#8EE3B0}.com{color:#8B9BAB}.cmd{color:#7CC4FF}.arg{color:#FFD479}.danger{color:#FF8A8A}.copy{position:absolute;top:14px;right:14px;min-width:76px;height:42px;padding:0 10px;border:2px solid #728396;border-radius:10px;background:#172737;color:#F4F6F7;font-size:19px;font-weight:700;cursor:pointer}.copy:hover{border-color:var(--signal);color:var(--signal)}
+.route{position:relative;display:flex;margin-top:58px}.route:before{position:absolute;top:25px;right:0;left:0;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--blue) 0 31%,var(--green) 31% 61%,var(--orange) 61% 90%,var(--neutral) 90%);content:""}.route .stop{position:relative;flex:1;padding-right:46px}.route .dot{position:relative;z-index:1;width:62px;height:62px;border:12px solid var(--c);border-radius:50%;background:var(--paper)}.route h3{margin:26px 0 4px;font-size:44px;line-height:1.2}.route p{color:var(--ink2);font-size:31px;line-height:1.48}
+.zones{display:grid;grid-template-columns:repeat(4,1fr);margin-top:34px;border-top:5px solid var(--ink)}.zone{min-height:330px;padding:26px 30px;border-left:3px solid var(--rule)}.zone:first-child{border-left:0}.zone h3{margin-bottom:10px;font-size:38px;line-height:1.25}.zone .where{color:var(--ink2);font-size:26px}.zone p{font-size:31px;line-height:1.48}.zone .verb{display:inline-block;margin-top:22px;padding:5px 15px;border-radius:8px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:26px}
+.divider{background:var(--sec);color:var(--on)}.sec-blue{--sec:var(--blue);--on:#fff}.sec-green{--sec:var(--green);--on:#fff}.sec-orange{--sec:var(--orange);--on:var(--ink)}.plate{flex:none;width:900px;overflow:hidden;border-radius:24px;background:#fff;color:var(--ink)}.plate .top{padding:16px 48px;background:var(--ink);color:#fff;font-size:36px;font-weight:700}.plate .name{padding:34px 48px 2px;font-size:84px;font-weight:900;line-height:1.15}.plate .en{padding:0 48px 40px;color:var(--ink2);font-size:34px}.divider .qs h2{margin-bottom:18px;font-size:43px}.divider .qs ol{margin:0;padding-left:1.4em;font-size:39px;line-height:1.6}
+.steps{position:relative;display:flex;margin-top:42px}.steps:before{position:absolute;top:30px;right:30px;left:30px;height:10px;border-radius:5px;background:var(--c,var(--blue));opacity:.3;content:""}.steps .s{position:relative;flex:1;padding-right:34px}.steps .num{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:62px;height:62px;border-radius:50%;background:var(--c,var(--blue));color:#fff;font-size:31px;font-weight:800}.steps.orange .num{color:var(--ink)}.steps h3{margin:20px 0 5px;font-size:34px;line-height:1.3}.steps p{margin:0;color:var(--ink2);font-size:28px;line-height:1.45}
+.commits{position:relative;display:flex;gap:82px;margin-top:54px;padding:0 40px}.commits:before{position:absolute;top:27px;right:48px;left:48px;height:8px;border-radius:4px;background:var(--ink);content:""}.commit{position:relative;z-index:1;flex:1}.commit .dot{width:62px;height:62px;border:10px solid var(--ink);border-radius:50%;background:var(--signal)}.commit h3{margin:18px 0 2px;font-family:var(--mono);font-size:28px}.commit p{color:var(--ink2);font-size:29px;line-height:1.4}
+.branch-map{position:relative;flex:none;width:930px;height:500px}.branch-map .shared,.branch-map .feature-line,.branch-map .feature-rise{position:absolute;height:10px;border-radius:5px}.branch-map .shared{top:205px;left:100px;width:540px;background:var(--blue)}.branch-map .feature-rise{top:205px;left:640px;width:170px;background:var(--orange);transform:rotate(41deg);transform-origin:left center}.branch-map .feature-line{top:315px;left:768px;width:120px;background:var(--orange)}.branch-map .node{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:66px;height:66px;border:9px solid var(--ink);border-radius:50%;background:#fff;font-family:var(--mono);font-size:22px;font-weight:800}.branch-map .node.feature-node{border-color:#A44C00}.branch-map .label{position:absolute;font-size:26px;font-weight:800;line-height:1.35}.branch-map .label small{display:block;color:var(--ink2);font-size:21px;font-weight:500}.branch-map .shared-caption{position:absolute;top:278px;left:100px;color:var(--ink2);font-size:27px}.branch-map .origin{position:absolute;top:66px;left:390px;width:360px;padding-left:18px;border-left:8px solid var(--orange);color:#7D3A00;font-size:25px;font-weight:750;line-height:1.35}.branch-map .origin small{display:block;color:var(--ink2);font-size:21px;font-weight:500}.branch-lead{margin:-6px 0 30px;color:var(--ink2);font-size:34px;line-height:1.5}
+table.t{width:100%;border-collapse:collapse;font-size:34px;line-height:1.42}table.t th{padding:13px 20px;border-bottom:4px solid var(--ink);text-align:left}table.t td{padding:16px 20px;border-bottom:2px solid var(--rule);vertical-align:top}table.t td:first-child{font-weight:700}.quiz{padding:22px 34px;border-top:5px solid var(--ink);background:#fff}.quiz .q{margin-bottom:12px;font-size:41px;font-weight:800;line-height:1.35}.quiz .ans{padding-left:26px;border-left:9px solid var(--signal);color:var(--ink2);font-size:34px;line-height:1.48}.step{visibility:hidden;opacity:0;transition:opacity .2s}.step.on{visibility:visible;opacity:1}.sources{margin:0;padding:0;list-style:none}.sources li{margin-bottom:22px;font-size:32px;line-height:1.45}.sources a{color:var(--blue);text-decoration-thickness:2px;text-underline-offset:5px}
+#rail{position:absolute;right:0;bottom:0;left:0;z-index:10;height:104px;border-top:2px solid var(--rule);background:var(--paper)}#track{position:absolute;top:35px;left:120px;width:1415px;height:10px;border-radius:5px;background:var(--rule)}.seg{position:absolute;top:0;height:10px;background:var(--c);opacity:.42}.tick{position:absolute;top:-2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--c)}.tick.current{top:-12px;width:36px;height:36px;margin-left:-18px;border:6px solid var(--ink);background:var(--signal)}.seglabel{position:absolute;top:28px;width:250px;margin-left:-125px;color:var(--ink2);font-size:22px;font-weight:700;text-align:center}#count{position:absolute;top:25px;left:1560px;color:var(--ink2);font-size:27px;font-weight:750;font-variant-numeric:tabular-nums}#nav{position:absolute;right:112px;bottom:25px;z-index:20;display:flex;gap:12px}#nav button{width:54px;height:54px;padding:0;border:3px solid var(--ink);border-radius:50%;background:var(--paper);color:var(--ink);font-size:27px;font-weight:800;cursor:pointer}#nav button:hover{background:var(--signal)}#notes{position:absolute;right:0;bottom:104px;left:0;z-index:15;display:none;max-height:440px;padding:28px 120px 34px;overflow:auto;background:rgba(15,27,38,.97);color:#fff;font-size:30px;line-height:1.55}#notes.on{display:block}#notes .nt{margin-bottom:5px;color:var(--signal);font-size:24px;font-weight:800}#live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}:focus-visible{outline:5px solid var(--blue);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.slide.active{animation:none}.step{transition:none}}
+@media print{@page{size:13.333in 7.5in;margin:0}html,body{height:auto;overflow:visible;background:#fff}#stage{position:static;width:1920px;height:auto;transform:none!important}.slide,.slide.cover,.slide.divider{position:relative;display:block!important;width:1920px;height:1080px;break-after:page;animation:none}.slide.cover,.slide.divider{display:flex!important}.step{visibility:visible!important;opacity:1!important}.codebox>pre.code{padding-right:34px}#rail,#nav,#notes,#live,.copy{display:none!important}}
+
+.src{margin-top:16px;color:var(--ink2);font-size:23px;line-height:1.4}.src a{color:var(--blue)}
+.flow{display:flex;align-items:center;gap:22px;margin:36px 0}.flow .box{flex:1;padding:25px 24px;border:4px solid var(--ink);border-radius:15px;background:#fff;font-size:30px;line-height:1.35}.flow .arrow{flex:none;color:var(--blue);font-size:54px;font-weight:900}.flow .box strong{display:block;font-size:38px}
+</style></head><body><main id="stage" aria-label="Week 6 繼承與多型題目講解簡報"><section class="slide cover" data-title="標題" data-group="start"><div class="content">
+<div class="hint">方向鍵／空白鍵：下一步<br>F：全螢幕　N：講者提示</div>
+<h1 class="big">繼承與多型<br>7 題課堂練習講解</h1>
+<div class="bar" aria-hidden="true"><i style="background:var(--blue)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+<p class="course">Week 6</p><p class="meta">叫車平台：從 Entity 到 PassengerArray</p>
+</div></section>
+<section class="slide" data-title="先看題目：要模擬一個叫車平台" data-group="start"><div class="content"><h1 class="h1 sm">先看題目：要模擬一個叫車平台</h1>
+<p class="lead">平台有已註冊的車與乘客。乘客提出叫車需求時，平台要找一輛空車給他。</p>
+<div class="cols c3">
+<div><h3 style="color:var(--blue)">車</h3><p>共有 n 輛；每輛車可上線或離線。題目先忽略駕駛資料。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">乘客</h3><p>共有 m 位；乘客登入時提出叫車需求。</p></div>
+<div class="step" data-step="2"><h3 style="color:#A44C00">平台</h3><p>把一輛空車指派給乘客，之後追蹤雙方狀態。</p></div>
+</div>
+<div class="note step" data-step="3" style="margin-top:38px"><strong>題目簡化：</strong>n、m 已知且固定，各在 1 到 10000 之間；上線車與乘客會記錄經緯度。</div>
+<p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=2">原題 PDF 第 2–3 頁</a></p></div><aside class="notes" hidden>這一頁先講完整應用情境。後面的程式練習只逐步建立資料類別與列印功能，尚未完成真正派車。</aside></section>
+<section class="slide" data-title="車與乘客各有三種狀態" data-group="start"><div class="content"><h1 class="h1 sm">車與乘客各有三種狀態</h1>
+<table class="t"><thead><tr><th>是否上線</th><th>Car（車）</th><th>Passenger（乘客）</th></tr></thead><tbody>
+<tr><td>離線</td><td>offline：車未接單</td><td>offline：乘客不在服務中</td></tr>
+<tr class="step" data-step="1"><td>上線、未開始服務</td><td>empty：空車，可被指派</td><td>waiting：已叫車並配對，正在等車</td></tr>
+<tr class="step" data-step="2"><td>上線、服務中</td><td>in-service：正在載客</td><td>in-service：已上車，前往目的地</td></tr>
+</tbody></table>
+<div class="note step" data-step="3" style="margin-top:30px"><strong>位置：</strong>題目只要求記錄上線車與上線乘客的經緯度；離線時列印不顯示座標。</div>
+<p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=2">原題 PDF 第 2 頁</a></p></div><aside class="notes" hidden>waiting 並非單純「尚未叫到車」；原題寫明已提出需求且已與車配對，正在等待車到。</aside></section>
+<section class="slide" data-title="一次叫車如何改變雙方狀態" data-group="start"><div class="content"><h1 class="h1 sm">一次叫車如何改變雙方狀態</h1>
+<p class="lead">以空車 5HE-313 和乘客 B90705023 為例，依原題描述走一次。</p>
+<div class="steps" style="--c:var(--blue)">
+<div class="s"><div class="num">1</div><h3>乘客登入叫車</h3><p>平台要找一輛上線且 empty 的車。</p></div>
+<div class="s step" data-step="1"><div class="num">2</div><h3>完成指派</h3><p>車變 in-service；乘客變 waiting。</p></div>
+<div class="s step" data-step="2"><div class="num">3</div><h3>車與乘客會合</h3><p>乘客上車，變 in-service。</p></div>
+<div class="s step" data-step="3"><div class="num">4</div><h3>抵達目的地</h3><p>車變 empty；乘客變 offline。</p></div>
+</div>
+<div class="note step" data-step="4" style="margin-top:42px">車也可以透過開啟或關閉 app，自行切換上線／離線。</div>
+<p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=3">原題 PDF 第 3 頁</a></p></div><aside class="notes" hidden>原題沒有指定具體配對演算法。這頁的車牌與乘客號碼是講解範例，狀態變化依 PDF 第 3 頁。</aside></section>
+<section class="slide" data-title="程式需要記錄哪些資料" data-group="start"><div class="content"><h1 class="h1 sm">程式需要記錄哪些資料</h1>
+<table class="t"><thead><tr><th>資料</th><th>車</th><th>乘客</th></tr></thead><tbody>
+<tr><td>識別碼</td><td>車牌號碼，例如 5HE-313</td><td>手機號碼，例如 B90705023</td></tr>
+<tr class="step" data-step="1"><td>狀態</td><td>離線／空車／載客中</td><td>離線／等車／乘車中</td></tr>
+<tr class="step" data-step="2"><td>位置</td><td>經度 lon、緯度 lat</td><td>經度 lon、緯度 lat</td></tr>
+<tr class="step" data-step="3"><td>配對對象</td><td>被指派的 Passenger*</td><td>被指派的 Car*</td></tr>
+</tbody></table>
+<div class="note step" data-step="4" style="margin-top:28px"><strong>類別設計：</strong>共同資料放在 Entity；Car 和 Passenger 再表示各自不同的狀態文字。</div>
+<p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=4">原題 PDF 第 4 頁</a></p></div><aside class="notes" hidden>第 4 頁是完整系統的資料規劃；後續 Entity 範例尚未加入配對指標。</aside></section>
+<section class="slide" data-title="完整情境與這七題的範圍" data-group="start"><div class="content"><h1 class="h1 sm">完整情境與這七題的範圍</h1>
+<div class="cols c2">
+<div><h3 style="color:var(--blue)">完整情境</h3><p>需要指派空車、記住配對對象，並在會合與抵達時更新雙方狀態。</p></div>
+<div class="step" data-step="1"><h3 style="color:var(--green)">本次七題</h3><p>先建立 Entity、Car、Passenger 和陣列類別，練習繼承、多型與狀態列印。</p></div>
+</div>
+<div class="note step" data-step="2" style="margin-top:42px"><strong>原題寫法的變化：</strong>第 4 頁規劃用整數狀態與配對指標；第 5 頁起的 Entity 範例改用 <code class="i">isOn</code>、<code class="i">isSer</code> 兩個 bool，還沒有配對指標。</div>
+<div class="note good step" data-step="3">所以後面的程式能表示與列印狀態，但尚不能完成真正的車輛配對流程。</div>
+<p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=3">原題 PDF 第 3–5 頁</a></p></div><aside class="notes" hidden>這一頁特別區分 PDF 第 4 頁的完整系統構想與第 5 頁開始的課堂程式骨架，避免把已做與待做混淆。</aside></section>
+<section class="slide" data-title="七題的路線" data-group="start"><div class="content"><h1 class="h1 sm">七題的路線</h1><div class="route"><div class="stop" style="--c:var(--blue)"><div class="dot"></div><h3>題 1–2</h3><p>Car 繼承 Entity，改寫 print。</p></div><div class="stop" style="--c:var(--green)"><div class="dot"></div><h3>題 3–4</h3><p>CarArray 建立、保存與釋放車。</p></div><div class="stop" style="--c:var(--orange)"><div class="dot"></div><h3>題 5–6</h3><p>Passenger 與兩種陣列共用程式。</p></div><div class="stop" style="--c:var(--neutral)"><div class="dot"></div><h3>題 7</h3><p>禁止直接建立 Entity。</p></div></div><div class="note  step" data-step="1">每題先看輸入與目標，再看失敗原因，最後用小例子確認輸出。</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=8">原題 PDF 第 8–22 頁</a></p></div></section>
+<section class="slide divider sec-blue" data-title="類別繼承" data-group="class"><div class="plate"><div class="top">PART 01</div><div class="name">類別繼承</div><div class="en">Entity → Car / Passenger</div></div><div class="qs"><h2>這一段要回答</h2><ol><li>Car 建構時，誰負責父類別的欄位？</li><li>Car 和 Passenger 的狀態文字差在哪裡？</li></ol></div></section>
+<section class="slide" data-title="Entity 保存共同資料" data-group="class"><div class="content"><h1 class="h1 sm">Entity 保存共同資料</h1><div class="row"><div class="w50"><pre class="code sm">class Entity {
+protected:
+  string id;
+  bool isOn, isSer;
+  double lon, lat;
+public:
+  Entity(string id, bool isOn, bool isSer,
+         double lon, double lat);
+  void print();
+};</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>輸入：</strong>識別碼、兩個狀態值、經緯度。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>共同部分：</strong>車與乘客都需要這五個欄位。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>protected：</strong>子類別的成員函式可讀取，外部程式不能直接存取。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=5">原題 PDF 第 5–6 頁</a> · <a href="PD_14_oop_practice_answers/14_icp01_Entity.cpp">課堂範例 14_icp01_Entity.cpp</a></p></div></section>
+<section class="slide" data-title="題 1：Car 建構函式哪裡錯？" data-group="class"><div class="content"><h1 class="h1 sm">題 1：Car 建構函式哪裡錯？</h1><p class="lead">題目寫法試圖在 Car 的初始化清單，直接初始化 Entity 的欄位。</p><div class="row"><div class="w50"><pre class="code ">Car::Car(string id, bool isOn, bool isSer,
+         double lon, double lat)
+  : id(id), isOn(isOn), isSer(isSer),
+    lon(lon), lat(lat)
+{
+}</pre></div><div class="grow"><div class="note "><strong>先想：</strong>Car 自己有宣告 id、isOn、lon 這些欄位嗎？</div><div class="note  step" data-step="1"><strong>問題：</strong>繼承來的欄位屬於 Entity 部分，不能在此當作 Car 自己的欄位初始化。</div></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=8">原題 PDF 第 8 頁</a></p></div></section>
+<section class="slide" data-title="題 1：交給 Entity 建構" data-group="class"><div class="content"><h1 class="h1 sm">題 1：交給 Entity 建構</h1><div class="row"><div class="w50"><pre class="code ">Car::Car(string id, bool isOn, bool isSer,
+         double lon, double lat)
+  : Entity(id, isOn, isSer, lon, lat)
+{
+}</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>先建立 Entity 部分：</strong>五個值交給父類別建構函式。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>再建立 Car 部分：</strong>本題 Car 沒有額外欄位，函式本體可留空。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>結果：</strong>Car 物件已保存五個共同欄位。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=8">原題 PDF 第 8–9 頁</a> · <a href="PD_14_oop_practice_answers/14_icp02_Car.cpp">課堂範例 14_icp02_Car.cpp</a></p></div></section>
+<section class="slide" data-title="題 2：Car::print 的輸出規則" data-group="class"><div class="content"><h1 class="h1 sm">題 2：Car::print 的輸出規則</h1><p class="lead">輸入 isOn、isSer、座標；輸出狀態文字，離線時不顯示位置。</p><table class="t"><thead><tr><th>isOn</th><th>isSer</th><th>狀態文字</th><th>位置</th></tr></thead><tbody><tr><td>false</td><td>任意</td><td>offline</td><td>不顯示</td></tr><tr class="step" data-step="1"><td>true</td><td>false</td><td>empty</td><td>顯示</td></tr><tr class="step" data-step="2"><td>true</td><td>true</td><td>in-service</td><td>顯示</td></tr></tbody></table><div class="note  step" data-step="3"><strong>例子：</strong>Car("LPA-039", true, false, 1, 1) → LPA-039: empty, (1, 1)</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=10">原題 PDF 第 10 頁</a></p></div></section>
+<section class="slide" data-title="題 2：先判斷是否上線" data-group="class"><div class="content"><h1 class="h1 sm">題 2：先判斷是否上線</h1><div class="row"><div class="w55"><pre class="code sm">void Car::print() {
+  cout &lt;&lt; id &lt;&lt; &quot;: &quot;;
+  if (isOn) {
+    if (isSer) cout &lt;&lt; &quot;in-service, (&quot;;
+    else       cout &lt;&lt; &quot;empty, (&quot;;
+    cout &lt;&lt; lon &lt;&lt; &quot;, &quot; &lt;&lt; lat &lt;&lt; &quot;)&quot;;
+  } else {
+    cout &lt;&lt; &quot;offline&quot;;
+  }
+  cout &lt;&lt; endl;
+}</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>先看 isOn：</strong>離線直接印 offline，不讀 isSer。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>上線才看 isSer：</strong>true 為 in-service，false 為 empty。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>最後印位置：</strong>只有上線分支會執行。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=10">原題 PDF 第 10 頁</a> · <a href="PD_14_oop_practice_answers/14_icp02_Car.cpp">課堂範例 14_icp02_Car.cpp</a></p></div><aside class="notes" hidden>此時 Entity::print 尚未標 virtual。透過 Entity* 呼叫時仍可能執行父類別版本，題 6 再處理。</aside></section>
+<section class="slide divider sec-green" data-title="陣列與記憶體" data-group="array"><div class="plate"><div class="top">PART 02</div><div class="name">陣列與記憶體</div><div class="en">CarArray: new / delete</div></div><div class="qs"><h2>這一段要回答</h2><ol><li>為何 new Car[20000] 不能用？</li><li>每個 new Car 要由誰 delete？</li></ol></div></section>
+<section class="slide" data-title="題 3：直接建立 Car 陣列的問題" data-group="array"><div class="content"><h1 class="h1 sm">題 3：直接建立 Car 陣列的問題</h1><div class="row"><div class="w50"><pre class="code ">class CarArray {
+  int capacity, cnt;
+  Car* cars;
+};
+
+CarArray::CarArray() {
+  capacity = 20000;
+  cars = new Car[capacity];
+}</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>new Car[capacity]：</strong>會先建構每一個 Car。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>但 Car：</strong>只有需五個參數的建構函式，沒有無參數建構函式。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>結果：</strong>無法編譯；而且也不需提前建立 20000 輛沒有資料的車。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=11">原題 PDF 第 11–13 頁</a></p></div></section>
+<section class="slide" data-title="題 4：先存指標，加入時才建車" data-group="array"><div class="content"><h1 class="h1 sm">題 4：先存指標，加入時才建車</h1><div class="flow"><div class="box"><strong>Car** carPtr</strong>配置 20000 個指標位置</div><div class="arrow">→</div><div class="box"><strong>new Car(...)</strong>加入時才建物件</div><div class="arrow">→</div><div class="box"><strong>carPtr[cnt]</strong>保存位址</div></div><div class="note "><strong>小例子：</strong>cnt = 2，只有前兩格指向有效 Car；第 3 格不算已加入的資料。</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=14">原題 PDF 第 14–15 頁</a></p></div></section>
+<section class="slide" data-title="題 4：建構與解構要成對" data-group="array"><div class="content"><h1 class="h1 sm">題 4：建構與解構要成對</h1><div class="row"><div class="w55"><pre class="code sm">CarArray::CarArray() {
+  cnt = 0;
+  capacity = 20000;
+  carPtr = new Car*[capacity];
+}
+CarArray::~CarArray() {
+  for (int i = 0; i &lt; cnt; ++i)
+    delete carPtr[i];
+  delete [] carPtr;
+}</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>建構：</strong>配置指標位置，尚未建立 Car。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>解構第一步：</strong>逐一刪除 cnt 個已建立的 Car。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>解構第二步：</strong>用 delete [] 釋放指標陣列。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=14">原題 PDF 第 14–15 頁</a> · <a href="PD_14_oop_practice_answers/14_icp04_CarArray.cpp">課堂範例 14_icp04_CarArray.cpp</a></p></div></section>
+<section class="slide" data-title="題 4：add 先檢查容量" data-group="array"><div class="content"><h1 class="h1 sm">題 4：add 先檢查容量</h1><div class="row"><div class="w55"><pre class="code sm">bool CarArray::add(string id, bool isOn,
+                   bool isSer, double lon,
+                   double lat) {
+  if (cnt &gt;= capacity) return false;
+  carPtr[cnt] = new Car(id, isOn,
+                        isSer, lon, lat);
+  ++cnt;
+  return true;
+}</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>輸入：</strong>一輛車的五個資料。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>未滿：</strong>建立 Car，位址放在第 cnt 格，cnt 加一。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>已滿：</strong>不寫出界，回傳 false。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=16">原題 PDF 第 16 頁</a> · <a href="PD_14_oop_practice_answers/14_icp04_CarArray.cpp">課堂範例 14_icp04_CarArray.cpp</a></p></div></section>
+<section class="slide" data-title="題 4：print 只走已加入的車" data-group="array"><div class="content"><h1 class="h1 sm">題 4：print 只走已加入的車</h1><div class="row"><div class="w50"><pre class="code ">void CarArray::print() {
+  for (int i = 0; i &lt; cnt; ++i)
+    carPtr[i]-&gt;print();
+}</pre></div><div class="grow"><div class="note "><strong>cnt = 2：</strong>只呼叫 carPtr[0] 和 carPtr[1]。後面尚未加入車，不可讀取。</div><div class="note  step" data-step="1"><strong>題目輸出：</strong>5HE-313 顯示 in-service；LPA-039 顯示 empty。</div></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=16">原題 PDF 第 16 頁</a> · <a href="PD_14_oop_practice_answers/14_icp04_CarArray.cpp">課堂範例 14_icp04_CarArray.cpp</a></p></div></section>
+<section class="slide divider sec-orange" data-title="乘客與多型" data-group="poly"><div class="plate"><div class="top">PART 03</div><div class="name">乘客與多型</div><div class="en">Passenger / EntityArray / virtual</div></div><div class="qs"><h2>這一段要回答</h2><ol><li>車與乘客有哪些相同與不同？</li><li>Entity* 指向 Car 時呼叫哪個 print？</li><li>如何禁止建立單獨的 Entity？</li></ol></div></section>
+<section class="slide" data-title="題 5：Passenger 的狀態文字" data-group="poly"><div class="content"><h1 class="h1 sm">題 5：Passenger 的狀態文字</h1><p class="lead">Passenger 也繼承 Entity；建構方式相同，但上線後狀態文字不同。</p><table class="t"><thead><tr><th>狀態</th><th>Car</th><th>Passenger</th></tr></thead><tbody><tr><td>isOn = false</td><td>offline</td><td>offline</td></tr><tr class="step" data-step="1"><td>上線，isSer = false</td><td>empty</td><td>waiting</td></tr><tr class="step" data-step="2"><td>上線，isSer = true</td><td>in-service</td><td>in-service</td></tr></tbody></table><div class="note  step" data-step="3">同樣兩個布林值，在車和乘客身上有不同意義，因此各自實作 print。</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=17">原題 PDF 第 17 頁</a></p></div></section>
+<section class="slide" data-title="題 5：Passenger::print" data-group="poly"><div class="content"><h1 class="h1 sm">題 5：Passenger::print</h1><div class="row"><div class="w55"><pre class="code sm">Passenger::Passenger(string id, bool isOn,
+  bool isSer, double lon, double lat)
+  : Entity(id, isOn, isSer, lon, lat) {}
+
+void Passenger::print() {
+  cout &lt;&lt; id &lt;&lt; &quot;: &quot;;
+  if (!isOn) cout &lt;&lt; &quot;offline&quot;;
+  else {
+    cout &lt;&lt; (isSer ? &quot;in-service&quot; : &quot;waiting&quot;);
+    cout &lt;&lt; &quot;, (&quot; &lt;&lt; lon &lt;&lt; &quot;, &quot; &lt;&lt; lat &lt;&lt; &quot;)&quot;;
+  }
+  cout &lt;&lt; endl;
+}</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>輸入：</strong>("B90705023", true, false, 0, 0)。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>判斷：</strong>上線但尚未乘車，所以顯示 waiting。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>輸出：</strong>B90705023: waiting, (0, 0)。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=17">原題 PDF 第 17 頁</a> · <a href="PD_14_oop_practice_answers/14_icp05_Passenger.cpp">課堂範例 14_icp05_Passenger.cpp</a></p></div></section>
+<section class="slide" data-title="題 6：兩種陣列的共同部分" data-group="poly"><div class="content"><h1 class="h1 sm">題 6：兩種陣列的共同部分</h1><div class="flow"><div class="box"><strong>EntityArray</strong>capacity、cnt、Entity**、print、解構</div><div class="arrow">↙</div><div class="box"><strong>CarArray</strong>add 建立 Car</div><div class="arrow">↘</div><div class="box"><strong>PassengerArray</strong>add 建立 Passenger</div></div><div class="note "><strong>共同：</strong>保存位址、走訪列印、釋放物件。<strong>不同：</strong>加入時建立哪一種物件。</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=18">原題 PDF 第 18–19 頁</a></p></div></section>
+<section class="slide" data-title="題 6：空的子類別為何不夠？" data-group="poly"><div class="content"><h1 class="h1 sm">題 6：空的子類別為何不夠？</h1><div class="row"><div class="w50"><pre class="code ">class CarArray : public EntityArray {};
+class PassengerArray : public EntityArray {};
+
+// 若沿用 EntityArray::add：
+entityPtr[cnt] = new Entity(id, isOn,
+                            isSer, lon, lat);</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>表面：</strong>兩種陣列都能 add 和 print。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>實際：</strong>基底 add 建的是 Entity，不是 Car 或 Passenger。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>結果：</strong>列印不出 empty、waiting 等各自的狀態字。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=19">原題 PDF 第 19–21 頁</a> · <a href="PD_14_oop_practice_answers/14_icp06a_PassengerArrayVeryBad.cpp">課堂範例 14_icp06a_PassengerArrayVeryBad.cpp</a></p></div></section>
+<section class="slide" data-title="題 6：add 必須建立正確物件" data-group="poly"><div class="content"><h1 class="h1 sm">題 6：add 必須建立正確物件</h1><div class="row"><div class="w55"><pre class="code sm">bool CarArray::add(string id, bool isOn,
+  bool isSer, double lon, double lat) {
+  if (cnt &gt;= capacity) return false;
+  entityPtr[cnt] = new Car(id, isOn,
+                            isSer, lon, lat);
+  ++cnt;
+  return true;
+}
+// PassengerArray::add 在同一處建立
+// new Passenger(id, isOn, isSer, lon, lat)</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>Entity* 可存 Car 位址：</strong>因為 Car 繼承 Entity。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>CarArray：</strong>實際建立的是 Car。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>PassengerArray：</strong>實際建立的是 Passenger。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=20">原題 PDF 第 20–21 頁</a> · <a href="PD_14_oop_practice_answers/14_icp06b_PassengerArrayBad.cpp">課堂範例 14_icp06b_PassengerArrayBad.cpp</a></p></div></section>
+<section class="slide" data-title="同名 print 不會自動依物件選擇" data-group="poly"><div class="content"><h1 class="h1 sm">同名 print 不會自動依物件選擇</h1><div class="row"><div class="w50"><pre class="code ">Entity* p = new Car(&quot;5HE-313&quot;,
+  true, false, 0, 0);
+p-&gt;print();  // Entity::print 非 virtual 時
+             // 呼叫 Entity::print()</pre></div><div class="grow"><div class="note "><strong>原因：</strong>p 的宣告型別是 Entity*；非 virtual 函式由這個型別決定呼叫哪一版。</div><div class="note  step" data-step="1"><strong>題目想要：</strong>同一行 p->print()，依物件實際是 Car 或 Passenger 選各自的 print。</div></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=21">原題 PDF 第 21 頁</a> · <a href="PD_14_oop_practice_answers/14_icp06b_PassengerArrayBad.cpp">課堂範例 14_icp06b_PassengerArrayBad.cpp</a></p></div></section>
+<section class="slide" data-title="題 6：把 Entity::print 設為 virtual" data-group="poly"><div class="content"><h1 class="h1 sm">題 6：把 Entity::print 設為 virtual</h1><div class="row"><div class="w50"><pre class="code ">class Entity {
+public:
+  virtual void print() = 0;
+  virtual ~Entity() = default;
+};
+class Car : public Entity {
+public:
+  void print() override;
+};</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>virtual：</strong>透過 Entity* 呼叫時，依實際物件型別選函式。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>override：</strong>請編譯器確認 Car::print 真的覆寫父類別函式。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>= 0：</strong>設成純虛擬函式，同時解決題 7。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=21">原題 PDF 第 21–22 頁</a> · <a href="PD_14_oop_practice_answers/14_icp06d_PassengerArrayPureVirtual.cpp">課堂範例 14_icp06d_PassengerArrayPureVirtual.cpp</a></p></div><aside class="notes" hidden>原範例有 virtual print = 0，但沒有 virtual 解構函式；投影片加入建議修正。override 也是教學補充。</aside></section>
+<section class="slide" data-title="多型：同一呼叫，不同輸出" data-group="poly"><div class="content"><h1 class="h1 sm">多型：同一呼叫，不同輸出</h1><div class="flow"><div class="box"><strong>Entity* p</strong>宣告為父類別指標</div><div class="arrow">→</div><div class="box"><strong>實際物件</strong>Car 或 Passenger</div><div class="arrow">→</div><div class="box"><strong>p->print()</strong>呼叫實際物件版本</div></div><div class="cols c2"><div><h3>指向 Car</h3><p>true, false → <strong>empty</strong></p></div><div class="step" data-step="1"><h3>指向 Passenger</h3><p>true, false → <strong>waiting</strong></p></div></div><div class="note  step" data-step="2">前提：Entity::print 是 virtual，且位址裡真的存 Car／Passenger 物件。</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=21">原題 PDF 第 21 頁</a></p></div></section>
+<section class="slide" data-title="刪除 Entity* 需要 virtual 解構函式" data-group="poly"><div class="content"><h1 class="h1 sm">刪除 Entity* 需要 virtual 解構函式</h1><div class="row"><div class="w50"><pre class="code ">Entity* p = new Car(&quot;5HE-313&quot;,
+  true, false, 0, 0);
+delete p;  // 透過 Entity* 刪除
+
+class Entity {
+public:
+  virtual ~Entity() = default;
+};</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>來源範例：</strong>EntityArray 對每個 Entity* 執行 delete。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>問題：</strong>若 Entity 解構函式不是 virtual，透過父類別指標刪除子類別物件屬未定義行為。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>修正：</strong>宣告 virtual 解構函式，確保刪除流程完整。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice_answers/14_icp06d_PassengerArrayPureVirtual.cpp">課堂範例 14_icp06d_PassengerArrayPureVirtual.cpp</a></p></div><aside class="notes" hidden>這是針對附檔的安全性補充，不是 PDF 原題明列要求。</aside></section>
+<section class="slide" data-title="題 7：禁止單獨建立 Entity" data-group="poly"><div class="content"><h1 class="h1 sm">題 7：禁止單獨建立 Entity</h1><div class="row"><div class="w50"><pre class="code ">class Entity {
+public:
+  virtual void print() = 0;
+  virtual ~Entity() = default;
+};
+
+// Entity e(...);  編譯錯誤
+// Car c(...);     Car 有實作 print，合法</pre></div><div class="grow"><ul class="ann"><li><span class="n">1</span><div><strong>題意：</strong>系統中的物件是車或乘客，不是泛稱的 Entity。</div></li><li class="step" data-step="1"><span class="n">2</span><div><strong>= 0：</strong>讓 Entity 成為抽象類別，不能直接建立。</div></li><li class="step" data-step="2"><span class="n">3</span><div><strong>Entity* 仍可用：</strong>它可以指向 Car／Passenger。</div></li></ul></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=22">原題 PDF 第 22 頁</a> · <a href="PD_14_oop_practice_answers/14_icp06d_PassengerArrayPureVirtual.cpp">課堂範例 14_icp06d_PassengerArrayPureVirtual.cpp</a></p></div></section>
+<section class="slide" data-title="EntityArray::add 也可設為純虛擬" data-group="poly"><div class="content"><h1 class="h1 sm">EntityArray::add 也可設為純虛擬</h1><div class="row"><div class="w55"><pre class="code sm">class EntityArray {
+public:
+  virtual bool add(string id, bool isOn,
+    bool isSer, double lon, double lat) = 0;
+  void print();
+};
+class CarArray : public EntityArray {
+public:
+  bool add(string id, bool isOn,
+    bool isSer, double lon, double lat) override;
+};</pre></div><div class="grow"><div class="note "><strong>原因：</strong>EntityArray 不知道應 new Car 還是 new Passenger，交由子類別決定。</div><div class="note  step" data-step="1"><strong>附檔注意：</strong>06c 的 virtual bool add(...) {} 沒有回傳 bool；呼叫後若使用回傳值，會有未定義行為。06d 改成 = 0。</div></div></div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=18">原題 PDF 第 18–22 頁</a> · <a href="PD_14_oop_practice_answers/14_icp06d_PassengerArrayPureVirtual.cpp">課堂範例 14_icp06d_PassengerArrayPureVirtual.cpp</a></p></div></section>
+<section class="slide" data-title="把呼叫流程走一次" data-group="finish"><div class="content"><h1 class="h1 sm">把呼叫流程走一次</h1><div class="steps" style="--c:var(--blue)"><div class="s"><div class="num">1</div><h3>輸入</h3><p>ca.add("LPA-039", true, false, 1, 1)</p></div><div class="s step" data-step="1"><div class="num">2</div><h3>建立</h3><p>CarArray::add 建立 Car，位址放入 Entity**。</p></div><div class="s step" data-step="2"><div class="num">3</div><h3>呼叫</h3><p>EntityArray::print 透過 Entity* 呼叫 virtual print。</p></div><div class="s step" data-step="3"><div class="num">4</div><h3>輸出</h3><p>Car::print 印出 empty, (1, 1)。</p></div></div><div class="note  step" data-step="4">陣列解構時，逐一 delete 物件，再釋放指標陣列。</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=16">原題 PDF 第 16–22 頁</a></p></div></section>
+<section class="slide" data-title="三個容易混淆的地方" data-group="finish"><div class="content"><h1 class="h1 sm">三個容易混淆的地方</h1><div class="cols c3"><div><h3 style="color:var(--blue)">繼承欄位</h3><p>Car 有 Entity 欄位，但建構時要呼叫 Entity(...)。</p></div><div class="step" data-step="1"><h3 style="color:var(--green)">指標型別</h3><p>Entity* 可存 Car 位址；實際建立的物件仍要是 Car。</p></div><div class="step" data-step="2"><h3 style="color:#A44C00">virtual</h3><p>用父類別指標呼叫 print 時，virtual 才會依實際物件選函式。</p></div></div><div class="note  step" data-step="3"><strong>本練習範圍：</strong>附檔主要示範類別、陣列與列印；PDF 情境中的派車與狀態更新尚未完成。</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=2">原題 PDF 第 2–22 頁</a></p></div></section>
+<section class="slide" data-title="原始題目與程式範例" data-group="finish"><div class="content"><h1 class="h1 sm">原始題目與程式範例</h1><ul class="sources">
+<li><strong>題目：</strong><a href="PD_14_oop_practice.pdf">PD_14_oop_practice.pdf</a><br><span class="dim small">第 8–22 頁依序涵蓋題 1–7，前面 2–7 頁建立情境。</span></li>
+<li><strong>題 1–5 範例：</strong><a href="PD_14_oop_practice_answers/14_icp02_Car.cpp">Car</a>、<a href="PD_14_oop_practice_answers/14_icp04_CarArray.cpp">CarArray</a>、<a href="PD_14_oop_practice_answers/14_icp05_Passenger.cpp">Passenger</a></li>
+<li><strong>題 6–7 範例：</strong><a href="PD_14_oop_practice_answers/14_icp06a_PassengerArrayVeryBad.cpp">06a</a>、<a href="PD_14_oop_practice_answers/14_icp06b_PassengerArrayBad.cpp">06b</a>、<a href="PD_14_oop_practice_answers/14_icp06c_PassengerArray.cpp">06c</a>、<a href="PD_14_oop_practice_answers/14_icp06d_PassengerArrayPureVirtual.cpp">06d</a></li></ul><div class="note ">virtual destructor、override 與明確回傳值屬教學補充；可點開附檔對照原始寫法。</div><p class="src">資料來源：<a href="PD_14_oop_practice.pdf#page=1">原題 PDF 第 1–22 頁</a></p></div></section><div id="rail" aria-hidden="true"><div id="track"></div><div id="count"></div></div><nav id="nav" aria-label="投影片導覽"><button id="prev" type="button" aria-label="上一步">‹</button><button id="next" type="button" aria-label="下一步">›</button></nav><aside id="notes" aria-live="polite"></aside><div id="live" aria-live="polite"></div></main><script>
+(function(){
+var stage=document.getElementById("stage"),slides=[].slice.call(document.querySelectorAll(".slide")),notes=document.getElementById("notes"),live=document.getElementById("live"),track=document.getElementById("track"),count=document.getElementById("count"),index=0,step=0;
+var groups=[{key:"start",label:"題目背景",color:"#7A8996"},{key:"class",label:"類別繼承",color:"#0066B3"},{key:"array",label:"陣列與記憶體",color:"#007A52"},{key:"poly",label:"多型與抽象",color:"#E8820C"},{key:"finish",label:"整理",color:"#7A8996"}];
+function maxStep(slide){var values=[0];slide.querySelectorAll(".step").forEach(function(el){values.push(Number(el.dataset.step||0))});return Math.max.apply(null,values)}
+function fitStage(){var scale=Math.min(innerWidth/1920,innerHeight/1080),x=(innerWidth-1920*scale)/2,y=(innerHeight-1080*scale)/2;stage.style.transform="translate("+(x/scale)+"px,"+(y/scale)+"px) scale("+scale+")"}
+function fitContent(slide){var c=slide.querySelector(".content");if(!c)return;c.style.transform="";var s=Math.min(1,(1080-84-140)/Math.max(1,c.scrollHeight),(1920-240)/Math.max(1,c.scrollWidth));if(s<.998)c.style.transform="scale("+s.toFixed(3)+")"}
+function rail(){track.innerHTML="";var total=slides.length,unit=100/Math.max(1,total-1);groups.forEach(function(g){var ids=[];slides.forEach(function(s,i){if(s.dataset.group===g.key)ids.push(i)});if(!ids.length)return;var first=ids[0],last=ids[ids.length-1],seg=document.createElement("i");seg.className="seg";seg.style.setProperty("--c",g.color);seg.style.left=(first*unit)+"%";seg.style.width=Math.max(unit,(last-first)*unit)+"%";track.appendChild(seg);var label=document.createElement("span");label.className="seglabel";label.style.left=(((first+last)/2)*unit)+"%";label.textContent=g.label;track.appendChild(label)});slides.forEach(function(s,i){var g=groups.find(function(x){return x.key===s.dataset.group})||groups[0],t=document.createElement("i");t.className="tick"+(i===index?" current":"");t.style.setProperty("--c",g.color);t.style.left=(i*unit)+"%";track.appendChild(t)});count.textContent=(index+1)+" / "+total}
+function fillNotes(){var n=slides[index].querySelector(".notes");notes.innerHTML='<div class="nt">講者提示</div>'+(n?n.innerHTML:"這一頁沒有額外提示。")}
+function render(){slides.forEach(function(s,i){var active=i===index;s.classList.toggle("active",active);s.setAttribute("aria-hidden",active?"false":"true");s.querySelectorAll(".step").forEach(function(el){el.classList.toggle("on",Number(el.dataset.step||0)<=step)})});rail();fillNotes();fitContent(slides[index]);live.textContent="第 "+(index+1)+" 頁，共 "+slides.length+" 頁："+slides[index].dataset.title;var h="#"+(index+1);if(location.hash!==h)history.replaceState(null,"",h)}
+function go(i,st){index=Math.max(0,Math.min(slides.length-1,i));step=Math.max(0,Math.min(maxStep(slides[index]),st||0));render()}
+function next(){var m=maxStep(slides[index]);if(step<m){step++;render()}else if(index<slides.length-1)go(index+1,0)}
+function prev(){if(step>0){step--;render()}else if(index>0)go(index-1,maxStep(slides[index-1]))}
+function copy(btn){var text=btn.parentElement.querySelector("pre").innerText.replace(/(^|\n)([ \t]*)\$[ \t]?/g,"$1$2");function done(){var old=btn.textContent;btn.textContent="已複製";setTimeout(function(){btn.textContent=old},1000)}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done()})}else{fallback(text);done()}}
+function fallback(text){var a=document.createElement("textarea");a.value=text;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}
+document.getElementById("prev").addEventListener("click",prev);document.getElementById("next").addEventListener("click",next);stage.addEventListener("click",function(e){var b=e.target.closest(".copy");if(b)copy(b)});
+document.addEventListener("keydown",function(e){if(e.metaKey||e.ctrlKey||e.altKey)return;if((e.key===" "||e.key==="Enter")&&e.target.closest("button,a"))return;if(["ArrowRight","PageDown"," ","Enter"].indexOf(e.key)>=0){e.preventDefault();next()}else if(["ArrowLeft","PageUp","Backspace"].indexOf(e.key)>=0){e.preventDefault();prev()}else if(e.key==="Home"){e.preventDefault();go(0,0)}else if(e.key==="End"){e.preventDefault();go(slides.length-1,0)}else if(e.key.toLowerCase()==="f"){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen()}else if(e.key.toLowerCase()==="n")notes.classList.toggle("on")});
+var tx=null;stage.addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});stage.addEventListener("touchend",function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>60)d<0?next():prev()},{passive:true});
+addEventListener("resize",fitStage);addEventListener("hashchange",function(){var n=Number(location.hash.slice(1));if(n>=1&&n<=slides.length&&n-1!==index)go(n-1,0)});var start=Number(location.hash.slice(1));if(start>=1&&start<=slides.length)index=start-1;fitStage();slides.forEach(function(s){s.style.display="block";s.style.visibility="hidden";fitContent(s);s.style.display="";s.style.visibility=""});render();
+})();
+</script></body></html>
